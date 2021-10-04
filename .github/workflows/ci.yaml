@@ -1,0 +1,68 @@
+name: jenkins-tui
+
+on:
+  push:
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 🐍
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install and configure Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.1.10
+        virtualenvs-in-project: true
+
+    - name: Install Dependencies 🚧
+      run: poetry install
+
+    - name: Hygene - black ✏️
+      run: |
+        black --check .
+
+    - name: Hygene - mypy ✏️
+      run: |
+        black --check .
+        mypy src/jenkins_tui
+
+    - name: Build 👷
+      run: poetry build
+
+    - name: Publish 📦
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Build Changelog 📝
+      if: startsWith(github.ref, 'refs/tags/v')
+      id: build_changelog
+      uses: mikepenz/release-changelog-builder-action@v1
+      with:
+        configuration: "changelog.json"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Release 🚀
+      if: startsWith(github.ref, 'refs/tags/v')
+      id: create_release
+      uses: ncipollo/release-action@v1
+      with:
+        name: jenkins-tui
+        body: ${{steps.build_changelog.outputs.changelog}}
+        token: ${{ secrets.GITHUB_TOKEN }}
