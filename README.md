@@ -1,6 +1,6 @@
 # jenkins-tui :package:
 
-![jenkins-tui](https://github.com/chelnak/jenkins-tui/actions/workflows/ci.yml/badge.svg)
+![jenkins-tui](https://github.com/chelnak/jenkins-tui/actions/workflows/ci.yaml/badge.svg)
 
 `jenkins-tui` is a terminal based user interface for Jenkins.
 
