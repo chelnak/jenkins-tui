@@ -33,11 +33,12 @@ jobs:
 
     - name: Hygene - black ✏️
       run: |
+        source $VENV
         black --check .
 
     - name: Hygene - mypy ✏️
       run: |
-        black --check .
+        source $VENV
         mypy src/jenkins_tui
 
     - name: Build 👷
