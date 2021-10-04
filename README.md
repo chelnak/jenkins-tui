@@ -4,6 +4,8 @@
 
 `jenkins-tui` is a terminal based user interface for Jenkins.
 
+> :construction: :warning: This app is a prototype and in very early stages of development. There will be bugs and missing functionality. Additionally, it has only been tested on OSX.
+
 ## Install
 
 ```bash
@@ -12,7 +14,7 @@ pip install jenkins-tui
 
 ## Configure
 
-`jenkins-tui` stores the sensitive stuff at `~/.jenkins-tui.toml`. You can create it manually or let the app do it for you on first run.
+The app stores the sensitive stuff at `~/.jenkins-tui.toml`. You can create it manually using the schema below or let the app do it for you on first run.
 
 ```bash
 # .jenkins-tui.toml
@@ -39,7 +41,7 @@ poetry install
 ### Install pre commit hooks
 
 ```bash
-pre-commit instsall
+pre-commit install
 ```
 
 ### Run locally
