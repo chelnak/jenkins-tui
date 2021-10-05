@@ -45,6 +45,7 @@ jobs:
       run: poetry build
 
     - name: Publish 📦
+      if: startsWith(github.ref, 'refs/tags/v')
       run: |
         poetry config pypi-token.pypi $POETRY_PYPI_TOKEN_PYPI
         poetry publish
