@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jenkins-tui"
-version = "0.0.1"
+version = "0.0.2"
 homepage = "https://github.com/chelnak/jenkins-tui"
 description = "An interactive TUI for Jenkins"
 authors = ["chelnak"]
