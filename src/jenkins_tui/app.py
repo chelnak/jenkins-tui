@@ -1,29 +1,34 @@
 import os
-import requests
 import sys
 import toml
 
 from . import config
 from jenkins import Jenkins, JenkinsException
-from typing import Union
+from typing import Dict, List, Union
 
 from textual.app import App
-from textual.views import GridView
 from textual.widgets import ScrollView
 from textual.reactive import Reactive
 
+from .views.window_view import WindowView
 from .widgets.scroll_bar import ScrollBar
 from .widgets.header import Header
 from .widgets.footer import Footer
-from .widgets.tree import JenkinsTree, JobClick
+from .widgets.tree import JenkinsTree, JobClick, RootClick
 from .widgets.job_info import JobInfo
 from .widgets.build_table import BuildTable
+from .widgets.executor_status import ExecutorStatus
+from .widgets.build_queue import BuildQueue
 
 from dataclasses import dataclass
+
+from .jenkins_http import ExtendedJenkinsClient
 
 
 @dataclass
 class ClientConfig:
+    """Represents Jenkins client configuration."""
+
     url: str
     username: str
     password: str
@@ -34,10 +39,19 @@ class JenkinsTUI(App):
 
     style: Reactive[str] = Reactive("")
     height: Union[Reactive[int], None] = Reactive(None)
-    info_text: Reactive[str] = Reactive("")
+    info_title: Reactive[str] = Reactive("")
+    info_message: Reactive[str] = Reactive("")
+
+    current_node: Reactive[str] = Reactive("root")
+
+    running_builds: Reactive[List[Dict[str, str]]] = Reactive("")
+    queued_builds: Reactive[List[Dict[str, str]]] = Reactive("")
+
+    current_job_url: Reactive[str] = Reactive("")
+    current_job_builds: Reactive[str] = Reactive("")
+
     chicken_mode_enabled: Reactive[bool] = False
-    _client: Jenkins = None
-    _url: Reactive[str] = None
+    client: ExtendedJenkinsClient
 
     def __init__(
         self, title: str, log: str = None, chicken_mode_enabled: bool = False, **kwargs
@@ -49,7 +63,16 @@ class JenkinsTUI(App):
             log (str, optional): Name of the log file that the app will write to. Defaults to None.
             chicken_mode_enabled (bool, optional): Enable super special chicken mode. Defaults to False.
         """
+
         self.chicken_mode_enabled = chicken_mode_enabled
+
+        self.posible_areas = {
+            "info": "col,info",
+            "builds": "col,builds",
+            "executor": "col,executor",
+            "queue": "col,queue",
+        }
+
         super().__init__(title=title, log=log)
 
     def __get_client(self) -> Jenkins:
@@ -85,10 +108,12 @@ class JenkinsTUI(App):
                 username = client_config.username
                 password = client_config.password
 
-                _client = Jenkins(url=url, username=username, password=password)
+                _client = ExtendedJenkinsClient(
+                    url=url, username=username, password=password
+                )
 
                 self.log("Validating client connection..")
-                _client.get_nodes()
+                _client.test_connection(sender=self)
             return _client
         except JenkinsException as e:
             self.console.print(
@@ -99,83 +124,66 @@ class JenkinsTUI(App):
             self.console.print(f"An unexpected error occured:\n{e}")
             sys.exit(1)
 
-    def __custom_http_requst(self, url: str, method: str = "GET") -> requests.Response:
-        """Send a http request via the Jenkins client.
-
-        Args:
-            url (str): Url of the request.
-            method (str, optional): A Valid HTTP method. Defaults to 'GET'.
-
-        Returns:
-            requests.Response: A requests.Response instance.
-        """
-        self.log(f"Sending custom request: {method}: {url}")
-        request = requests.Request(method, url)
-        response = self.__client.jenkins_request(request)
-        response.raise_for_status()
-
-        return response
-
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
 
-        self.__client = self.__get_client()
+        self.client = self.__get_client()
 
         await self.bind("b", "view.toggle('sidebar')", "Toggle sidebar")
+        await self.bind("r", "refresh_tree", "Refresh")
         await self.bind("q", "quit", "Quit")
-        await self.bind("r", "refresh", "Refresh")
 
     async def on_mount(self) -> None:
         """Overrides on_mount from App()"""
 
         # Dock header and footer
+
         await self.view.dock(Header(), edge="top")
         await self.view.dock(Footer(), edge="bottom")
 
         # Dock tree
-        self.directory = JenkinsTree(client=self.__client, name="jenkins_tree")
-        directory_scroll_view = ScrollView(self.directory)
-        directory_scroll_view.vscroll = ScrollBar()
+        directory = JenkinsTree(client=self.client, name="JenkinsTreeWidget")
+        self.directory_scroll_view = ScrollView(
+            contents=directory, name="DirectoryScrollView"
+        )
+        self.directory_scroll_view.vscroll = ScrollBar()
         await self.view.dock(
-            directory_scroll_view, edge="left", size=40, name="sidebar"
+            self.directory_scroll_view, edge="left", size=40, name="sidebar"
         )
 
         # Dock container
+        # This is the main container that holds our info widget and the body
         self.info = JobInfo()
-        self.body = ScrollView()
-        self.body.vscroll = ScrollBar()
+        self.build_queue = BuildQueue(client=self.client)
+        self.executor_status = ExecutorStatus(client=self.client)
 
-        self.container = GridView()
-        self.container.grid.add_column(name="col")
-        self.container.grid.add_row(name="info", size=15)
-        self.container.grid.add_row(name="jobs")
-        self.container.grid.set_align("stretch", "center")
+        self.container = WindowView()
+        await self.container.dock(*[self.info, self.build_queue, self.executor_status])
 
-        areas = {"info": "col,info", "jobs": "col,jobs"}
+        await self.view.dock(self.container)
 
-        self.container.grid.add_areas(**areas)
-        self.container.grid.place(info=self.info, jobs=self.body)
+    # Message handlers
+    async def handle_root_click(self, message: RootClick) -> None:
+        """Used to process RootClick messages sent by the JenkinsTree instance.
 
-        await self.view.dock(self.container, edge="top")
+        Args:
+            message (RootClick): The message sent when a the root node is clicked.
+        """
+        self.log("Handling RootClick message")
 
-    async def add_content(self):
-        """Used to update the build info and job table widgets."""
+        async def set_home() -> None:
+            """Used to set the content of the homescren"""
 
-        build_url = f"{self._url}/api/json?tree=displayName,description,healthReport[description],builds[number,status,timestamp,id,result,duration{{0,20}}]"
-        response = self.__custom_http_requst(url=build_url).json()
+            self.info_title = ""
+            self.info_message = ""
 
-        name = "chicken" if self.chicken_mode_enabled else response["displayName"]
-        self.info_text = f"[bold]Name[/bold]\n{name}\n\n[bold]Description[/bold]\n{response['description']}"
-
-        if response["healthReport"]:
-            self.info_text += (
-                f"\n\n[bold]Health[/bold]\n{response['healthReport'][0]['description']}"
+            await self.container.update(
+                self.info, self.build_queue, self.executor_status
             )
 
-        builds = BuildTable(builds=response["builds"])
-
-        await self.body.update(builds)
-        self.body.refresh()
+        if self.current_node != "root":
+            self.current_node = "root"
+            await self.call_later(set_home)
 
     async def handle_job_click(self, message: JobClick) -> None:
         """Used to process JobClick messages sent by the JenkinsTree instance.
@@ -184,19 +192,40 @@ class JenkinsTUI(App):
             message (JobClick): The message sent when a job node is clicked.
         """
 
-        self._url = message.url
-        await self.call_later(self.add_content)
+        self.log("Handling JobClick message")
 
-    async def action_refresh(self) -> None:
+        async def set_job() -> None:
+            """Used to update the build info and job table widgets."""
+
+            # Populate BuildInfo widget
+            build_url = f"{message.url}/api/json?tree=displayName,description,healthReport[description]"
+            r = await self.client.custom_async_http_requst(sender=self, url=build_url)
+            response = r.json()
+
+            name = "chicken" if self.chicken_mode_enabled else response["displayName"]
+
+            self.info_title = name
+            self.info_message = f"[bold]description[/bold]\n{response['description']}"
+
+            if response["healthReport"]:
+                self.info_message += f"\n\n[bold]health[/bold]\n{response['healthReport'][0]['description']}"
+
+            builds = BuildTable(client=self.client, url=message.url)
+
+            await self.container.update(self.info, builds)
+
+        if message.node_name != self.current_node:
+            self.current_node = message.node_name
+            await self.call_later(set_job)
+
+    # Action handlers
+    async def action_refresh_tree(self) -> None:
         """Used to process refresh actions. Refreshes happen when you press R."""
-        self.log("Refresh called")
+        self.log("Handling action refresh_tree")
 
-        if self._url:
-            self.log(f"Refreshing content for {self._url}")
-            await self.add_content()
-            self.log("Done refreshing content")
-
-        self.view.refresh(layout=True)
+        directory = JenkinsTree(client=self.client, name="JenkinsTreeWidget")
+        await self.directory_scroll_view.update(directory)
+        self.directory_scroll_view.refresh(layout=True)
 
 
 def run():
@@ -204,4 +233,4 @@ def run():
 
 
 if __name__ == "__main__":
-    JenkinsTUI.run(title=config.app_name, log="textual.log", chicken_mode_enabled=True)
+    JenkinsTUI.run(title=config.app_name, log="textual.log", chicken_mode_enabled=False)

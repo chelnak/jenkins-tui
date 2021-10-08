@@ -1,5 +1,4 @@
 import rich.repr
-from rich.style import Style
 
 from jenkins_tui import config
 
@@ -43,8 +42,19 @@ class JobClick(Message):
             url (str): The url used for retrieving more information.
         """
 
-        self.name = name
+        self.node_name = name
         self.url = url
+        super().__init__(sender)
+
+
+@rich.repr.auto
+class RootClick(Message):
+    def __init__(self, sender: MessageTarget) -> None:
+        """Represents the message that is sent when a the root node is clicked.
+
+        Args:
+            sender (MessageTarget): The class that sent the message.
+        """
         super().__init__(sender)
 
 
@@ -187,7 +197,6 @@ class JenkinsTree(TreeControl[JobEntry]):
         Args:
             event (events.Mount): A mount event.
         """
-
         await self.load_jobs(self.root)
 
     async def load_jobs(self, node: TreeNode[JobEntry]):
@@ -196,7 +205,6 @@ class JenkinsTree(TreeControl[JobEntry]):
         Args:
             node (TreeNode[JobEntry]): [description]
         """
-
         jobs = []
         if node.data.name == "root":
             jobs = self.__client.get_jobs()
@@ -240,6 +248,11 @@ class JenkinsTree(TreeControl[JobEntry]):
         if node_data.type == "job":
             self.log("Emitting JobClick message")
             await self.emit(JobClick(self, node_data.name, node_data.url))
+
+        elif node_data.name == "root":
+            self.log("Emitting RootClick message")
+            await self.emit(RootClick(self))
+
         else:
             if not message.node.loaded:
                 await self.load_jobs(message.node)

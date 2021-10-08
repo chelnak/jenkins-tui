@@ -1,24 +1,36 @@
-from typing import Dict, List, Union
+from typing import Union
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.style import Style
 from rich.table import Table
+from rich.align import Align
+
 from rich import box
 from rich.text import Text
 from textual.widget import Widget
+from textual.events import Mount
+
+from ..jenkins_http import ExtendedJenkinsClient
+
 from datetime import datetime, timedelta
 
 
 class BuildTable(Widget):
-    def __init__(self, builds: List[Dict[str, str]]):
-        """A build table widget. Used to display builds within a job.
+    """A build table widget. Used to display builds within a job."""
+
+    def __init__(self, client: ExtendedJenkinsClient, url: str) -> None:
+        """A build table widget.
 
         Args:
-            builds (List[Dict[str, str]]): A list of jobs.
+            client (ExtendedJenkinsClient): An instance of ExtendedJenkinsClient.
+            url (str): The url of the current build.
         """
+        self.client = client
+        self.current_job_url = url
+        name = self.__class__.__name__
+        super().__init__(name=name)
 
-        self._builds = builds
-        super().__init__()
+        self.renderable: RenderableType = ""
 
     def _get_style_from_result(self, result: str) -> Union[str, Style]:
         """Returns a style for a given result.
@@ -41,31 +53,63 @@ class BuildTable(Widget):
 
         return result_style_map[result]
 
+    async def _get_renderable(self):
+        """Builds a renderable object."""
+
+        build_url = f"{self.current_job_url}/api/json?tree=builds[number,status,timestamp,id,result,duration{{0,20}}]"
+        r = await self.client.custom_async_http_requst(sender=self, url=build_url)
+        current_job_builds = r.json()["builds"]
+
+        panel_content: RenderableType
+        if current_job_builds and len(current_job_builds) > 0:
+            self.log("Job has builds, building table.")
+            panel_content = Table(expand=True, box=box.SIMPLE)
+            panel_content.add_column(header="#", justify="right")
+            panel_content.add_column(header="result", justify="left", no_wrap=True)
+            panel_content.add_column(header="duration", justify="right", no_wrap=True)
+            panel_content.add_column(header="timestamp", justify="right", no_wrap=True)
+
+            for build in current_job_builds:
+
+                timestamp = datetime.utcfromtimestamp(
+                    int(build["timestamp"]) / 1000
+                ).strftime("%Y-%m-%d %H:%M:%S")
+                duration = str(timedelta(seconds=int(build["duration"]) / 1000)).split(
+                    "."
+                )[0]
+
+                result_text = build["result"] if build["result"] else "IN PROGRESS"
+
+                result = Text(
+                    text=result_text,
+                    style=self._get_style_from_result(result_text),
+                )
+
+                panel_content.add_row(f"{build['number']}", result, duration, timestamp)
+        else:
+            self.log("No builds for current job.")
+            panel_content = Align.center(
+                renderable="There are currently no builds for this job.",
+                vertical="middle",
+            )
+
+        self.renderable = panel_content
+
+    async def _update(self):
+        """Update the current renderable object."""
+        await self._get_renderable()
+        self.refresh()
+
+    async def on_mount(self, event: Mount):
+        """Actions that are executed when the widget is mounted.
+
+        Args:
+            event (events.Mount): A mount event.
+        """
+        await self._get_renderable()
+        self.set_interval(10, self._update)
+
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
 
-        table = Table(expand=True, box=box.SIMPLE)
-        table.add_column(header="#", justify="right")
-        table.add_column(header="result", justify="left", no_wrap=True)
-        table.add_column(header="duration", justify="right", no_wrap=True)
-        table.add_column(header="timestamp", justify="right", no_wrap=True)
-
-        for build in self._builds:
-
-            timestamp = datetime.utcfromtimestamp(
-                int(build["timestamp"]) / 1000
-            ).strftime("%Y-%m-%d %H:%M:%S")
-            duration = str(timedelta(seconds=int(build["duration"]) / 1000)).split(".")[
-                0
-            ]
-
-            result_text = build["result"] if build["result"] else "IN PROGRESS"
-
-            result = Text(
-                text=result_text,
-                style=self._get_style_from_result(result_text),
-            )
-
-            table.add_row(f"{build['number']}", result, duration, timestamp)
-
-        return Panel(renderable=table, title="builds", expand=True)
+        return Panel(renderable=self.renderable, title="builds", expand=True)
