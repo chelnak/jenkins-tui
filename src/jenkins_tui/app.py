@@ -203,9 +203,13 @@ class JenkinsTUI(App):
             response = r.json()
 
             name = "chicken" if self.chicken_mode_enabled else response["displayName"]
+            lorum = "Chicken chicken chicken chick chick, chicken chicken chick. Chick chicken chicken chick. Chicken chicken chicken chick, egg chicken chicken. Chicken."
+            description = (
+                lorum if self.chicken_mode_enabled else response["description"]
+            )
 
             self.info_title = name
-            self.info_message = f"[bold]description[/bold]\n{response['description']}"
+            self.info_message = f"[bold]description[/bold]\n{description}"
 
             if response["healthReport"]:
                 self.info_message += f"\n\n[bold]health[/bold]\n{response['healthReport'][0]['description']}"
