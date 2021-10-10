@@ -53,9 +53,14 @@ class ExecutorStatus(Widget):
                     int(build["timestamp"]) / 1000
                 ).strftime("%Y-%m-%d %H:%M:%S")
 
+                name = (
+                    "chicken"
+                    if getattr(self.app, "chicken_mode_enabled", None)
+                    else build["name"]
+                )
+
                 table.add_row(
-                    build["name"],
-                    str(build["number"]),
+                    name,
                     build["node"],
                     f"{build['progress']}%",
                     timestamp,
