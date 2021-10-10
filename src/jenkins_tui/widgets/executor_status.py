@@ -1,19 +1,12 @@
-import rich.repr
-from jenkins import Jenkins
-from typing import Awaitable, Dict, List, Union
 from rich.console import RenderableType
 from rich.panel import Panel
-from rich.style import Style
 from rich.table import Table
 from rich.align import Align
 from rich import box
-from textual.message import Message, MessageTarget
 from textual.widget import Widget
-from textual.reactive import Reactive, watch
 from textual.events import Mount
 
 from ..jenkins_http import ExtendedJenkinsClient
-from jenkins import JenkinsException
 
 from datetime import datetime
 
