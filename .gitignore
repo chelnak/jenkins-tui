@@ -4,3 +4,4 @@ __pycache__
 textual.log
 dist
 .mypy_cache
+.DS_Store
