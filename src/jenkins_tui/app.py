@@ -10,15 +10,19 @@ from textual.app import App
 from textual.widgets import ScrollView
 from textual.reactive import Reactive
 
-from .views.window_view import WindowView
-from .widgets.scroll_bar import ScrollBar
-from .widgets.header import Header
-from .widgets.footer import Footer
-from .widgets.tree import JenkinsTree, JobClick, RootClick
-from .widgets.job_info import JobInfo
-from .widgets.build_table import BuildTable
-from .widgets.executor_status import ExecutorStatus
-from .widgets.build_queue import BuildQueue
+from .views import WindowView
+from .widgets import (
+    Header,
+    Footer,
+    ScrollBar,
+    JenkinsTree,
+    JobClick,
+    RootClick,
+    JobInfo,
+    ExecutorStatus,
+    BuildQueue,
+    BuildTable,
+)
 
 from dataclasses import dataclass
 
