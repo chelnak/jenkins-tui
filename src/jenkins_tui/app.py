@@ -40,17 +40,7 @@ class ClientConfig:
 class JenkinsTUI(App):
     """This is the base class for Jenkins TUI."""
 
-    style: Reactive[str] = Reactive("")
-    height: Union[Reactive[int], None] = Reactive(None)
-
     current_node: Reactive[str] = Reactive("root")
-
-    running_builds: Reactive[List[Dict[str, str]]] = Reactive("")
-    queued_builds: Reactive[List[Dict[str, str]]] = Reactive("")
-
-    current_job_url: Reactive[str] = Reactive("")
-    current_job_builds: Reactive[str] = Reactive("")
-
     chicken_mode_enabled: Reactive[bool] = False
     client: Jenkins
 
@@ -74,7 +64,7 @@ class JenkinsTUI(App):
             "queue": "col,queue",
         }
 
-        super().__init__(title=title, log=log)
+        super().__init__(title=title, log=log, log_verbosity=5)
 
     def __get_client(self) -> Jenkins:
         """Gets an instance of jenkins.Jenkins. Arguments are read from config. If the config doesn't exist, the user is prompted with some questions.
