@@ -6,7 +6,7 @@ from rich import box
 from textual.widget import Widget
 from textual.events import Mount
 
-from ..jenkins_http import ExtendedJenkinsClient
+from ..client import Jenkins
 
 from datetime import datetime
 
@@ -14,7 +14,7 @@ from datetime import datetime
 class ExecutorStatus(Widget):
     """An executor status widget. Used to display running builds on the server."""
 
-    def __init__(self, client: ExtendedJenkinsClient) -> None:
+    def __init__(self, client: Jenkins) -> None:
         """An executor status widget.
 
         Args:
@@ -29,7 +29,7 @@ class ExecutorStatus(Widget):
     async def _get_renderable(self):
         """Builds a renderable object."""
 
-        running_builds = await self.client.get_running_builds(sender=self)
+        running_builds = await self.client.get_running_builds()
 
         panel_content: RenderableType
         if len(running_builds) > 0:

@@ -2,7 +2,7 @@ import rich.repr
 
 from jenkins_tui import config
 
-from jenkins import Jenkins
+from ..client import Jenkins
 
 from typing import Dict, List, Union
 from urllib.parse import unquote
@@ -171,13 +171,16 @@ class JenkinsTree(TreeControl[JobEntry]):
         if is_hover:
             label.stylize(self.__styles["node_on_hover"])
 
-        if type == "folder":
-            label.stylize(self.__styles["folder"])
-            icon = "📂" if expanded else "📁"
+        if is_cursor and has_focus:
+            label.stylize(self.__styles["tree_on_cursor"])
 
-        elif type == "root":
+        if type == "root":
             label.stylize(self.__styles["root_node"])
             icon = "📂"
+
+        elif type == "folder":
+            label.stylize(self.__styles["folder"])
+            icon = "📂" if expanded else "📁"
 
         elif type == "multibranch":
             label.stylize(self.__styles["multibranch_node"])
@@ -206,9 +209,9 @@ class JenkinsTree(TreeControl[JobEntry]):
             node (TreeNode[JobEntry]): [description]
         """
         jobs = []
-        if node.data.name == "root":
-            jobs = self.__client.get_jobs()
-        elif node.data.jobs:
+        if node.data.type == "root":
+            jobs = await self.__client.get_jobs(recursive=True)
+        else:
             jobs = node.data.jobs
 
         entry: dict[str, str]

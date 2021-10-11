@@ -3,46 +3,41 @@ from rich.padding import Padding
 from rich.panel import Panel
 
 from textual.widget import Widget
-from textual.reactive import Reactive, watch
+from textual.reactive import Reactive
 
 
 class JobInfo(Widget):
     """A job info widget. This displays information about the current job."""
 
-    style: Reactive[str] = Reactive("")
-    title: Reactive[str] = Reactive("")
-    message: Reactive[str] = Reactive("")
+    style: Reactive = Reactive("")
 
-    async def on_mount(self, Mount) -> None:
-        """Actions that are executed when the widget is mounted.
+    def __init__(self, title: str = None, text: str = None) -> None:
+        """A job info widget. This displays information about the current job.
 
         Args:
-            event (events.Mount): A mount event.
+            title (str, optional): The title of the info widget. Defaults to None.
+            text (str, optional): The text that will be rendered in the info widget. Defaults to None.
         """
+        self.title = title
+        self.text = text
 
-        async def set_title(text: RenderableType) -> None:
-            self.title = text
+        self.defaults = {
+            "title": "Welcome!",
+            "text": "Welcome to Jenkins TUI! 🚀\n\n👀 Use the navigation fly-out on the left!",
+        }
 
-        async def set_message(text: RenderableType) -> None:
-            self.message = text
-
-        watch(self.app, "info_title", set_title)
-        watch(self.app, "info_message", set_message)
+        name = self.__class__.__name__
+        super().__init__(name=name)
 
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
 
-        defaults = {
-            "title": "Welcome!",
-            "message": "Welcome to Jenkins TUI! 🚀\n\n👀 Use the navigation fly-out on the left!",
-        }
-
-        message = defaults["message"] if not self.message else self.message
+        _text = self.defaults["text"] if not self.text else self.text
         panel_content = Padding(
-            renderable=message,
+            renderable=_text,
             pad=(1, 0, 0, 1),
             style=self.style,
         )
 
-        title = defaults["title"] if not self.title else self.title
-        return Panel(renderable=panel_content, title=title, expand=True)
+        _title = self.defaults["title"] if not self.title else self.title
+        return Panel(renderable=panel_content, title=_title, expand=True)

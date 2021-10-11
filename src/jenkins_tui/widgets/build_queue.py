@@ -8,13 +8,13 @@ from textual.events import Mount
 
 from datetime import datetime
 
-from ..jenkins_http import ExtendedJenkinsClient
+from ..client import Jenkins
 
 
 class BuildQueue(Widget):
     """An build queue widget. Used to display queued builds on the server."""
 
-    def __init__(self, client: ExtendedJenkinsClient) -> None:
+    def __init__(self, client: Jenkins) -> None:
         """An build queue widget.
 
         Args:
@@ -29,12 +29,7 @@ class BuildQueue(Widget):
     async def _get_renderable(self):
         """Builds a renderable object."""
 
-        queue_url = (
-            f"{self.client.server}/queue/api/json?tree=items[id,inQueueSince,why]"
-        )
-        r = await self.client.custom_async_http_requst(sender=self, url=queue_url)
-        response = r.json()
-        queue = response["items"]
+        queue = await self.client.get_queued_jobs()
 
         panel_content: RenderableType
         if len(queue) > 0:
