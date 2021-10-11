@@ -1,15 +1,16 @@
 import os
 import sys
+from urllib.parse import urlparse
 import toml
 
-from . import config
-from jenkins import Jenkins, JenkinsException
 from typing import Dict, List, Union
 
 from textual.app import App
 from textual.widgets import ScrollView
 from textual.reactive import Reactive
 
+from . import config
+from .client import Jenkins
 from .views import WindowView
 from .widgets import (
     Header,
@@ -26,8 +27,6 @@ from .widgets import (
 
 from dataclasses import dataclass
 
-from .jenkins_http import ExtendedJenkinsClient
-
 
 @dataclass
 class ClientConfig:
@@ -43,8 +42,6 @@ class JenkinsTUI(App):
 
     style: Reactive[str] = Reactive("")
     height: Union[Reactive[int], None] = Reactive(None)
-    info_title: Reactive[str] = Reactive("")
-    info_message: Reactive[str] = Reactive("")
 
     current_node: Reactive[str] = Reactive("root")
 
@@ -55,7 +52,7 @@ class JenkinsTUI(App):
     current_job_builds: Reactive[str] = Reactive("")
 
     chicken_mode_enabled: Reactive[bool] = False
-    client: ExtendedJenkinsClient
+    client: Jenkins
 
     def __init__(
         self, title: str, log: str = None, chicken_mode_enabled: bool = False, **kwargs
@@ -112,14 +109,12 @@ class JenkinsTUI(App):
                 username = client_config.username
                 password = client_config.password
 
-                _client = ExtendedJenkinsClient(
-                    url=url, username=username, password=password
-                )
+                _client = Jenkins(url=url, username=username, password=password)
 
                 self.log("Validating client connection..")
-                _client.test_connection(sender=self)
+                _client.test_connection()
             return _client
-        except JenkinsException as e:
+        except Exception as e:
             self.console.print(
                 f"An error occured while creating the jenkins client instance:\n{e}"
             )
@@ -178,9 +173,6 @@ class JenkinsTUI(App):
         async def set_home() -> None:
             """Used to set the content of the homescren"""
 
-            self.info_title = ""
-            self.info_message = ""
-
             await self.container.update(
                 self.info, self.build_queue, self.executor_status
             )
@@ -202,25 +194,24 @@ class JenkinsTUI(App):
             """Used to update the build info and job table widgets."""
 
             # Populate BuildInfo widget
-            build_url = f"{message.url}/api/json?tree=displayName,description,healthReport[description]"
-            r = await self.client.custom_async_http_requst(sender=self, url=build_url)
-            response = r.json()
+            url = urlparse(message.url)
+            build_info = await self.client.get_info_for_job(path=url.path)
 
-            name = "chicken" if self.chicken_mode_enabled else response["displayName"]
+            name = "chicken" if self.chicken_mode_enabled else build_info["displayName"]
             lorum = "Chicken chicken chicken chick chick, chicken chicken chick. Chick chicken chicken chick. Chicken chicken chicken chick, egg chicken chicken. Chicken."
             description = (
-                lorum if self.chicken_mode_enabled else response["description"]
+                lorum if self.chicken_mode_enabled else build_info["description"]
             )
 
-            self.info_title = name
-            self.info_message = f"[bold]description[/bold]\n{description}"
+            info_text = f"[bold]description[/bold]\n{description}"
 
-            if response["healthReport"]:
-                self.info_message += f"\n\n[bold]health[/bold]\n{response['healthReport'][0]['description']}"
+            if build_info["healthReport"]:
+                info_text += f"\n\n[bold]health[/bold]\n{build_info['healthReport'][0]['description']}"
 
+            info = JobInfo(title=name, text=info_text)
             builds = BuildTable(client=self.client, url=message.url)
 
-            await self.container.update(self.info, builds)
+            await self.container.update(info, builds)
 
         if message.node_name != self.current_node:
             self.current_node = message.node_name

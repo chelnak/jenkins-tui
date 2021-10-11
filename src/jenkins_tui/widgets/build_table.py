@@ -1,4 +1,5 @@
-from typing import Union
+from typing import Dict, List, Union
+from urllib.parse import urlparse
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.style import Style
@@ -10,7 +11,7 @@ from rich.text import Text
 from textual.widget import Widget
 from textual.events import Mount
 
-from ..jenkins_http import ExtendedJenkinsClient
+from ..client import Jenkins
 
 from datetime import datetime, timedelta
 
@@ -18,7 +19,7 @@ from datetime import datetime, timedelta
 class BuildTable(Widget):
     """A build table widget. Used to display builds within a job."""
 
-    def __init__(self, client: ExtendedJenkinsClient, url: str) -> None:
+    def __init__(self, client: Jenkins, url: str) -> None:
         """A build table widget.
 
         Args:
@@ -56,9 +57,8 @@ class BuildTable(Widget):
     async def _get_renderable(self):
         """Builds a renderable object."""
 
-        build_url = f"{self.current_job_url}/api/json?tree=builds[number,status,timestamp,id,result,duration{{0,20}}]"
-        r = await self.client.custom_async_http_requst(sender=self, url=build_url)
-        current_job_builds = r.json()["builds"]
+        url = urlparse(self.current_job_url)  # assumption
+        current_job_builds = await self.client.get_builds_for_job(path=url.path)
 
         panel_content: RenderableType
         if current_job_builds and len(current_job_builds) > 0:
