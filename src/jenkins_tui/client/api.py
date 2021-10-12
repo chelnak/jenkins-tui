@@ -23,34 +23,20 @@ class Jenkins:
             password (str): [description]. The password of the user permitted to access the Jenkins server.
             timeout (int, optional): The request timeout. Defaults to socket._GLOBAL_DEFAULT_TIMEOUT.
         """
-
         if url.endswith("/"):
             url = url.strip("/")
+        timeout = timeout if timeout else socket.getdefaulttimeout()
+        auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
+        self.client = httpx.AsyncClient(timeout=timeout, auth=auth, base_url=url)
 
-        self.url = url
-        self.username = username
-        self.password = password
-        self.timeout = timeout if timeout else socket.getdefaulttimeout()
-
-        self.auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
-
-    def _request(self, endpoint: str, method: str = "GET") -> httpx.Response:
-        """Send a http request via the Jenkins client.
-
-        Args:
-            endpoint (str): The api endpoint.
-            method (str, optional): A Valid HTTP method. Defaults to 'GET'.
+    async def _test_connection(self) -> bool:
+        """Test the connection to the Jenkins server.
 
         Returns:
-            httpx.Response: A requests.Response instance.
+            bool: True if the connection is valid.
         """
-
-        full_url = f"{self.url}/{endpoint}"
-
-        with httpx.Client(timeout=self.timeout, auth=self.auth) as client:
-            response = client.request(method=method, url=full_url)
-            response.raise_for_status()
-            return response
+        _ = self._request_async(endpoint=f"api/json")
+        return True
 
     async def _request_async(
         self, endpoint: str, method: str = "GET"
@@ -65,21 +51,9 @@ class Jenkins:
             requests.Response: A requests.Response instance.
         """
 
-        full_url = f"{self.url}/{endpoint}"
-
-        async with httpx.AsyncClient(timeout=self.timeout, auth=self.auth) as client:
-            response = await client.request(method=method, url=full_url, auth=self.auth)
-            response.raise_for_status()
-            return response
-
-    def test_connection(self) -> bool:
-        """Test the connection to the Jenkins server.
-
-        Returns:
-            bool: True if the connection is valid.
-        """
-        _ = self._request(endpoint=f"api/json")
-        return True
+        response = await self.client.request(method=method, url=endpoint)
+        response.raise_for_status()
+        return response
 
     async def get_nodes(self) -> List[Dict[Any, Any]]:
         """Get a list of nodes from the server
@@ -150,7 +124,7 @@ class Jenkins:
         return response.json()
 
     async def get_builds_for_job(
-        self, path: str, limit: int = 20
+        self, path: str, limit: int = 50
     ) -> List[Dict[Any, Any]]:
         """Get a list of builds for a job.
 
