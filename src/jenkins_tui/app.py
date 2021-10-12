@@ -102,7 +102,6 @@ class JenkinsTUI(App):
                 _client = Jenkins(url=url, username=username, password=password)
 
                 self.log("Validating client connection..")
-                _client.test_connection()
             return _client
         except Exception as e:
             self.console.print(
