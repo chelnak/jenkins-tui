@@ -70,7 +70,7 @@ class ExecutorStatus(Widget):
     async def _update(self):
         """Update the current renderable object."""
         await self._get_renderable()
-        self.refresh()
+        self.refresh(layout=True)
 
     async def on_mount(self, event: Mount):
         """Actions that are executed when the widget is mounted.
@@ -78,7 +78,7 @@ class ExecutorStatus(Widget):
         Args:
             event (events.Mount): A mount event.
         """
-        await self._get_renderable()
+        await self._update()
         self.set_interval(10, self._update)
 
     def render(self) -> RenderableType:

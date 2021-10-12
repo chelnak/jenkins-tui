@@ -1,17 +1,18 @@
 import os
 import sys
+from typing import List
 from urllib.parse import urlparse
+from textual.widget import Widget
 import toml
 
-from typing import Dict, List, Union
-
 from textual.app import App
+from textual.events import Mount
 from textual.widgets import ScrollView
-from textual.reactive import Reactive
+
 
 from . import config
 from .client import Jenkins
-from .views import WindowView
+from .views import TestScrollView
 from .widgets import (
     Header,
     Footer,
@@ -40,10 +41,6 @@ class ClientConfig:
 class JenkinsTUI(App):
     """This is the base class for Jenkins TUI."""
 
-    current_node: Reactive[str] = Reactive("root")
-    chicken_mode_enabled: Reactive[bool] = False
-    client: Jenkins
-
     def __init__(
         self, title: str, log: str = None, chicken_mode_enabled: bool = False, **kwargs
     ):
@@ -55,18 +52,12 @@ class JenkinsTUI(App):
             chicken_mode_enabled (bool, optional): Enable super special chicken mode. Defaults to False.
         """
 
+        super().__init__(title=title, log=log, log_verbosity=1, **kwargs)
+
         self.chicken_mode_enabled = chicken_mode_enabled
+        self.current_node = "root"
 
-        self.posible_areas = {
-            "info": "col,info",
-            "builds": "col,builds",
-            "executor": "col,executor",
-            "queue": "col,queue",
-        }
-
-        super().__init__(title=title, log=log, log_verbosity=5)
-
-    def __get_client(self) -> Jenkins:
+    def _get_client(self) -> Jenkins:
         """Gets an instance of jenkins.Jenkins. Arguments are read from config. If the config doesn't exist, the user is prompted with some questions.
 
         Returns:
@@ -100,8 +91,6 @@ class JenkinsTUI(App):
                 password = client_config.password
 
                 _client = Jenkins(url=url, username=username, password=password)
-
-                self.log("Validating client connection..")
             return _client
         except Exception as e:
             self.console.print(
@@ -115,29 +104,28 @@ class JenkinsTUI(App):
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
 
-        self.client = self.__get_client()
+        self.client = self._get_client()
 
         await self.bind("b", "view.toggle('sidebar')", "Toggle sidebar")
         await self.bind("r", "refresh_tree", "Refresh")
         await self.bind("q", "quit", "Quit")
 
-    async def on_mount(self) -> None:
+    async def on_mount(self, event: Mount) -> None:
         """Overrides on_mount from App()"""
 
         # Dock header and footer
-
         await self.view.dock(Header(), edge="top")
         await self.view.dock(Footer(), edge="bottom")
 
         # Dock tree
         directory = JenkinsTree(client=self.client, name="JenkinsTreeWidget")
-        self.directory_scroll_view = ScrollView(
-            contents=directory, name="DirectoryScrollView"
+
+        self.tree_container = ScrollView(
+            contents=directory,
+            name="DirectoryScrollView",
         )
-        self.directory_scroll_view.vscroll = ScrollBar()
-        await self.view.dock(
-            self.directory_scroll_view, edge="left", size=40, name="sidebar"
-        )
+        self.tree_container.vscroll = ScrollBar()
+        await self.view.dock(self.tree_container, edge="left", size=40, name="sidebar")
 
         # Dock container
         # This is the main container that holds our info widget and the body
@@ -145,8 +133,9 @@ class JenkinsTUI(App):
         self.build_queue = BuildQueue(client=self.client)
         self.executor_status = ExecutorStatus(client=self.client)
 
-        self.container = WindowView()
-        await self.container.dock(*[self.info, self.build_queue, self.executor_status])
+        widgets = [self.info, self.build_queue, self.executor_status]
+        self.container = TestScrollView(contents=widgets)
+        self.container.vscroll = ScrollBar()
 
         await self.view.dock(self.container)
 
@@ -162,9 +151,8 @@ class JenkinsTUI(App):
         async def set_home() -> None:
             """Used to set the content of the homescren"""
 
-            await self.container.update(
-                self.info, self.build_queue, self.executor_status
-            )
+            widgets = [self.info, self.build_queue, self.executor_status]
+            await self.container.window.update(widgets=widgets)
 
         if self.current_node != "root":
             self.current_node = "root"
@@ -200,7 +188,9 @@ class JenkinsTUI(App):
             info = JobInfo(title=name, text=info_text)
             builds = BuildTable(client=self.client, url=message.url)
 
-            await self.container.update(info, builds)
+            widgets: List[Widget] = [info, builds]
+            await self.container.update(widgets=widgets)
+            await self.container.refresh_layout()
 
         if message.node_name != self.current_node:
             self.current_node = message.node_name
@@ -212,8 +202,8 @@ class JenkinsTUI(App):
         self.log("Handling action refresh_tree")
 
         directory = JenkinsTree(client=self.client, name="JenkinsTreeWidget")
-        await self.directory_scroll_view.update(directory)
-        self.directory_scroll_view.refresh(layout=True)
+        await self.tree_container.update(directory)
+        self.tree_container.refresh(layout=True)
 
 
 def run():
