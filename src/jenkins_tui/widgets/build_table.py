@@ -1,7 +1,6 @@
-from typing import Dict, List, Union
+from typing import Dict, Union
 from urllib.parse import urlparse
 from rich.console import RenderableType
-from rich.panel import Panel
 from rich.style import Style
 from rich.table import Table
 from rich.align import Align
@@ -30,7 +29,6 @@ class BuildTable(Widget):
         self.current_job_url = url
         name = self.__class__.__name__
         super().__init__(name=name)
-
         self.renderable: RenderableType = ""
 
     def _get_style_from_result(self, result: str) -> Union[str, Style]:
@@ -98,18 +96,17 @@ class BuildTable(Widget):
     async def _update(self):
         """Update the current renderable object."""
         await self._get_renderable()
-        self.refresh()
+        self.refresh(layout=True)
 
-    async def on_mount(self, event: Mount):
+    async def on_mount(self, event: Mount) -> None:
         """Actions that are executed when the widget is mounted.
 
         Args:
             event (events.Mount): A mount event.
         """
-        await self._get_renderable()
+        await self._update()
         self.set_interval(10, self._update)
 
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
-
-        return Panel(renderable=self.renderable, title="builds", expand=True)
+        return self.renderable

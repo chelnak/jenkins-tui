@@ -1,14 +1,16 @@
 from __future__ import annotations
-from typing import Optional, cast
+from typing import List
 
 from textual import events
-from textual.geometry import Size
-from textual.layouts.dock import Dock, DockEdge, DockLayout
-from textual.view import View
 from textual import messages
+from textual.geometry import Size, SpacingDimensions
 from textual.widget import Widget
 
+from textual.view import View
+from textual.layouts.vertical import VerticalLayout
 from textual.views._window_view import WindowChange
+
+from rich.console import RenderableType
 
 
 class DoNotSet:
@@ -19,58 +21,27 @@ do_not_set = DoNotSet()
 
 
 class WindowView(View):
-    """A copy of textual.views.WindowView that implements docking. This will be refactored in the future."""
-
-    def __init__(self) -> None:
-        name = self.__class__.__name__
-        super().__init__(layout=DockLayout(), name=name)
-
-    async def dock(
+    def __init__(
         self,
-        *widgets: Widget,
-        edge: DockEdge = "top",
-        z: int = 0,
-        size: int | None | DoNotSet = do_not_set,
+        widgets: List[RenderableType | Widget],
+        *,
+        auto_width: bool = False,
+        gutter: SpacingDimensions = (0, 0),
         name: str | None = None
     ) -> None:
+        layout = VerticalLayout(gutter=gutter, auto_width=auto_width)
+        for widget in widgets:
+            layout.add(widget)
+        super().__init__(name=name, layout=layout)
 
-        dock = Dock(edge, widgets, z)
-        assert isinstance(self.layout, DockLayout)
-        self.layout.docks.append(dock)
+    async def update(self, widgets: List[RenderableType | Widget]) -> None:
+        layout = self.layout
+        assert isinstance(layout, VerticalLayout)
+        layout.clear()
 
         for widget in widgets:
-            if size is not do_not_set:
-                widget.layout_size = cast(Optional[int], size)
-            if name is None:
-                await self.mount(widget)
-            else:
-                await self.mount(**{name: widget})
-        await self.refresh_layout()
+            layout.add(widget)
 
-    async def update(
-        self,
-        *widgets: Widget,
-        edge: DockEdge = "top",
-        z: int = 0,
-        size: int | None | DoNotSet = do_not_set,
-        name: str | None = None
-    ) -> None:
-
-        assert isinstance(self.layout, DockLayout)
-        self.layout.docks.clear()
-
-        dock = Dock(edge, widgets, z)
-        self.layout.docks.append(dock)
-
-        for widget in widgets:
-            if size is not do_not_set:
-                widget.layout_size = cast(Optional[int], size)
-            if name is None:
-                await self.mount(widget)
-            else:
-                await self.mount(**{name: widget})
-
-        self.layout.require_update()
         await self.refresh_layout()
         await self.emit(WindowChange(self))
 
