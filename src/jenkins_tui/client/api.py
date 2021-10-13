@@ -171,6 +171,7 @@ class Jenkins:
         Returns:
             List[Dict[Any, Any]]: A list of jobs that are currently queued.
         """
-        endpoint = "/queue/api/json?tree=items[id,inQueueSince,why]"
+
+        endpoint = "/queue/api/json?tree=items[*,task[*]]"
         response = await self._request_async(endpoint=endpoint)
         return response.json()["items"]
