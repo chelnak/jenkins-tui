@@ -35,7 +35,7 @@ class BuildQueue(Widget):
         if len(queue) > 0:
             self.log("System has queued buids, building table.")
             table = Table(expand=True, box=box.SIMPLE)
-            table.add_column(header="id", justify="right", no_wrap=True)
+            table.add_column(header="name", justify="left", no_wrap=True)
             table.add_column(header="reason", justify="left", no_wrap=True)
             table.add_column(header="queued since", justify="left", no_wrap=True)
 
@@ -45,7 +45,9 @@ class BuildQueue(Widget):
                     int(build["inQueueSince"]) / 1000
                 ).strftime("%Y-%m-%d %H:%M:%S")
 
-                table.add_row(str(build["id"]), build["why"], timestamp)
+                table.add_row(
+                    str(build["task"]["fullDisplayName"]), build["why"], timestamp
+                )
 
             panel_content = table
 
