@@ -211,4 +211,4 @@ def run():
 
 
 if __name__ == "__main__":
-    JenkinsTUI.run(title=config.app_name, log="textual.log", chicken_mode_enabled=False)
+    JenkinsTUI.run(title=config.app_name, log="textual.log", chicken_mode_enabled=True)

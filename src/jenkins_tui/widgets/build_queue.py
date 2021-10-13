@@ -45,9 +45,13 @@ class BuildQueue(Widget):
                     int(build["inQueueSince"]) / 1000
                 ).strftime("%Y-%m-%d %H:%M:%S")
 
-                table.add_row(
-                    str(build["task"]["fullDisplayName"]), build["why"], timestamp
+                name = (
+                    "chicken"
+                    if getattr(self.app, "chicken_mode_enabled", None)
+                    else build["task"]["fullDisplayName"]
                 )
+
+                table.add_row(name, build["why"], timestamp)
 
             panel_content = table
 
