@@ -26,7 +26,7 @@ class WindowView(View):
         widgets: List[RenderableType | Widget],
         *,
         auto_width: bool = False,
-        gutter: SpacingDimensions = (0, 0),
+        gutter: SpacingDimensions = (1, 0),
         name: str | None = None
     ) -> None:
         layout = VerticalLayout(gutter=gutter, auto_width=auto_width)
