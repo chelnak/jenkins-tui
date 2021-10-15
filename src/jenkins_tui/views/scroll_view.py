@@ -28,9 +28,9 @@ class JenkinsScrollView(ScrollView):
         widgets = self.layout.widgets
 
         # noice!
-        self.layout.place(content=view)
         del widgets[self.window]
         self.window = view
+        self.layout.place(content=view)
 
         # horrible
         # for widget, _area in widgets.items():
