@@ -43,13 +43,19 @@ class JenkinsBuildView(JenkinsBaseView):
         if build_info["healthReport"]:
             info_text += f"\n\n[bold]health[/bold]\n{build_info['healthReport'][0]['description']}"
 
+        # narly feature flag
+        nav_feature = os.environ.get("JENKINSTUI_FEATURE_NAV")
         self.layout.add_column("col", repeat=6)
         self.layout.add_row("info", size=10)
-        self.layout.add_row("body")
+
+        if nav_feature:
+            self.layout.add_row("nav", size=3)
+
+        self.layout.add_row("body", min_size=25)
 
         self.layout.add_areas(
             info="col1-start|col6-end,info",
-            nav="col3-start|col6-end,nav",
+            nav="col1-start|col6-end,nav",
             body="col1-start|col6-end,body",
         )
 
@@ -61,10 +67,7 @@ class JenkinsBuildView(JenkinsBaseView):
         def make_button(text: str):
             return JenkinsButton(label=Text(text))
 
-        # narly feature flag
-        nav_feature = os.environ.get("JENKINSTUI_FEATURE_NAV")
         if nav_feature:
-            self.layout.add_row("nav", size=3)
             buttons = [make_button(b) for b in ["status", "changes", "build"]]
             self.layout.place(*buttons)
 
