@@ -25,6 +25,12 @@ class JenkinsBaseView(View):
         """Actions that are executed when the widget is mounted."""
         pass
 
+    async def handle_layout(self, message: messages.Layout) -> None:
+        self.log("TRANSLATING layout")
+        self.layout.require_update()
+        message.stop()
+        self.refresh()
+
     async def handle_update(self, message: messages.Update) -> None:
         message.prevent_default()
         await self.emit(WindowChange(self))
