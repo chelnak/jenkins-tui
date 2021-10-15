@@ -69,14 +69,14 @@ class JenkinsTUI(App):
         """
         self.log("Handling RootClick message")
 
-        async def set_home() -> None:
+        async def set() -> None:
             """Used to set the content of the homescren"""
             view = JenkinsHomeView()
             await self.container.update(view=view)
 
         if self.current_node != "root":
             self.current_node = "root"
-            await self.call_later(set_home)
+            await self.call_later(set)
 
     async def handle_job_click(self, message: JobClick) -> None:
         """Used to process JobClick messages sent by the JenkinsTree instance.
@@ -87,14 +87,14 @@ class JenkinsTUI(App):
 
         self.log("Handling JobClick message")
 
-        async def set_job() -> None:
+        async def set() -> None:
             """Used to update the build info and job table widgets."""
             view = JenkinsBuildView(url=message.url)
             await self.container.update(view=view)
 
         if message.node_name != self.current_node:
             self.current_node = message.node_name
-            await self.call_later(set_job)
+            await self.call_later(set)
 
     # Action handlers
     async def action_refresh_tree(self) -> None:
@@ -153,4 +153,5 @@ def run():
 if __name__ == "__main__":
     os.environ["JENKINSTUI_LOG"] = "textual.log"
     # os.environ["JENKINSTUI_DEVMODE"] = "true"
+    os.environ["JENKINSTUI_FEATURE_NAV"] = "true"
     run()
