@@ -1,23 +1,42 @@
 from __future__ import annotations
-from typing import List
 
-from textual.widget import Widget
-
-
-from rich.console import RenderableType
-
+from textual.layouts.grid import GridLayout
+from textual.view import View
 from textual.widgets import ScrollView
 
+from .home_view import JenkinsHomeView
+from ..widgets import JenkinsScrollBar
 
-class TestScrollView(ScrollView):
-    def __init__(self, contents: List[RenderableType | Widget]) -> None:
-        super().__init__()
 
-        from .window_view import WindowView
+class JenkinsScrollView(ScrollView):
+    """A subclass of textual.widgets.ScrollView"""
 
-        self.window = WindowView(contents)
+    def __init__(self) -> None:
+        """Initialises a new custom ScrollView instance."""
+        name = self.__class__.__name__
+        super().__init__(name=name)
+        self.window = JenkinsHomeView()
+        self.vscroll = JenkinsScrollBar()
 
-    async def update(self, widgets: List[RenderableType], home: bool = True) -> None:
-        if home:
-            self.home()
-        await self.window.update(widgets=widgets)
+    async def update(self, view: View) -> None:
+        """Update the content area of the grid view that backs ScrollView.
+
+        Args:
+            view (View): The view that will replace the current one assigned to the content area.
+        """
+        assert isinstance(self.layout, GridLayout)
+        widgets = self.layout.widgets
+
+        # noice!
+        self.layout.place(content=view)
+        del widgets[self.window]
+        self.window = view
+
+        # horrible
+        # for widget, _area in widgets.items():
+        #     if _area == area:
+        #         del widgets[widget]
+        #         widgets[view] = area
+        #         break
+
+        await self.refresh_layout()

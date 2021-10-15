@@ -6,7 +6,7 @@ from textual.widget import Widget
 from textual.reactive import Reactive
 
 
-class JobInfo(Widget):
+class JenkinsJobInfo(Widget):
     """A job info widget. This displays information about the current job."""
 
     style: Reactive = Reactive("")

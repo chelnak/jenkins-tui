@@ -8,7 +8,7 @@ from textual.reactive import Reactive
 from .. import config
 
 
-class Header(Widget):
+class JenkinsHeader(Widget):
     """A custom header widget"""
 
     style: Reactive[StyleType] = Reactive("")

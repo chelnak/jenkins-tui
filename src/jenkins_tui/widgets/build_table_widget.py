@@ -1,24 +1,26 @@
-from typing import Dict, Union
+from __future__ import annotations
+
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
+from dependency_injector.wiring import Provide, inject
+
 from rich.console import RenderableType
 from rich.style import Style
 from rich.table import Table
 from rich.align import Align
-
 from rich import box
 from rich.text import Text
 from textual.widget import Widget
-from textual.events import Mount
 
 from ..client import Jenkins
+from ..containers import Container
 
-from datetime import datetime, timedelta
 
-
-class BuildTable(Widget):
+class JenkinsBuildTable(Widget):
     """A build table widget. Used to display builds within a job."""
 
-    def __init__(self, client: Jenkins, url: str) -> None:
+    @inject
+    def __init__(self, url: str, client: Jenkins = Provide[Container.client]) -> None:
         """A build table widget.
 
         Args:
@@ -31,17 +33,17 @@ class BuildTable(Widget):
         super().__init__(name=name)
         self.renderable: RenderableType = ""
 
-    def _get_style_from_result(self, result: str) -> Union[str, Style]:
+    def _get_style_from_result(self, result: str) -> str | Style:
         """Returns a style for a given result.
 
         Args:
             result (str): Result of the current build. It can be one of [SUCCESS, FAILURE, ABORTED, IN PROGRESS, NOT BUILT]
 
         Returns:
-            Union[str, Style]: A Rich Style object or a string repesenting a color
+            str | Style: A Rich Style object or a string repesenting a color
         """
 
-        result_style_map: dict[str, Union[str, Style]]
+        result_style_map: dict[str, str | Style]
         result_style_map = {
             "SUCCESS": "green",
             "FAILURE": "red",
@@ -98,7 +100,7 @@ class BuildTable(Widget):
         await self._get_renderable()
         self.refresh(layout=True)
 
-    async def on_mount(self, event: Mount) -> None:
+    async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted.
 
         Args:
