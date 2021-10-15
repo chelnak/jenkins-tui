@@ -23,11 +23,9 @@ class Jenkins:
             password (str): [description]. The password of the user permitted to access the Jenkins server.
             timeout (int, optional): The request timeout. Defaults to socket._GLOBAL_DEFAULT_TIMEOUT.
         """
-        if url.endswith("/"):
-            url = url.strip("/")
-        timeout = timeout if timeout else socket.getdefaulttimeout()
-        auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
-        self.client = httpx.AsyncClient(timeout=timeout, auth=auth, base_url=url)
+        self.url = url.strip("/") if url.endswith("/") else url
+        self.timeout = timeout if timeout else socket.getdefaulttimeout()
+        self.auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
 
     async def _test_connection(self) -> bool:
         """Test the connection to the Jenkins server.
@@ -50,10 +48,12 @@ class Jenkins:
         Returns:
             requests.Response: A requests.Response instance.
         """
-
-        response = await self.client.request(method=method, url=endpoint)
-        response.raise_for_status()
-        return response
+        async with httpx.AsyncClient(
+            timeout=self.timeout, auth=self.auth, base_url=self.url
+        ) as client:
+            response = await client.request(method=method, url=endpoint)
+            response.raise_for_status()
+            return response
 
     async def get_nodes(self) -> list[dict[Any, Any]]:
         """Get a list of nodes from the server
