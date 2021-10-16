@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jenkins-tui"
-version = "0.0.4"
+version = "0.0.5"
 homepage = "https://github.com/chelnak/jenkins-tui"
 description = "An interactive TUI for Jenkins"
 authors = ["chelnak"]
@@ -12,6 +12,7 @@ textual = "^0.1.12"
 toml = "^0.10.2"
 rich = "^10.11.0"
 httpx = "^0.19.0"
+dependency-injector = "^4.36.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.15.0"

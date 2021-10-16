@@ -1,20 +1,23 @@
+from dependency_injector.wiring import Provide, inject
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.table import Table
 from rich.align import Align
 from rich import box
 from textual.widget import Widget
-from textual.events import Mount
 
 from datetime import datetime
 
 from ..client import Jenkins
 
+from ..containers import Container
 
-class BuildQueue(Widget):
+
+class JenkinsBuildQueue(Widget):
     """An build queue widget. Used to display queued builds on the server."""
 
-    def __init__(self, client: Jenkins) -> None:
+    @inject
+    def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
         """An build queue widget.
 
         Args:
@@ -68,12 +71,8 @@ class BuildQueue(Widget):
         await self._get_renderable()
         self.refresh(layout=True)
 
-    async def on_mount(self, event: Mount):
-        """Actions that are executed when the widget is mounted.
-
-        Args:
-            event (events.Mount): A mount event.
-        """
+    async def on_mount(self):
+        """Actions that are executed when the widget is mounted."""
         await self._update()
         self.set_interval(10, self._update)
 

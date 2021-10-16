@@ -1,3 +1,4 @@
+from datetime import datetime
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.table import Table
@@ -5,16 +6,17 @@ from rich.align import Align
 from rich import box
 from textual.widget import Widget
 from textual.events import Mount
+from dependency_injector.wiring import inject, Provide
 
 from ..client import Jenkins
+from ..containers import Container
 
-from datetime import datetime
 
-
-class ExecutorStatus(Widget):
+class JenkinsExecutorStatus(Widget):
     """An executor status widget. Used to display running builds on the server."""
 
-    def __init__(self, client: Jenkins) -> None:
+    @inject
+    def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
         """An executor status widget.
 
         Args:
@@ -72,12 +74,8 @@ class ExecutorStatus(Widget):
         await self._get_renderable()
         self.refresh(layout=True)
 
-    async def on_mount(self, event: Mount):
-        """Actions that are executed when the widget is mounted.
-
-        Args:
-            event (events.Mount): A mount event.
-        """
+    async def on_mount(self):
+        """Actions that are executed when the widget is mounted."""
         await self._update()
         self.set_interval(10, self._update)
 

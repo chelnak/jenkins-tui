@@ -1,10 +1,12 @@
+from __future__ import annotations
+from dependency_injector.wiring import Container, Provide, inject
+
 import rich.repr
 
 from jenkins_tui import config
 
 from ..client import Jenkins
 
-from typing import Dict, List, Union
 from urllib.parse import unquote
 
 from rich.console import RenderableType
@@ -13,11 +15,11 @@ from rich.text import Text
 from functools import lru_cache
 
 from dataclasses import dataclass
-from textual import events
 from textual.reactive import Reactive
-from textual.message import Message
-from textual._types import MessageTarget
 from textual.widgets import TreeControl, TreeClick, TreeNode, NodeID
+
+from ..containers import Container
+from ..messages import RootClick, JobClick
 
 
 @dataclass
@@ -28,41 +30,15 @@ class JobEntry:
     url: str
     color: str
     type: str
-    jobs: Union[str, List[Dict[str, str]]]
-
-
-@rich.repr.auto
-class JobClick(Message):
-    def __init__(self, sender: MessageTarget, name: str, url: str) -> None:
-        """Represents the message that is sent when a job node is clicked.
-
-        Args:
-            sender (MessageTarget): The class that sent the message.
-            name (str): The name of the node.
-            url (str): The url used for retrieving more information.
-        """
-
-        self.node_name = name
-        self.url = url
-        super().__init__(sender)
-
-
-@rich.repr.auto
-class RootClick(Message):
-    def __init__(self, sender: MessageTarget) -> None:
-        """Represents the message that is sent when a the root node is clicked.
-
-        Args:
-            sender (MessageTarget): The class that sent the message.
-        """
-        super().__init__(sender)
+    jobs: str | list[dict[str, str]]
 
 
 class JenkinsTree(TreeControl[JobEntry]):
 
     has_focus: Reactive[bool] = Reactive(False)
 
-    def __init__(self, client: Jenkins, name: str) -> None:
+    @inject
+    def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
         """Creates a directory tree struction from Jenkins jobs and builds.
         This class is a copy of textual.widgets.DirectoryTree with ammendments that allow it to be used with Jenkins Api responses.
 
@@ -71,11 +47,12 @@ class JenkinsTree(TreeControl[JobEntry]):
             name (str): The name of the Tree instance.
         """
         data = JobEntry(name="root", url="", color="", type="root", jobs=[])
+        name = self.__class__.__name__
         super().__init__(label="pipelines", name=name, data=data)
 
-        self.__styles = config.style_map[config.style]
-        self.__client = client
-        self.__color_map = {
+        self.styles = config.style_map[config.style]
+        self.client = client
+        self.color_map = {
             "aborted": "❌",
             "blue": "🔵",
             "blue_anime": "🔄",
@@ -88,32 +65,37 @@ class JenkinsTree(TreeControl[JobEntry]):
             "none": "🟣",
         }
 
-        self.__type_map = {
+        self.type_map = {
             "org.jenkinsci.plugins.workflow.job.WorkflowJob": "job",
             "com.cloudbees.hudson.plugins.folder.Folder": "folder",
             "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject": "multibranch",
         }
 
-        self.root.tree.guide_style = self.__styles["tree_guide"]
+        self.root.tree.guide_style = self.styles["tree_guide"]
+
+    async def action_click_label(self, node_id: NodeID) -> None:
+        """Overrides action_click_label from tree control and sets show cursor to True"""
+        node = self.nodes[node_id]
+        self.cursor = node.id
+        self.cursor_line = self.find_cursor() or 0
+        self.show_cursor = True
+        await self.post_message(TreeClick(self, node))
 
     def on_focus(self) -> None:
         """Sets has_focus to true when the item is clicked."""
-
         self.has_focus = True
 
     def on_blur(self) -> None:
         """Sets has_focus to false when an item no longer has focus."""
-
         self.has_focus = False
 
     async def watch_hover_node(self, hover_node: NodeID) -> None:
         """Configures styles for a node when hovered over by the mouse pointer."""
-
         for node in self.nodes.values():
             node.tree.guide_style = (
-                self.__styles["tree_guide_on_hover"]
+                self.styles["tree_guide_on_hover"]
                 if node.id == hover_node
-                else self.__styles["tree_guide"]
+                else self.styles["tree_guide"]
             )
         self.refresh(layout=True)
 
@@ -169,32 +151,32 @@ class JenkinsTree(TreeControl[JobEntry]):
         label = Text(node.label) if isinstance(node.label, str) else node.label
 
         if is_hover:
-            label.stylize(self.__styles["node_on_hover"])
+            label.stylize(self.styles["node_on_hover"])
 
         if is_cursor and has_focus:
-            label.stylize(self.__styles["tree_on_cursor"])
+            label.stylize(self.styles["tree_on_cursor"])
 
         if type == "root":
-            label.stylize(self.__styles["root_node"])
+            label.stylize(self.styles["root_node"])
             icon = "📂"
 
         elif type == "folder":
-            label.stylize(self.__styles["folder"])
+            label.stylize(self.styles["folder"])
             icon = "📂" if expanded else "📁"
 
         elif type == "multibranch":
-            label.stylize(self.__styles["multibranch_node"])
+            label.stylize(self.styles["multibranch_node"])
             icon = "🌱"
 
         else:
-            label.stylize(self.__styles["node"])
-            icon = self.__color_map.get(node.data.color, "?")
+            label.stylize(self.styles["node"])
+            icon = self.color_map.get(node.data.color, "?")
 
         icon_label = Text(f"{icon} ", no_wrap=True, overflow="ellipsis") + label
         icon_label.apply_meta(meta)
         return icon_label
 
-    async def on_mount(self, event: events.Mount) -> None:
+    async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted.
 
         Args:
@@ -210,14 +192,14 @@ class JenkinsTree(TreeControl[JobEntry]):
         """
         jobs = []
         if node.data.type == "root":
-            jobs = await self.__client.get_jobs(recursive=True)
+            jobs = await self.client.get_jobs(recursive=True)
         else:
             jobs = node.data.jobs
 
         entry: dict[str, str]
         for entry in jobs:
 
-            typeof = self.__type_map.get(entry["_class"], "")
+            typeof = self.type_map.get(entry["_class"], "")
             clean_name = (
                 "chicken"
                 if getattr(self.app, "chicken_mode_enabled", None)

@@ -1,23 +1,22 @@
-from .build_queue import BuildQueue
-from .build_table import BuildTable
-
-from .executor_status import ExecutorStatus
-from .footer import Footer
-from .header import Header
-from .job_info import JobInfo
-
-from .scroll_bar import ScrollBar
-from .tree import JenkinsTree, JobClick, RootClick
+from .build_queue_widget import JenkinsBuildQueue
+from .build_table_widget import JenkinsBuildTable
+from .executor_status_widget import JenkinsExecutorStatus
+from .footer_widget import JenkinsFooter
+from .header_widget import JenkinsHeader
+from .job_info_widget import JenkinsJobInfo
+from .button_widget import JenkinsButton
+from .scroll_bar_widget import JenkinsScrollBar
+from .tree_widget import JenkinsTree
+from .build_changes_table_widget import JenkinsBuildChangesTable
 
 __all__ = (
-    "BuildQueue",
-    "BuildTable",
-    "ExecutorStatus",
-    "Footer",
-    "Header",
-    "JobInfo",
-    "ScrollBar",
+    "JenkinsBuildQueue",
+    "JenkinsBuildTable",
+    "JenkinsExecutorStatus",
+    "JenkinsFooter",
+    "JenkinsHeader",
+    "JenkinsJobInfo",
+    "JenkinsScrollBar",
     "JenkinsTree",
-    "JobClick",
-    "RootClick",
+    "JenkinsButton",
 )

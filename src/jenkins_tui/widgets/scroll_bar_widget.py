@@ -3,15 +3,11 @@ from .. import config
 from rich.color import Color
 from rich.console import RenderableType
 from rich.style import Style
-from textual.scrollbar import ScrollBar as TextualScrollBar, ScrollBarRender
+from textual.scrollbar import ScrollBar, ScrollBarRender
 
 
-class ScrollBar(TextualScrollBar):
+class JenkinsScrollBar(ScrollBar):
     """A custom scrollbar widget"""
-
-    def __init__(self, **kwargs):
-        """A custom textual.scrollbar.ScrollBar implementation that enabled styling."""
-        super().__init__(**kwargs)
 
     def render(self) -> RenderableType:
         """Overrides render from textual.scrollbar.ScrollBar"""

@@ -1,7 +1,7 @@
 import socket
 import httpx
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from httpx._auth import BasicAuth
 
 
@@ -23,11 +23,9 @@ class Jenkins:
             password (str): [description]. The password of the user permitted to access the Jenkins server.
             timeout (int, optional): The request timeout. Defaults to socket._GLOBAL_DEFAULT_TIMEOUT.
         """
-        if url.endswith("/"):
-            url = url.strip("/")
-        timeout = timeout if timeout else socket.getdefaulttimeout()
-        auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
-        self.client = httpx.AsyncClient(timeout=timeout, auth=auth, base_url=url)
+        self.url = url.strip("/") if url.endswith("/") else url
+        self.timeout = timeout if timeout else socket.getdefaulttimeout()
+        self.auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
 
     async def _test_connection(self) -> bool:
         """Test the connection to the Jenkins server.
@@ -50,16 +48,18 @@ class Jenkins:
         Returns:
             requests.Response: A requests.Response instance.
         """
+        async with httpx.AsyncClient(
+            timeout=self.timeout, auth=self.auth, base_url=self.url
+        ) as client:
+            response = await client.request(method=method, url=endpoint)
+            response.raise_for_status()
+            return response
 
-        response = await self.client.request(method=method, url=endpoint)
-        response.raise_for_status()
-        return response
-
-    async def get_nodes(self) -> List[Dict[Any, Any]]:
+    async def get_nodes(self) -> list[dict[Any, Any]]:
         """Get a list of nodes from the server
 
         Returns:
-            List[Dict[Any, Any]]: A list of node dicts.
+            list[dict[Any, Any]]: A list of node dicts.
         """
         endpoint = (
             "computer/api/json?tree=*,computer[*,executors[*,currentExecutable[*]]]"
@@ -67,7 +67,7 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["computer"]
 
-    async def get_job(self, path: str = None, limit: int = 20) -> List[Dict[Any, Any]]:
+    async def get_job(self, path: str = None, limit: int = 20) -> list[dict[Any, Any]]:
         """Get a job and it's details.
 
         Args:
@@ -75,7 +75,7 @@ class Jenkins:
             limit (int, optional): The maximum number of builds that will be returned with the job. Defaults to 20.
 
         Returns:
-            List[Dict[Any, Any]]: [description]
+            list[dict[Any, Any]]: [description]
         """
         _limit = f"{{0,{limit}}}"
         endpoint = f"{path}api/json?tree=displayName,description,healthReport[description],builds[number,status,timestamp,id,result,duration{_limit}]"
@@ -84,7 +84,7 @@ class Jenkins:
 
     async def get_jobs(
         self, path: str = None, recursive=False, folder_depth=10
-    ) -> List[Dict[Any, Any]]:
+    ) -> list[dict[Any, Any]]:
         """Return a list of jobs starting from the root of the server.
 
         Args:
@@ -93,7 +93,7 @@ class Jenkins:
             folder_depth (int, optional): The maximum level of recursion while gathering nested jobs. Has no impact if recursive is False. Defaults to 10.
 
         Returns:
-            List[Dict[Any, Any]]: [description]
+            list[dict[Any, Any]]: [description]
         """
         if recursive:
             jobs_query = "jobs"
@@ -107,7 +107,7 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["jobs"]
 
-    async def get_info_for_job(self, path: str) -> Dict[Any, Any]:
+    async def get_info_for_job(self, path: str) -> dict[Any, Any]:
         """Get top level information about a job. The query used in this method will
         return: displayName,description and healthReport
 
@@ -125,7 +125,7 @@ class Jenkins:
 
     async def get_builds_for_job(
         self, path: str, limit: int = 50
-    ) -> List[Dict[Any, Any]]:
+    ) -> list[dict[Any, Any]]:
         """Get a list of builds for a job.
 
         Args:
@@ -133,18 +133,18 @@ class Jenkins:
             limit (int): The maximum number of jobs to return. Defaults to 20.
 
         Returns:
-            List[Dict[Any, Any]]: A list of builds.
+            list[dict[Any, Any]]: A list of builds.
         """
         _limit = f"{{0,{limit}}}"
-        endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration{_limit}]"
+        endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration,changeSets[*[*]]{_limit}]"
         response = await self._request_async(endpoint=endpoint)
         return response.json()["builds"]
 
-    async def get_running_builds(self) -> List[Dict[Any, Any]]:
+    async def get_running_builds(self) -> list[dict[Any, Any]]:
         """Get a list of running builds on the server.
 
         Returns:
-            List[Dict[Any, Any]]: A lists of build dicts.
+            list[dict[Any, Any]]: A lists of build dicts.
         """
         builds = []
         nodes = await self.get_nodes()
@@ -165,11 +165,11 @@ class Jenkins:
 
         return builds
 
-    async def get_queued_jobs(self) -> List[Dict[Any, Any]]:
+    async def get_queued_jobs(self) -> list[dict[Any, Any]]:
         """Get queued jobs.
 
         Returns:
-            List[Dict[Any, Any]]: A list of jobs that are currently queued.
+            list[dict[Any, Any]]: A list of jobs that are currently queued.
         """
 
         endpoint = "/queue/api/json?tree=items[*,task[*]]"

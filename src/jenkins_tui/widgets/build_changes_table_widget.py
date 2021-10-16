@@ -1,47 +1,49 @@
-from typing import Dict, Union
+from __future__ import annotations
+
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
-from rich.console import RenderableType
+from dependency_injector.wiring import Provide, inject
+
+from rich.console import Group, RenderableType
 from rich.style import Style
 from rich.table import Table
 from rich.align import Align
-
 from rich import box
 from rich.text import Text
 from textual.widget import Widget
-from textual.events import Mount
 
 from ..client import Jenkins
+from ..containers import Container
 
-from datetime import datetime, timedelta
 
+class JenkinsBuildChangesTable(Widget):
+    """ """
 
-class BuildTable(Widget):
-    """A build table widget. Used to display builds within a job."""
-
-    def __init__(self, client: Jenkins, url: str) -> None:
-        """A build table widget.
+    @inject
+    def __init__(self, url: str, client: Jenkins = Provide[Container.client]) -> None:
+        """
 
         Args:
             client (ExtendedJenkinsClient): An instance of ExtendedJenkinsClient.
             url (str): The url of the current build.
         """
-        self.client = client
+        self.client: Jenkins = client
         self.current_job_url = url
         name = self.__class__.__name__
         super().__init__(name=name)
         self.renderable: RenderableType = ""
 
-    def _get_style_from_result(self, result: str) -> Union[str, Style]:
+    def _get_style_from_result(self, result: str) -> str | Style:
         """Returns a style for a given result.
 
         Args:
             result (str): Result of the current build. It can be one of [SUCCESS, FAILURE, ABORTED, IN PROGRESS, NOT BUILT]
 
         Returns:
-            Union[str, Style]: A Rich Style object or a string repesenting a color
+            str | Style: A Rich Style object or a string repesenting a color
         """
 
-        result_style_map: dict[str, Union[str, Style]]
+        result_style_map: dict[str, str | Style]
         result_style_map = {
             "SUCCESS": "green",
             "FAILURE": "red",
@@ -58,36 +60,28 @@ class BuildTable(Widget):
         url = urlparse(self.current_job_url)  # assumption
         current_job_builds = await self.client.get_builds_for_job(path=url.path)
 
-        panel_content: RenderableType
+        panel_content: RenderableType = ""
         if current_job_builds and len(current_job_builds) > 0:
-            self.log("Job has builds, building table.")
-            panel_content = Table(expand=True, box=box.SIMPLE)
-            panel_content.add_column(header="#", justify="right")
-            panel_content.add_column(header="result", justify="left", no_wrap=True)
-            panel_content.add_column(header="duration", justify="right", no_wrap=True)
-            panel_content.add_column(header="timestamp", justify="right", no_wrap=True)
+            self.log("Job has changesets, building table.")
 
             for build in current_job_builds:
 
-                timestamp = datetime.utcfromtimestamp(
-                    int(build["timestamp"]) / 1000
-                ).strftime("%Y-%m-%d %H:%M:%S")
-                duration = str(timedelta(seconds=int(build["duration"]) / 1000)).split(
-                    "."
-                )[0]
+                if len(build["changeSets"]) > 0:
 
-                result_text = build["result"] if build["result"] else "IN PROGRESS"
+                    timestamp = datetime.utcfromtimestamp(
+                        int(build["timestamp"]) / 1000
+                    ).strftime("%Y-%m-%d %H:%M:%S")
 
-                result = Text(
-                    text=result_text,
-                    style=self._get_style_from_result(result_text),
-                )
+                    panel_content += f"[bold]#{build['number']} {timestamp}[/]\n"
+                    for x, y in enumerate(build["changeSets"][0]["items"]):
+                        panel_content += f"""{x+1}. {y["comment"]}\r"""
 
-                panel_content.add_row(f"{build['number']}", result, duration, timestamp)
+                    panel_content += "\n\n"
+
         else:
-            self.log("No builds for current job.")
+            self.log("No changesets for current job.")
             panel_content = Align.center(
-                renderable="There are currently no builds for this job.",
+                renderable="There are currently no changesets for this job.",
                 vertical="middle",
             )
 
@@ -98,7 +92,7 @@ class BuildTable(Widget):
         await self._get_renderable()
         self.refresh(layout=True)
 
-    async def on_mount(self, event: Mount) -> None:
+    async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted.
 
         Args:

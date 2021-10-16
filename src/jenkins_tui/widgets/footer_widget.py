@@ -5,7 +5,7 @@ from textual.reactive import Reactive
 from rich.style import StyleType
 
 
-class Footer(TextualFooter):
+class JenkinsFooter(TextualFooter):
     """A custom footer widget."""
 
     style: Reactive[StyleType] = Reactive("")
