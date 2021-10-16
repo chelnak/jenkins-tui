@@ -136,7 +136,7 @@ class Jenkins:
             list[dict[Any, Any]]: A list of builds.
         """
         _limit = f"{{0,{limit}}}"
-        endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration{_limit}]"
+        endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration,changeSets[*[*]]{_limit}]"
         response = await self._request_async(endpoint=endpoint)
         return response.json()["builds"]
 
