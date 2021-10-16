@@ -133,6 +133,7 @@ def get_config() -> MutableMapping[str, Any]:
 
 
 def run():
+    """The entry point."""
 
     # set up di
     from . import widgets
@@ -151,7 +152,9 @@ def run():
 
 
 if __name__ == "__main__":
+    """Stuff that runs when you call the package directly (python -m jenkins_tui.app)"""
+
     os.environ["JENKINSTUI_LOG"] = "textual.log"
-    # os.environ["JENKINSTUI_DEVMODE"] = "true"
+    os.environ["JENKINSTUI_DEVMODE"] = "true"
     os.environ["JENKINSTUI_FEATURE_NAV"] = "true"
     run()
