@@ -1,4 +1,5 @@
 .DEFAULT_GOAL:= build
+SHELL := /usr/bin/bash
 VENV ?= "$(shell poetry env list --full-path | cut -f1 -d " ")/bin/activate"
 
 tag:
