@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Set up Python 🐍
       uses: actions/setup-python@v2
@@ -28,21 +30,13 @@ jobs:
         version: 1.1.10
         virtualenvs-in-project: true
 
-    - name: Install Dependencies 🚧
+    - name: Install dependencies 🚧
       run: poetry install
 
-    - name: Hygene - black ✏️
-      run: |
-        source $VENV
-        black --check .
-
-    - name: Hygene - mypy ✏️
-      run: |
-        source $VENV
-        mypy src/jenkins_tui
-
     - name: Build 👷
-      run: poetry build
+      run: |
+        source $VENV
+        make build
 
     - name: Publish 📦
       if: startsWith(github.ref, 'refs/tags/v')

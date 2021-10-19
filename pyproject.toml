@@ -1,10 +1,22 @@
+[build-system]
+requires = [ "poetry-core>=1.0.0",]
+build-backend = "poetry.core.masonry.api"
+
+[mypy-textual]
+ignore_missing_imports = true
+
 [tool.poetry]
 name = "jenkins-tui"
 version = "0.0.5"
 homepage = "https://github.com/chelnak/jenkins-tui"
 description = "An interactive TUI for Jenkins"
-authors = ["chelnak"]
+authors = [ "chelnak",]
 license = "MIT"
+
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = [ "textual.*",]
+ignore_missing_imports = true
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -15,25 +27,12 @@ httpx = "^0.19.0"
 dependency-injector = "^4.36.2"
 
 [tool.poetry.dev-dependencies]
+black = "^21.9b0"
 pre-commit = "^2.15.0"
-black = "^20.8b1"
 mypy = "^0.910"
 types-requests = "^2.25.9"
 types-toml = "^0.10.0"
+types-setuptools = "^57.4.2"
 
 [tool.poetry.scripts]
-jenkins = 'jenkins_tui.app:run'
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[[tool.mypy.overrides]]
-module = [
-    "textual.*",
-    "jenkins"
-]
-ignore_missing_imports = true
-
-[mypy-textual]
-ignore_missing_imports = true
+jenkins = "jenkins_tui.app:run"
