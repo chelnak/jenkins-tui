@@ -16,10 +16,7 @@ build: check
 	@python tools/bump_version.py "$(shell git describe --tags --abbrev=0)"
 	@poetry build
 
-check: install
+check:
 	@source $(virtualEnv)
 	@black --check .
 	@mypy src/jenkins_tui
-
-install:
-	@poetry install
