@@ -9,7 +9,7 @@ def bump_version_from_ref():
 
     ref = os.environ.get("GITHUB_REF", "v0.0.0")
     ref_suffix = ref.split("/")[-1]
-    if "tags" not in ref and not ref_suffix.startswith("v"):
+    if "tags" not in ref or not ref_suffix.startswith("v"):
         raise Exception(f"The ref {ref} is not valid.")
 
     project_file = "pyproject.toml"
