@@ -11,7 +11,9 @@ def bump_version_from_ref() -> None:
     ref = os.environ.get("GITHUB_REF", "refs/is/invalid")
 
     if not ref.startswith("refs/tags/v"):
-        print(f"The given ref didn't match the requirements for a version increment.")
+        print(
+            f"The given ref ({ref}) didn't match the requirements for a version increment."
+        )
         return
 
     ref_suffix = ref.split("/")
