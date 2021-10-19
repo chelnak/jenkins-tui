@@ -8,9 +8,7 @@ tag:
 
 build: check
 	@source $(VENV)
-	$(eval BRANCH=$(shell git rev-parse --abbrev-ref HEAD))
-	$(eval TAG=$(shell git describe --tags --abbrev=0))
-	@python tools/bump_version.py "$(TAG)" "$(BRANCH)"
+	@python tools/bump_version.py
 	@poetry build
 
 check:
