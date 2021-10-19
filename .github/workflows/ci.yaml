@@ -28,21 +28,8 @@ jobs:
         version: 1.1.10
         virtualenvs-in-project: true
 
-    - name: Install Dependencies 🚧
-      run: poetry install
-
-    - name: Hygene - black ✏️
-      run: |
-        source $VENV
-        black --check .
-
-    - name: Hygene - mypy ✏️
-      run: |
-        source $VENV
-        mypy src/jenkins_tui
-
     - name: Build 👷
-      run: poetry build
+      run: make build
 
     - name: Publish 📦
       if: startsWith(github.ref, 'refs/tags/v')
