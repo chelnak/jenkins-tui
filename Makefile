@@ -7,12 +7,12 @@ tag:
 	@git push --follow-tags
 
 build: check
-	echo "using venv $(VENV)"
 	@source $(VENV)
 	@python tools/bump_version.py "$(shell git describe --tags --abbrev=0)"
 	@poetry build
 
 check:
+	echo "using venv $(VENV)"
 	@source $(VENV)
 	@black --check .
 	@mypy src/jenkins_tui
