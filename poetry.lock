@@ -388,6 +388,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "types-setuptools"
+version = "57.4.2"
+description = "Typing stubs for setuptools"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-toml"
 version = "0.10.1"
 description = "Typing stubs for toml"
@@ -425,7 +433,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f81fc6fcb8b4b317df4a98038457291d099bd528e89398a92f4fb7397f00f684"
+content-hash = "c393ba00639fdb36ed399d5c8125e097f5f4392b66752240305f550d02588888"
 
 [metadata.files]
 anyio = [
@@ -741,6 +749,10 @@ typed-ast = [
 types-requests = [
     {file = "types-requests-2.25.10.tar.gz", hash = "sha256:3e121988168cffcfa61effaf48f90ebc5ee023f6cc50d04c0144edd7a2265b65"},
     {file = "types_requests-2.25.10-py3-none-any.whl", hash = "sha256:bf3681e9258df22b27b623167b132869a26f04d5ca570e6a81a932db2a19ab72"},
+]
+types-setuptools = [
+    {file = "types-setuptools-57.4.2.tar.gz", hash = "sha256:5499a0f429281d1a3aa9494c79b6599ab356dfe6d393825426bc749e48ea1bf8"},
+    {file = "types_setuptools-57.4.2-py3-none-any.whl", hash = "sha256:9c96aab47fdcf066fef83160b2b9ddbfab3d2c8fdc89053579d0b306837bf22a"},
 ]
 types-toml = [
     {file = "types-toml-0.10.1.tar.gz", hash = "sha256:5c1f8f8d57692397c8f902bf6b4d913a0952235db7db17d2908cc110e70610cb"},
