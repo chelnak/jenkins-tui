@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 .DEFAULT_GOAL:= build
 
 ifdef VENV
