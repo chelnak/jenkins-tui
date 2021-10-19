@@ -12,13 +12,14 @@ tag:
 	@git push --follow-tags
 
 build: check
-	@poetry install
-
 	@source $(virtualEnv)
 	@python tools/bump_version.py "$(shell git describe --tags --abbrev=0)"
 	@poetry build
 
-check:
+check: install
 	@source $(virtualEnv)
 	@black --check .
 	@mypy src/jenkins_tui
+
+install:
+	@poetry install
