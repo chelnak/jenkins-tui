@@ -8,11 +8,11 @@ tag:
 
 build: check
 	@source $(VENV)
-	@python tools/bump_version.py
+	python tools/bump_version.py
 	@poetry build
 
 check:
 	@source $(VENV)
-	@black --check .
-	@mypy tools
-	@mypy src/jenkins_tui
+	black --check .
+	mypy tools
+	mypy src/jenkins_tui
