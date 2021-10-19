@@ -12,7 +12,6 @@ build: check
 	@poetry build
 
 check:
-	echo "using venv $(VENV)"
 	@source $(VENV)
 	@black --check .
 	@mypy src/jenkins_tui
