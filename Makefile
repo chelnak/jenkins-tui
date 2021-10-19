@@ -1,22 +1,17 @@
-SHELL := /bin/bash
 .DEFAULT_GOAL:= build
-
-ifdef CI
-virtualEnv := $(VENV)
-else
-virtualEnv := "$(shell poetry env list --full-path | cut -f1 -d " ")/bin/activate"
-endif
+SHELL := /bin/bash
+VENV ?= "$(shell poetry env list --full-path | cut -f1 -d " ")/bin/activate"
 
 tag:
 	@git tag -a $(version) -m "Release $(version) -> Jenkins TUI"
 	@git push --follow-tags
 
 build: check
-	@source $(virtualEnv)
+	@source $(VENV)
 	@python tools/bump_version.py "$(shell git describe --tags --abbrev=0)"
 	@poetry build
 
 check:
-	@source $(virtualEnv)
+	@source $(VENV)
 	@black --check .
 	@mypy src/jenkins_tui
