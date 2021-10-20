@@ -78,3 +78,8 @@ You can either build a new package using `make build` and install it or run the 
 cd src
 python -m jenkins_tui.app
 ```
+
+### Compatibility
+
+This project has been tested on macOS and Linux (Arch, Ubuntu 20.04 and above) with Python 3.9 installed. It will likely work on any Linux distribution where Python 3.9 or above is available.
+For Ubuntu 20.04, it may be necessary to install the `python3.9` package.
