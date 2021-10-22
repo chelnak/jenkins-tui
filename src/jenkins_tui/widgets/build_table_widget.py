@@ -71,7 +71,7 @@ class JenkinsBuildTable(Widget):
 
             for build in current_job_builds:
 
-                timestamp = datetime.utcfromtimestamp(
+                timestamp = datetime.fromtimestamp(
                     int(build["timestamp"]) / 1000
                 ).strftime("%Y-%m-%d %H:%M:%S")
                 duration = str(timedelta(seconds=int(build["duration"]) / 1000)).split(
