@@ -44,7 +44,7 @@ class JenkinsBuildQueue(Widget):
 
             for build in queue:
 
-                timestamp = datetime.utcfromtimestamp(
+                timestamp = datetime.fromtimestamp(
                     int(build["inQueueSince"]) / 1000
                 ).strftime("%Y-%m-%d %H:%M:%S")
 

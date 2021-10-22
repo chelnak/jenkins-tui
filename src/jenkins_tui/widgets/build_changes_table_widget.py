@@ -68,7 +68,7 @@ class JenkinsBuildChangesTable(Widget):
 
                 if len(build["changeSets"]) > 0:
 
-                    timestamp = datetime.utcfromtimestamp(
+                    timestamp = datetime.fromtimestamp(
                         int(build["timestamp"]) / 1000
                     ).strftime("%Y-%m-%d %H:%M:%S")
 
