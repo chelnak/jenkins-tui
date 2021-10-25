@@ -48,9 +48,9 @@ class JenkinsTUI(App):
         await self.view.dock(JenkinsFooter(), edge="bottom")
 
         # Dock tree container
-        directory = JenkinsTree()
+        self.directory = JenkinsTree()
         self.tree_container = ScrollView(
-            contents=directory,
+            contents=self.directory,
             name="DirectoryScrollView",
         )
         self.tree_container.vscroll = JenkinsScrollBar()
@@ -100,10 +100,7 @@ class JenkinsTUI(App):
     async def action_refresh_tree(self) -> None:
         """Used to process refresh actions. Refreshes happen when you press R."""
         self.log("Handling action refresh_tree")
-
-        directory = JenkinsTree()
-        await self.tree_container.update(directory)
-        self.tree_container.refresh(layout=True)
+        await self.directory.refresh_tree()
 
 
 def get_config() -> MutableMapping[str, Any]:

@@ -222,6 +222,10 @@ class JenkinsTree(TreeControl[JobEntry]):
         await node.expand()
         self.refresh(layout=True)
 
+    async def refresh_tree(self):
+        self.root.tree.children.clear()
+        await self.load_jobs(self.root)
+
     async def handle_tree_click(self, message: TreeClick[JobEntry]) -> None:
         """Handle messages that are sent when a tree item is clicked.
 
