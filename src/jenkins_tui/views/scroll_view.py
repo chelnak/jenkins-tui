@@ -3,20 +3,20 @@ from __future__ import annotations
 from textual.layouts.grid import GridLayout
 from textual.view import View
 from textual.widgets import ScrollView
-
-from .home_view import JenkinsHomeView
-from ..widgets import JenkinsScrollBar
+from textual.reactive import Reactive
 
 
 class JenkinsScrollView(ScrollView):
     """A subclass of textual.widgets.ScrollView"""
 
-    def __init__(self) -> None:
+    home_view: Reactive[View]
+
+    def __init__(self, intial_view: View) -> None:
         """Initialises a new custom ScrollView instance."""
         name = self.__class__.__name__
         super().__init__(name=name)
-        self.window = JenkinsHomeView()
-        self.vscroll = JenkinsScrollBar()
+        self.window = intial_view
+        self.home_view = self.window
 
     async def update(self, view: View) -> None:
         """Update the content area of the grid view that backs ScrollView.

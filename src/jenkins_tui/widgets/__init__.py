@@ -6,7 +6,6 @@ from .header_widget import JenkinsHeader
 from .job_info_widget import JenkinsJobInfo
 from .button_widget import JenkinsButton
 from .scroll_bar_widget import JenkinsScrollBar
-from .tree_widget import JenkinsTree
 from .build_changes_table_widget import JenkinsBuildChangesTable
 
 __all__ = (
@@ -17,6 +16,5 @@ __all__ = (
     "JenkinsHeader",
     "JenkinsJobInfo",
     "JenkinsScrollBar",
-    "JenkinsTree",
     "JenkinsButton",
 )
