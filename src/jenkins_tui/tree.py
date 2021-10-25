@@ -1,25 +1,19 @@
 from __future__ import annotations
 from dependency_injector.wiring import Container, Provide, inject
-
-import rich.repr
-
-from jenkins_tui import config
-
-from ..client import Jenkins
-
 from urllib.parse import unquote
+from functools import lru_cache
+from dataclasses import dataclass
 
 from rich.console import RenderableType
 from rich.text import Text
 
-from functools import lru_cache
-
-from dataclasses import dataclass
 from textual.reactive import Reactive
 from textual.widgets import TreeControl, TreeClick, TreeNode, NodeID
 
-from ..containers import Container
-from ..messages import RootClick, JobClick
+from . import config
+from .client import Jenkins
+from .containers import Container
+from .views import JenkinsBuildView
 
 
 @dataclass
@@ -35,6 +29,7 @@ class JobEntry:
 
 class JenkinsTree(TreeControl[JobEntry]):
 
+    current_node: Reactive[str] = Reactive("root")
     has_focus: Reactive[bool] = Reactive(False)
 
     @inject
@@ -73,13 +68,13 @@ class JenkinsTree(TreeControl[JobEntry]):
 
         self.root.tree.guide_style = self.styles["tree_guide"]
 
-    async def action_click_label(self, node_id: NodeID) -> None:
-        """Overrides action_click_label from tree control and sets show cursor to True"""
-        node = self.nodes[node_id]
-        self.cursor = node.id
-        self.cursor_line = self.find_cursor() or 0
-        self.show_cursor = True
-        await self.post_message(TreeClick(self, node))
+    async def on_mount(self) -> None:
+        """Actions that are executed when the widget is mounted.
+
+        Args:
+            event (events.Mount): A mount event.
+        """
+        await self.load_jobs(self.root)
 
     def on_focus(self) -> None:
         """Sets has_focus to true when the item is clicked."""
@@ -88,16 +83,6 @@ class JenkinsTree(TreeControl[JobEntry]):
     def on_blur(self) -> None:
         """Sets has_focus to false when an item no longer has focus."""
         self.has_focus = False
-
-    async def watch_hover_node(self, hover_node: NodeID) -> None:
-        """Configures styles for a node when hovered over by the mouse pointer."""
-        for node in self.nodes.values():
-            node.tree.guide_style = (
-                self.styles["tree_guide_on_hover"]
-                if node.id == hover_node
-                else self.styles["tree_guide"]
-            )
-        self.refresh(layout=True)
 
     def render_node(self, node: TreeNode[JobEntry]) -> RenderableType:
         """Renders a node in the tree.
@@ -176,13 +161,23 @@ class JenkinsTree(TreeControl[JobEntry]):
         icon_label.apply_meta(meta)
         return icon_label
 
-    async def on_mount(self) -> None:
-        """Actions that are executed when the widget is mounted.
+    async def watch_hover_node(self, hover_node: NodeID) -> None:
+        """Configures styles for a node when hovered over by the mouse pointer."""
+        for node in self.nodes.values():
+            node.tree.guide_style = (
+                self.styles["tree_guide_on_hover"]
+                if node.id == hover_node
+                else self.styles["tree_guide"]
+            )
+        self.refresh(layout=True)
 
-        Args:
-            event (events.Mount): A mount event.
-        """
-        await self.load_jobs(self.root)
+    async def action_click_label(self, node_id: NodeID) -> None:
+        """Overrides action_click_label from tree control and sets show cursor to True"""
+        node = self.nodes[node_id]
+        self.cursor = node.id
+        self.cursor_line = self.find_cursor() or 0
+        self.show_cursor = True
+        await self.post_message(TreeClick(self, node))
 
     async def load_jobs(self, node: TreeNode[JobEntry]):
         """Load jobs for a tree node. If the current node is "root" then a call is made to Jenkins to retrieve a full list otherwise process jobs from the current node.
@@ -235,12 +230,29 @@ class JenkinsTree(TreeControl[JobEntry]):
         node_data = message.node.data
 
         if node_data.type == "job":
-            self.log("Emitting JobClick message")
-            await self.emit(JobClick(self, node_data.name, node_data.url))
+
+            self.log("Handling JobClick message")
+
+            async def _set():
+                """Used to update the build info and job table widgets."""
+                view = JenkinsBuildView(url=node_data.url)
+                await self.app.container.update(view=view)
+
+            if node_data.name != self.current_node:
+                self.current_node = node_data
+                await self.call_later(_set)
 
         elif node_data.name == "root":
-            self.log("Emitting RootClick message")
-            await self.emit(RootClick(self))
+            self.log("Handling RootClick message")
+
+            async def set() -> None:
+                """Used to set the content of the homescren"""
+                home = self.app.container.home_view
+                await self.app.container.update(view=home)
+
+            if self.current_node != "root":
+                self.current_node = "root"
+                await self.call_later(set)
 
         else:
             if not message.node.loaded:
