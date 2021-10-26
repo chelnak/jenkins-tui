@@ -4,7 +4,7 @@
 
 `jenkins-tui` is a terminal based user interface for Jenkins.
 
-> :construction: :warning: This app is a prototype and in very early stages of development. There will be bugs and missing functionality. Additionally, it has only been tested on OSX.
+> :construction: :warning: This app is a prototype and in very early stages of development. There will be bugs and missing functionality.
 
 :rocket: This project is powered by [textual](https://github.com/willmcgugan/textual) and [rich](https://github.com/willmcgugan/rich)!
 
