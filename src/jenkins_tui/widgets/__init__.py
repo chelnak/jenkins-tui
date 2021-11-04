@@ -1,20 +1,24 @@
-from .build_queue_widget import JenkinsBuildQueue
-from .build_table_widget import JenkinsBuildTable
-from .executor_status_widget import JenkinsExecutorStatus
-from .footer_widget import JenkinsFooter
-from .header_widget import JenkinsHeader
-from .job_info_widget import JenkinsJobInfo
-from .button_widget import JenkinsButton
-from .scroll_bar_widget import JenkinsScrollBar
-from .build_changes_table_widget import JenkinsBuildChangesTable
+from .build_queue import BuildQueueWidget
+from .executor_status import ExecutorStatusWidget
+from .info import InfoWidget
+from .button import ButtonWidget
+from .scroll_bar import ScrollBarWidget
+from .job_details import JobDetailsWidget
+from .text_input_field import TextInputFieldWidget
+from .single_stat import SingleStatWidget
+from .figlet_text_widget import FigletTextWidget
+from .flash import FlashWidget, ShowFlashNotification
 
 __all__ = (
-    "JenkinsBuildQueue",
-    "JenkinsBuildTable",
-    "JenkinsExecutorStatus",
-    "JenkinsFooter",
-    "JenkinsHeader",
-    "JenkinsJobInfo",
-    "JenkinsScrollBar",
-    "JenkinsButton",
+    "BuildQueueWidget",
+    "ExecutorStatusWidget",
+    "InfoWidget",
+    "ScrollBarWidget",
+    "ButtonWidget",
+    "JobDetailsWidget",
+    "TextInputFieldWidget",
+    "SingleStatWidget",
+    "FigletTextWidget",
+    "FlashWidget",
+    "ShowFlashNotification",
 )

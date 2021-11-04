@@ -3,10 +3,11 @@ from .. import config
 from rich.color import Color
 from rich.console import RenderableType
 from rich.style import Style
+
 from textual.scrollbar import ScrollBar, ScrollBarRender
 
 
-class JenkinsScrollBar(ScrollBar):
+class ScrollBarWidget(ScrollBar):
     """A custom scrollbar widget"""
 
     def render(self) -> RenderableType:

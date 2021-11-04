@@ -5,6 +5,7 @@ from functools import lru_cache
 from dataclasses import dataclass
 
 from rich.console import RenderableType
+from rich.padding import PaddingDimensions
 from rich.text import Text
 
 from textual.reactive import Reactive
@@ -12,8 +13,9 @@ from textual.widgets import TreeControl, TreeClick, TreeNode, NodeID
 
 from . import config
 from .client import Jenkins
+
 from .containers import Container
-from .views import JenkinsBuildView
+from .views import JobView
 
 
 @dataclass
@@ -27,9 +29,9 @@ class JobEntry:
     jobs: str | list[dict[str, str]]
 
 
-class JenkinsTree(TreeControl[JobEntry]):
+class Tree(TreeControl[JobEntry]):
 
-    current_node: Reactive[str] = Reactive("root")
+    current_node: JobEntry
     has_focus: Reactive[bool] = Reactive(False)
 
     @inject
@@ -67,6 +69,8 @@ class JenkinsTree(TreeControl[JobEntry]):
         }
 
         self.root.tree.guide_style = self.styles["tree_guide"]
+        self.current_node = self.root.data
+        self.padding = (0, 0)
 
     async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted.
@@ -228,30 +232,31 @@ class JenkinsTree(TreeControl[JobEntry]):
             message (TreeClick[JobEntry]): A message that is sent when a tree item is clicked.
         """
         node_data = message.node.data
-
         if node_data.type == "job":
 
             self.log("Handling JobClick message")
 
             async def _set():
                 """Used to update the build info and job table widgets."""
-                view = JenkinsBuildView(url=node_data.url)
+                view = JobView(url=node_data.url)
                 await self.app.container.update(view=view)
 
-            if node_data.name != self.current_node:
+            # if the current node is the same as the clicked node then shouldn't do anything
+            if node_data.name != self.current_node.name:
                 self.current_node = node_data
                 await self.call_later(_set)
 
-        elif node_data.name == "root":
+        elif node_data.type == "root":
             self.log("Handling RootClick message")
 
             async def set() -> None:
                 """Used to set the content of the homescren"""
-                home = self.app.container.home_view
+                home = self.app.container.origin_view
+                home.visible = True
                 await self.app.container.update(view=home)
 
-            if self.current_node != "root":
-                self.current_node = "root"
+            if self.current_node.name != "root":
+                self.current_node = node_data
                 await self.call_later(set)
 
         else:

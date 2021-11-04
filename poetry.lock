@@ -280,6 +280,14 @@ toml = "*"
 virtualenv = ">=20.0.8"
 
 [[package]]
+name = "pyfiglet"
+version = "0.8.post1"
+description = "Pure-python FIGlet implementation"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pygments"
 version = "2.10.0"
 description = "Pygments is a syntax highlighting package written in Python."
@@ -430,7 +438,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "87674e10fe567935992837faa246a25d38918ece70ad6b0cc637b4608e741290"
+content-hash = "b3a11761c885373b74d13543c31e8796691726e15b8fbbd0d700cacd3ac0bad3"
 
 [metadata.files]
 anyio = [
@@ -605,6 +613,10 @@ platformdirs = [
 pre-commit = [
     {file = "pre_commit-2.15.0-py2.py3-none-any.whl", hash = "sha256:a4ed01000afcb484d9eb8d504272e642c4c4099bbad3a6b27e519bd6a3e928a6"},
     {file = "pre_commit-2.15.0.tar.gz", hash = "sha256:3c25add78dbdfb6a28a651780d5c311ac40dd17f160eb3954a0c59da40a505a7"},
+]
+pyfiglet = [
+    {file = "pyfiglet-0.8.post1-py2.py3-none-any.whl", hash = "sha256:d555bcea17fbeaf70eaefa48bb119352487e629c9b56f30f383e2c62dd67a01c"},
+    {file = "pyfiglet-0.8.post1.tar.gz", hash = "sha256:c6c2321755d09267b438ec7b936825a4910fec696292139e664ca8670e103639"},
 ]
 pygments = [
     {file = "Pygments-2.10.0-py3-none-any.whl", hash = "sha256:b8e67fe6af78f492b3c4b3e2970c0624cbf08beb1e493b2c99b9fa1b67a20380"},

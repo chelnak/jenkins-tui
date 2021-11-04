@@ -1,26 +1,27 @@
 from datetime import datetime
+from dependency_injector.wiring import Provide, inject
+
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.table import Table
 from rich.align import Align
 from rich import box
+
 from textual.widget import Widget
-from textual.events import Mount
-from dependency_injector.wiring import inject, Provide
 
 from ..client import Jenkins
 from ..containers import Container
 
 
-class JenkinsExecutorStatus(Widget):
-    """An executor status widget. Used to display running builds on the server."""
+class BuildQueueWidget(Widget):
+    """An build queue widget. Used to display queued builds on the server."""
 
     @inject
     def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
-        """An executor status widget.
+        """An build queue widget.
 
         Args:
-            client (ExtendedJenkinsClient): An instance of ExtendedJenkinsClient
+            client (ExtendedJenkinsClient): An instance of ExtendedJenkinsClient.
         """
         self.client = client
         name = self.__class__.__name__
@@ -31,41 +32,37 @@ class JenkinsExecutorStatus(Widget):
     async def _get_renderable(self):
         """Builds a renderable object."""
 
-        running_builds = await self.client.get_running_builds()
+        queue = await self.client.get_queued_jobs()
 
         panel_content: RenderableType
-        if len(running_builds) > 0:
-            self.log("System has running builds, building table.")
+        if len(queue) > 0:
+            self.log("System has queued buids, building table.")
             table = Table(expand=True, box=box.SIMPLE)
             table.add_column(header="name", justify="left", no_wrap=True)
-            table.add_column(header="node", justify="left", no_wrap=True)
-            table.add_column(header="progress", justify="left", no_wrap=True)
-            table.add_column(header="timestamp", justify="left", no_wrap=True)
+            table.add_column(header="reason", justify="left", no_wrap=True)
+            table.add_column(header="queued since", justify="left", no_wrap=True)
 
-            for build in running_builds:
+            for build in queue:
 
                 timestamp = datetime.fromtimestamp(
-                    int(build["timestamp"]) / 1000
+                    int(build["inQueueSince"]) / 1000
                 ).strftime("%Y-%m-%d %H:%M:%S")
 
                 name = (
                     "chicken"
                     if getattr(self.app, "chicken_mode_enabled", None)
-                    else build["name"]
+                    else build["task"]["fullDisplayName"]
                 )
 
-                table.add_row(
-                    name,
-                    build["node"],
-                    f"{build['progress']}%",
-                    timestamp,
-                )
+                table.add_row(name, build["why"], timestamp)
 
             panel_content = table
 
         else:
-            self.log("No running builds, system is idle.")
-            panel_content = Align.center(renderable="Idle", vertical="middle")
+            self.log("No queued builds, system is idle.")
+            panel_content = Align.center(
+                renderable="No builds in the queue.", vertical="middle"
+            )
 
         self.renderable = panel_content
 
@@ -82,6 +79,4 @@ class JenkinsExecutorStatus(Widget):
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
 
-        return Panel(
-            renderable=self.renderable, title="build executor status", expand=True
-        )
+        return Panel(renderable=self.renderable, title="queued", expand=True)
