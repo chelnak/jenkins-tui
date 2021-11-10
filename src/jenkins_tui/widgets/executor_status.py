@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Optional
 from dependency_injector.wiring import inject, Provide
 
 
@@ -20,7 +20,7 @@ from ..renderables import ExecutorStatusTableRenderable
 class ExecutorStatusWidget(Widget):
     """An executor status widget. Used to display running builds on the server."""
 
-    renderable: Align | ExecutorStatusTableRenderable
+    renderable: ExecutorStatusTableRenderable
 
     @inject
     def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
@@ -43,7 +43,6 @@ class ExecutorStatusWidget(Widget):
             return
 
         if isinstance(self.renderable, Align):
-            self.log("NO")
             return
 
         key = event.key
@@ -64,13 +63,10 @@ class ExecutorStatusWidget(Widget):
 
     def render_executor_status_table(self) -> None:
         """Render the executor status table."""
-        if len(self.running_builds) > 0:
-            self.renderable = ExecutorStatusTableRenderable(
-                builds=self.running_builds,
-                page_size=self.size.height - 6,
-            )
-        else:
-            self.renderable = Align.center(renderable="🕑", vertical="middle")
+        self.renderable = ExecutorStatusTableRenderable(
+            builds=self.running_builds or [],
+            page_size=self.size.height - 4,
+        )
 
     async def _update(self):
         """Update the current renderable object."""
@@ -80,19 +76,21 @@ class ExecutorStatusWidget(Widget):
         self.running_builds_count = len(self.running_builds)
         self.queued_builds_count = len(self.queued_builds)
 
-        self.refresh()
+        self.refresh(layout=True)
 
     async def on_mount(self):
         """Actions that are executed when the widget is mounted."""
         await self._update()
+        self.render_executor_status_table()
         self.set_interval(10, self._update)
 
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
-
         self.render_executor_status_table()
+
         return Panel(
             renderable=self.renderable,
             title=f"(queued: [orange3]{self.queued_builds_count}[/] / running [green]{self.running_builds_count}[/])",
             expand=True,
+            padding=(1),
         )

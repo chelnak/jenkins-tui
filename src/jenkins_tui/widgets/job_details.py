@@ -21,7 +21,6 @@ from ..renderables import (
 class JobDetailsWidget(Widget):
     """A build table widget. Used to display builds within a job."""
 
-    has_focus = Reactive(False)
     table: Optional[PaginatedTableRenderable] = None
     title: Reactive[str] = Reactive("")
 
@@ -35,12 +34,6 @@ class JobDetailsWidget(Widget):
         self.job = job
         name = self.__class__.__name__
         super().__init__(name=name)
-
-    def on_focus(self) -> None:
-        self.has_focus = True
-
-    def on_blur(self) -> None:
-        self.has_focus = False
 
     def on_key(self, event: events.Key) -> None:
         if self.table is None:
@@ -62,27 +55,23 @@ class JobDetailsWidget(Widget):
 
         self.refresh()
 
-    async def on_mouse_scroll_up(self) -> None:
-        await self.app.set_focus(self)
-        if self.table is not None:
-            self.table.next_row()
-        self.refresh()
+    async def on_mount(self) -> None:
+        """Overrides on_mount from textual.widget.Widget"""
+        if not self.table:
+            self.render_history_table()
 
-    async def on_mouse_scroll_down(self) -> None:
-        await self.app.set_focus(self)
-        if self.table is not None:
-            self.table.previous_row()
-        self.refresh()
+        self.refresh(layout=True)
 
     def render_history_table(self) -> None:
-
+        """Renders the build history table."""
         builds = self.job.get("builds")
         self.table = BuildHistoryTableRenderable(
             builds if builds else [],
-            page_size=self.size.height - 7,
+            page_size=self.size.height - 5,
             page=self.table.page if self.table else 1,
             row=self.table.row if self.table else 0,
         )
+
         self.title = "history"
 
     def render_changes_table(self) -> None:
@@ -90,7 +79,7 @@ class JobDetailsWidget(Widget):
         builds = self.job.get("builds")
         self.table = BuildChangesTableRenderable(
             builds if builds else [],
-            page_size=self.size.height - 13,
+            page_size=self.size.height - 5,
             page=self.table.page if self.table else 1,
             row=self.table.row if self.table else 0,
         )
@@ -108,6 +97,6 @@ class JobDetailsWidget(Widget):
             title=Text.from_markup(f"[bold]{self.title}[/]"),
             border_style="grey82",
             title_align="center",
-            padding=0,
+            expand=True,
         )
         return body
