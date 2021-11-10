@@ -143,4 +143,4 @@ class JobView(BaseView):
                     ButtonPressed(self.nav.buttons["history"])
                 )
 
-        self.refresh()
+        self.refresh(layout=True)
