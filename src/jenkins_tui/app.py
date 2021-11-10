@@ -26,7 +26,6 @@ class JenkinsTUI(App):
 
     async def on_mount(self) -> None:
         """Overrides on_mount from App()"""
-
         self.tree_container = CustomScrollView(
             intial_view=SideBarView(),
             name="DirectoryScrollView",
@@ -35,9 +34,8 @@ class JenkinsTUI(App):
         await self.view.dock(self.tree_container, edge="left", size=40, name="sidebar")
 
         # Dock content container
-        home_view = HomeView()
         self.container = CustomScrollView(
-            intial_view=home_view, name="ContentScrollView"
+            intial_view=HomeView(), name="ContentScrollView"
         )
         self.container.vscroll = ScrollBarWidget()
         await self.view.dock(self.container)
@@ -65,6 +63,7 @@ def run():
     container.wire(modules=[sys.modules[__name__], widgets, views, tree])
 
     # run the app
+    os.environ["JENKINSTUI_LOG"] = "textual.log"
     log = os.getenv("JENKINSTUI_LOG")
     chicken = os.getenv("JENKINSTUI_DEVMODE")
     # JenkinsTUI.chicken_mode_enabled = chicken
