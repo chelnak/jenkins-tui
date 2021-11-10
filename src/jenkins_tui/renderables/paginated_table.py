@@ -112,7 +112,7 @@ class PaginatedTableRenderable(ABC):
 
     def __rich__(self) -> Union[Group, str]:
         pagination_info = Text.from_markup(
-            f"[gray82]page [bold]{self.page}[/] of [bold]{1 if self.total_pages() == 0 else self.total_pages}[/][/]",
+            f"[gray82]page [bold]{self.page}[/] of [bold]{1 if self.total_pages() == 0 else self.total_pages()}[/][/]",
         )
 
         table = self.build_table()
