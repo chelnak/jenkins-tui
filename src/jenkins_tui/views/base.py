@@ -8,6 +8,8 @@ from textual.view import View
 from textual.layouts.grid import GridLayout
 from textual.views._window_view import WindowChange
 from textual.reactive import Reactive
+from textual import events
+from textual.geometry import Size
 
 from ..widgets import ButtonWidget
 
@@ -64,3 +66,9 @@ class BaseView(View):
     async def watch_scroll_y(self, value: int) -> None:
         self.layout.require_update()
         self.refresh()
+
+    async def watch_virtual_size(self, size: Size) -> None:
+        await self.emit(WindowChange(self))
+
+    async def on_resize(self, event: events.Resize) -> None:
+        await self.emit(WindowChange(self))
