@@ -60,8 +60,8 @@ class ExecutorStatusTableRenderable(PaginatedTableRenderable):
                     Rule(style="grey82"),
                 ]
             )
-            table.add_row(Padding(render_group, pad=(0, 0, 1, 0)))
+            table.add_row(Padding(render_group, pad=(0, 1)))
 
     def render_columns(self, table: Table) -> None:
         table.show_header = False
-        table.add_column()
+        table.add_column(no_wrap=True)
