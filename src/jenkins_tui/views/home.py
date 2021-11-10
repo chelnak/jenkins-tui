@@ -4,6 +4,7 @@ from dependency_injector.wiring import Provide, inject
 
 from rich.console import Group
 from rich.text import Text
+from rich.style import Style
 
 from .base import BaseView
 from ..widgets import ExecutorStatusWidget, InfoWidget
@@ -36,7 +37,6 @@ class HomeView(BaseView):
             info="col,info",
             executor="col,executor",
         )
-        from rich.style import Style
 
         server_address = Text(
             self.client.url, style=Style(link=self.client.url), overflow="ellipsis"
