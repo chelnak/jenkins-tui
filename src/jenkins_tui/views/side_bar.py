@@ -13,7 +13,7 @@ class SideBarView(BaseView):
 
         self.layout.add_column("col", min_size=25)
         self.layout.add_row("head", size=8)
-        self.layout.add_row("tree")
+        self.layout.add_row("tree", min_size=25)
         self.layout.set_align("left", "left")
         self.layout.set_gutter(0, 0)
         self.layout.set_gap(0, 0)
