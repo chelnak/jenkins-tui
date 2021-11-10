@@ -29,7 +29,9 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
             row (int, optional): The starting row. Defaults to 0.
         """
         self.builds = builds
-        super().__init__(len(builds), page_size=page_size, page=page, row=row)
+        super().__init__(
+            len(builds), page_size=page_size, page=page, row=row, row_size=1
+        )
 
     def _get_style_from_result(self, result: str) -> str | Style:
         """Returns a style for a given result.
