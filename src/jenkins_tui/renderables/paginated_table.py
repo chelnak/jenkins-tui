@@ -108,21 +108,12 @@ class PaginatedTableRenderable(ABC):
         pass
 
     def build_table(self) -> Table:
-        return Table(title_style="", expand=True, box=box.SIMPLE)
+        return Table(title_style="", expand=True, box=box.SIMPLE, show_edge=False)
 
     def __rich__(self) -> Union[Group, str]:
-        pagination_info = Text(
-            justify="right",
+        pagination_info = Text.from_markup(
+            f"[gray82]page [bold]{self.page}[/] of [bold]{1 if self.total_pages() == 0 else self.total_pages}[/][/]",
         )
-
-        if self.total_pages() > 0:
-            pagination_info += Text.from_markup(
-                "[gray82]page [bold]{}[/] of [bold]{}[/][/]".format(
-                    self.page, self.total_pages()
-                ),
-            )
-        else:
-            pagination_info += ""
 
         table = self.build_table()
         self.render_columns(table)
@@ -137,14 +128,14 @@ class PaginatedTableRenderable(ABC):
 
         if 0 < self.row <= len(table.rows):
             table.rows[self.row - 1].style = Style(
-                bold=True, dim=False, bgcolor="grey35"
+                bold=True, dim=False, bgcolor="green"  # "grey35"
             )
 
-        missing_rows = self.page_size - len(table.rows) * self.row_size
-        multip = missing_rows
+        from rich.align import Align
+
         padding = Padding(
-            Padding(pagination_info, (0, 1, 0, 0)),
-            (missing_rows, 0, 0, 0),
+            Align.right(pagination_info),
+            pad=(self.page_size - (len(renderables) * self.row_size), 0, 0, 0),
         )
 
         return Group(table, padding)
