@@ -5,3 +5,7 @@ textual.log
 dist
 .mypy_cache
 .DS_Store
+
+
+dev/jenkins_home/*
+!dev/jenkins_home/PLACEHOLDER.txt
