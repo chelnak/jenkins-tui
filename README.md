@@ -58,6 +58,22 @@ The project uses [pre-commit](https://pre-commit.com/) for commit time checking.
 pre-commit install
 ```
 
+### Starting the dev environment
+
+The dev environment gives you a fully configured dev instance. To start it run the following command:
+
+```bash
+make dev
+```
+
+Once it's started you can access it locally with the following details:
+
+| host | user | password |
+|------|------|----------|
+| http://localhost:8080 | admin | admin |
+
+> The dev env set up uses lots of the good stuff from this repository: <https://github.com/uhafner/warnings-ng-plugin-devenv/tree/main/docker> :rocket:
+
 ### Releasing stuff
 
 Releasing is a semi manual but well oiled method. Tags are used to trigger the release steps in the ci process.

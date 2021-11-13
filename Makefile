@@ -19,8 +19,7 @@ check:
 
 .PHONY: dev
 dev:
-	@nerdctl build -t jenkins-tui/jenkins -f dev/Dockerfile dev
-	@nerdctl run -rm -v ${PWD}/dev/jenkins_home:/var/jenkins_home -p 8080:8080 jenkins-tui/jenkins
+	@nerdctl compose --project-directory dev up --build
 
 .PHONY: dev-clean
 dev-clean:
