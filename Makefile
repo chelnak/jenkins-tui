@@ -19,7 +19,7 @@ check:
 
 .PHONY: dev
 dev:
-	@nerdctl compose --project-directory dev up --build
+	@docker compose --project-directory dev up --build
 
 .PHONY: dev-clean
 dev-clean:
