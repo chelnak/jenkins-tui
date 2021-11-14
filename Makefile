@@ -19,7 +19,7 @@ check:
 
 .PHONY: dev
 dev:
-	@docker compose --project-directory dev up --build
+	@docker compose --env-file dev/.env --project-directory dev up --build
 
 .PHONY: dev-clean
 dev-clean:
