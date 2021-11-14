@@ -31,8 +31,10 @@ class PaginatedTableRenderable(ABC):
         self.total_items = total_items
         self.page_size = total_items if page_size < 0 else page_size
         self.row_size = row_size
+
         if row > 0:
             self.row = row
+        self.page = page
 
     def total_pages(self) -> int:
         return 0 if self.page_size <= 0 else ceil(self.total_items / self.page_size)
@@ -108,11 +110,17 @@ class PaginatedTableRenderable(ABC):
         pass
 
     def build_table(self) -> Table:
-        return Table(title_style="", expand=True, box=box.SIMPLE, show_edge=False)
+        return Table(
+            title_style="",
+            expand=True,
+            box=box.SIMPLE,
+            show_edge=False,
+            header_style=Style(bold=True, color="grey82"),
+        )
 
     def __rich__(self) -> Union[Group, str]:
         pagination_info = Text.from_markup(
-            f"[gray82]page [bold]{self.page}[/] of [bold]{1 if self.total_pages() == 0 else self.total_pages()}[/][/]",
+            f"[gray82]page [bold][orange3]{self.page}[/][/] of [bold][green]{1 if self.total_pages() == 0 else self.total_pages()}[/][/][/]",
         )
 
         table = self.build_table()
@@ -128,7 +136,7 @@ class PaginatedTableRenderable(ABC):
 
         if 0 < self.row <= len(table.rows):
             table.rows[self.row - 1].style = Style(
-                bold=True, dim=False, bgcolor="green"  # "grey35"
+                bold=True, dim=False, bgcolor="green"
             )
 
         from rich.align import Align

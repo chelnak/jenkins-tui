@@ -7,6 +7,7 @@ from dependency_injector.wiring import inject, Provide
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.align import Align
+from rich.style import Style
 
 from textual import events
 from textual.keys import Keys
@@ -19,8 +20,6 @@ from ..renderables import ExecutorStatusTableRenderable
 
 class ExecutorStatusWidget(Widget):
     """An executor status widget. Used to display running builds on the server."""
-
-    renderable: ExecutorStatusTableRenderable
 
     @inject
     def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
@@ -37,6 +36,7 @@ class ExecutorStatusWidget(Widget):
         self.queued_builds: list[dict[str, Any]] = []
         self.running_builds_count: int = 0
         self.queued_builds_count: int = 0
+        self.renderable: Optional[ExecutorStatusTableRenderable] = None
 
     def on_key(self, event: events.Key) -> None:
         if self.renderable is None:
@@ -66,6 +66,8 @@ class ExecutorStatusWidget(Widget):
         self.renderable = ExecutorStatusTableRenderable(
             builds=self.running_builds or [],
             page_size=self.size.height - 4,
+            page=self.renderable.page if self.renderable else 1,
+            row=self.renderable.row if self.renderable else 0,
         )
 
     async def _update(self):
@@ -87,10 +89,11 @@ class ExecutorStatusWidget(Widget):
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
         self.render_executor_status_table()
-
+        assert isinstance(self.renderable, ExecutorStatusTableRenderable)
         return Panel(
             renderable=self.renderable,
-            title=f"(queued: [orange3]{self.queued_builds_count}[/] / running [green]{self.running_builds_count}[/])",
+            title=f"[grey82](queued: [orange3]{self.queued_builds_count}[/] / running [green]{self.running_builds_count}[/])[/]",
             expand=True,
             padding=(1),
+            border_style=Style(color="medium_purple4"),
         )

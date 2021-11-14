@@ -27,6 +27,7 @@ class Jenkins:
         self.timeout = timeout if timeout else socket.getdefaulttimeout()
         self.auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
         self.version = ""
+        self.description = ""
 
         self.test_connection()
 
@@ -38,7 +39,9 @@ class Jenkins:
         ) as client:
             response = client.request(method="GET", url="/api/json")
             response.raise_for_status()
+
             self.version = response.headers["X-Jenkins"]
+            self.description = response.json().get("description", "")
 
     async def _request_async(
         self, endpoint: str, method: str = "GET"
@@ -169,9 +172,10 @@ class Jenkins:
             for executor in node["executors"]:
                 if not executor["idle"]:
                     executable = executor["currentExecutable"]
+
                     builds.append(
                         {
-                            "name": executable["displayName"],
+                            "name": executable["fullDisplayName"],
                             "number": executable["number"],
                             "node": node["displayName"],
                             "progress": executor["progress"],

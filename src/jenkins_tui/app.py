@@ -1,5 +1,6 @@
 import os
 import sys
+from rich.repr import T
 
 from textual.reactive import Reactive
 from textual.app import App
@@ -26,12 +27,8 @@ class JenkinsTUI(App):
 
     async def on_mount(self) -> None:
         """Overrides on_mount from App()"""
-        self.tree_container = CustomScrollView(
-            intial_view=SideBarView(),
-            name="DirectoryScrollView",
-        )
-        self.tree_container.vscroll = ScrollBarWidget()
-        await self.view.dock(self.tree_container, edge="left", size=40, name="sidebar")
+
+        await self.view.dock(SideBarView(), edge="left", size=40, name="sidebar")
 
         # Dock content container
         self.container = CustomScrollView(
@@ -41,11 +38,11 @@ class JenkinsTUI(App):
         await self.view.dock(self.container)
 
         self.flash = FlashWidget()
-        await self.view.dock(self.flash, edge="bottom")
+        await self.view.dock(self.flash, edge="bottom", z=1)
 
     async def handle_show_flash_notification(self, message: ShowFlashNotification):
         self.log("Handling ShowFlashNotification message")
-        await self.flash.update_flash_message(value=message.value)
+        await self.flash.update_flash_message(value=message.value, type=message.type)
 
 
 def run():
@@ -65,9 +62,14 @@ def run():
     # run the app
     os.environ["JENKINSTUI_LOG"] = "textual.log"
     log = os.getenv("JENKINSTUI_LOG")
-    chicken = os.getenv("JENKINSTUI_DEVMODE")
-    # JenkinsTUI.chicken_mode_enabled = chicken
-    JenkinsTUI.run(title=config.app_name, log=log)
+
+    try:
+        JenkinsTUI.run(title=config.app_name, log=log)
+    except Exception as e:
+        from rich.console import Console
+
+        console = Console()
+        console.print(f"💥 It looks like there has been an error!\n\n {e}")
 
 
 if __name__ == "__main__":

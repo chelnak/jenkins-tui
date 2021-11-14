@@ -7,7 +7,7 @@ from .job_details import JobDetailsWidget
 from .text_input_field import TextInputFieldWidget
 from .single_stat import SingleStatWidget
 from .figlet_text_widget import FigletTextWidget
-from .flash import FlashWidget, ShowFlashNotification
+from .flash import FlashWidget, ShowFlashNotification, FlashMessageType
 
 __all__ = (
     "BuildQueueWidget",
@@ -21,4 +21,5 @@ __all__ = (
     "FigletTextWidget",
     "FlashWidget",
     "ShowFlashNotification",
+    "FlashMessageType",
 )

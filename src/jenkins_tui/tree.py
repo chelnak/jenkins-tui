@@ -5,7 +5,6 @@ from functools import lru_cache
 from dataclasses import dataclass
 
 from rich.console import RenderableType
-from rich.padding import PaddingDimensions
 from rich.text import Text
 
 from textual.reactive import Reactive
@@ -56,6 +55,7 @@ class Tree(TreeControl[JobEntry]):
             "disabled": "⭕",
             "grey": "⚪",
             "notbuilt": "⏳",
+            "notbuilt_anime": "⏳",
             "red_anime": "🔄",
             "red": "🔴",
             "yellow": "🟡",
@@ -66,6 +66,7 @@ class Tree(TreeControl[JobEntry]):
             "org.jenkinsci.plugins.workflow.job.WorkflowJob": "job",
             "com.cloudbees.hudson.plugins.folder.Folder": "folder",
             "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject": "multibranch",
+            "hudson.model.FreeStyleProject": "freestyle",
         }
 
         self.root.tree.guide_style = self.styles["tree_guide"]
@@ -142,7 +143,7 @@ class Tree(TreeControl[JobEntry]):
         if is_hover:
             label.stylize(self.styles["node_on_hover"])
 
-        if is_cursor and has_focus:
+        if is_cursor:
             label.stylize(self.styles["tree_on_cursor"])
 
         if type == "root":
@@ -199,11 +200,7 @@ class Tree(TreeControl[JobEntry]):
         for entry in jobs:
 
             typeof = self.type_map.get(entry["_class"], "")
-            clean_name = (
-                "chicken"
-                if getattr(self.app, "chicken_mode_enabled", None)
-                else unquote(entry["name"])
-            )
+            clean_name = unquote(entry["name"])
             parts = entry["url"].strip("/").split("/job/")
             full_name = "/".join(parts[1:])
 
@@ -232,7 +229,7 @@ class Tree(TreeControl[JobEntry]):
             message (TreeClick[JobEntry]): A message that is sent when a tree item is clicked.
         """
         node_data = message.node.data
-        if node_data.type == "job":
+        if node_data.type == "job" or node_data.type == "freestyle":
 
             self.log("Handling JobClick message")
 

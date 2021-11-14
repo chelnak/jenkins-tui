@@ -55,7 +55,7 @@ class ExecutorStatusTableRenderable(PaginatedTableRenderable):
             )
             render_group = Group(
                 *[
-                    f"[bold][underline]{name}[/]",
+                    f"[grey82][bold]{name}[/][/]",
                     progress.get_renderable(),
                     Rule(style="grey82"),
                 ]

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from rich.console import RenderableType
-
-from typing import Any, Optional
+from typing import Optional
 from textual_inputs import TextInput
 from rich.text import Text
 
@@ -15,6 +13,7 @@ class TextInputFieldWidget(TextInput):
         *,
         name: Optional[str] = None,
         value: str = "",
+        default_value: str = "",
         placeholder: Text = Text(""),
         title: Text = Text(""),
         choices: list[str] = [],
@@ -30,6 +29,10 @@ class TextInputFieldWidget(TextInput):
             width (int, optional): A fixed width for the field. Defaults to 100.
             border_style (str, optional): The style of the border. Defaults to "grey82".
         """
+
+        if default_value != "":
+            value = str(default_value)
+
         super().__init__(
             name=name,
             value=str(value),  # because bools make len(self.value) fail
@@ -38,12 +41,13 @@ class TextInputFieldWidget(TextInput):
             width=width,
             border_style=border_style,
         )
-        self.title = title
+        self.title: str | Text = f"[grey82]{title}[/]"
         self.choices = choices
         self.required = required
-        self.original_title = title
+        self.original_title = self.title
         self.original_border_style = self.border_style
         self.layout_size = 3
+        self.default_value = str(default_value)
 
     async def validate(self) -> bool:
         """Validates the field input against configured criteria."""

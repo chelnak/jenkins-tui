@@ -10,7 +10,7 @@ class JobNavView(BaseView):
         """Actions that are executed when the widget is mounted."""
 
         await self.add_button(text="history (h)", id="history")
-        await self.add_button(text="changes (c)", id="changes")
+        # await self.add_button(text="changes (c)", id="changes")
         await self.add_button(text="build (b)", id="build")
 
         for k, _ in self.buttons.items():

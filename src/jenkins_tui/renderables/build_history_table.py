@@ -16,6 +16,7 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
     def __init__(
         self,
         builds: list[dict[str, Any]],
+        title: str,
         page_size: int = -1,
         page: int = 1,
         row: int = 0,
@@ -24,11 +25,13 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
 
         Args:
             builds (list[dict[str, Any]]): A list of builds to display.
+            title (str): Title of the table.
             page_size (int, optional): The size of the page before pagination happens. Defaults to -1.
             page (int, optional): The starting page. Defaults to 1.
             row (int, optional): The starting row. Defaults to 0.
         """
         self.builds = builds
+        self.title = title
         super().__init__(
             len(builds), page_size=page_size, page=page, row=row, row_size=1
         )
@@ -48,7 +51,7 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
             "SUCCESS": "green",
             "FAILURE": "red",
             "ABORTED": "#d45b0b",
-            "IN PROGRESS": Style(color="yellow"),
+            "IN PROGRESS": "orange3",
             "NOT BUILT": "",
         }
 

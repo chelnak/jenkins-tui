@@ -1,4 +1,5 @@
 from __future__ import annotations
+from enum import Enum, EnumMeta
 
 from rich.console import RenderableType
 from rich.style import Style
@@ -9,22 +10,31 @@ from textual.reactive import Reactive
 from textual.message import Message, MessageTarget
 
 
+class FlashMessageType(Enum):
+    SUCCESS = "success"
+    ERROR = "error"
+    WARNING = "warning"
+    INFO = "info"
+
+
 class ShowFlashNotification(Message):
     """A message type to signal the flash widget display."""
 
-    def __init__(self, sender: MessageTarget, value: str) -> None:
+    def __init__(
+        self,
+        sender: MessageTarget,
+        value: str,
+        type: FlashMessageType = FlashMessageType.INFO,
+    ) -> None:
         self.value = value
+        self.type = type
         super().__init__(sender)
 
 
 class FlashWidget(Widget):
     """A widget for showing temporary status updates"""
 
-    style: Reactive[Style] = Style(bgcolor="green", color="white")
-    value: Reactive[str] = Reactive("")
-    layout_size: Reactive[int] = 1
-
-    def __init__(self, timeout: int = 5) -> None:
+    def __init__(self, timeout: int = 10) -> None:
         """A widget for showing temporary status updates
 
         Args:
@@ -34,8 +44,28 @@ class FlashWidget(Widget):
         super().__init__(name=name)
         self.timeout = timeout
         self.visible = False
+        self.layout_size = 1
+        self.style: Style | str = ""
+        self.message_type = {
+            "success": {
+                "emoji": "✅",
+                "style": Style(bgcolor="green", color="white", bold=True),
+            },
+            "error": {
+                "emoji": "🔥",
+                "style": Style(bgcolor="red3", color="white", bold=True),
+            },
+            "warning": {
+                "emoji": "⚠️",
+                "style": Style(bgcolor="dark_orange", color="white", bold=True),
+            },
+            "info": {
+                "emoji": "ℹ️",
+                "style": Style(bgcolor="blue", color="white", bold=True),
+            },
+        }
 
-    async def update_flash_message(self, value: str, style: Style = None) -> None:
+    async def update_flash_message(self, type: FlashMessageType, value: str) -> None:
         """Update the flash message.
 
         Args:
@@ -44,10 +74,14 @@ class FlashWidget(Widget):
         """
         self.log("Handling ShowFlashNotification message")
 
-        if style:
-            self.style = style
+        message_type = self.message_type[type.value]
 
-        self.value = value
+        self.value = f"{message_type['emoji']} {value}"
+
+        style = message_type["style"]
+        assert isinstance(style, Style)
+        self.style = style
+
         self.visible = True
 
         async def hide():

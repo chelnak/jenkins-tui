@@ -16,7 +16,7 @@ class InfoWidget(Widget):
 
     def __init__(
         self,
-        title: str = None,
+        title: Optional[str | Text] = None,
         renderable: Optional[str | Text | RenderableType] = None,
     ) -> None:
         """A generic info widget. This displays information with a ruled title and some text.
@@ -39,10 +39,15 @@ class InfoWidget(Widget):
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
 
-        return Padding(
-            InfoRenderable(
-                title=self.title or self.defaults["title"],
-                renderable=self.renderable or self.defaults["renderable"],
-            ),
-            pad=(4, 0, 0, 0),
+        # return Padding(
+        #     InfoRenderable(
+        #         title=self.title or self.defaults["title"],
+        #         renderable=self.renderable or self.defaults["renderable"],
+        #     ),
+        #     pad=(1),
+        #     style="on green"
+        # )
+        return InfoRenderable(
+            title=self.title or self.defaults["title"],
+            renderable=self.renderable or self.defaults["renderable"],
         )

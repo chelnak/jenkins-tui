@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from dependency_injector.wiring import Provide, inject
 
 from rich.console import Group
@@ -52,5 +54,22 @@ class HomeView(BaseView):
             ]
         )
 
-        self.layout.place(info=InfoWidget(title="Welcome!", renderable=render_group))
+        HTML = re.compile(r"<[^>]+>")
+        clean_description = HTML.sub("", self.client.description)
+
+        title = Text.assemble(
+            *[
+                Text.from_markup(f"[grey82][bold]{clean_description}[/][/]\n"),
+                Text.from_markup(
+                    f"server: [green]{server_version}[/] [orange3]⚡[/]client: [green]{client_version}[/]"
+                ),
+            ],
+            justify="center",
+        )
+        self.layout.place(
+            info=InfoWidget(
+                title=title,
+                renderable=f"Welcome to Jenkins TUI! 🚀\nYour instance url is: {server_address}",
+            )
+        )
         self.layout.place(executor=ExecutorStatusWidget())

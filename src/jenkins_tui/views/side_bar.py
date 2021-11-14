@@ -1,8 +1,10 @@
 from __future__ import annotations
+from rich.style import Style
+from textual.widgets import ScrollView
 
 from .base import BaseView
 from ..tree import Tree
-from ..widgets import FigletTextWidget
+from ..widgets import FigletTextWidget, ScrollBarWidget
 
 
 class SideBarView(BaseView):
@@ -23,5 +25,15 @@ class SideBarView(BaseView):
             tree="col,tree",
         )
 
-        self.layout.place(head=FigletTextWidget(text=self.app.title, name="header"))
-        self.layout.place(tree=Tree())
+        tree = ScrollView(
+            contents=Tree(),
+            name="DirectoryScrollView",
+        )
+        tree.vscroll = ScrollBarWidget()
+
+        self.layout.place(
+            head=FigletTextWidget(
+                text=self.app.title, name="header", style=Style(color="green")
+            )
+        )
+        self.layout.place(tree=tree)

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any
 
 from dependency_injector.wiring import Container, Provide, inject
-
+from rich import box
 from rich.style import Style
 from rich.text import Text
 
@@ -12,7 +12,12 @@ from textual.widget import Widget
 from textual.widgets import ButtonPressed
 
 from ..client import Jenkins
-from ..widgets import ButtonWidget, TextInputFieldWidget, ShowFlashNotification
+from ..widgets import (
+    ButtonWidget,
+    TextInputFieldWidget,
+    ShowFlashNotification,
+    FlashMessageType,
+)
 from ..containers import Container
 from .base import BaseView
 
@@ -30,6 +35,7 @@ class BuildWithParametersView(BaseView):
             job (dict[str, Any]): A job dictionary.
             client (Jenkins, optional): An injected Jenkins http client instance. Defaults to Provide[Container.client].
         """
+
         super().__init__()
 
         self.layout = GridLayout()
@@ -48,7 +54,6 @@ class BuildWithParametersView(BaseView):
         # Fields
         for parameter in self.job["property"][0]["parameterDefinitions"]:
 
-            self.log(f"parameter {parameter['name']}")
             name = parameter["name"]
             title = name.lower().replace("_", " ").capitalize()
             placeholder = Text(
@@ -59,8 +64,9 @@ class BuildWithParametersView(BaseView):
                 name=name,
                 title=title,
                 placeholder=placeholder,
-                value=parameter["defaultParameterValue"].get("value"),
+                default_value=parameter["defaultParameterValue"].get("value"),
                 choices=parameter.get("choices", []),
+                border_style="medium_purple4"
                 # validation_regex=parameter.get("validationRegex", None),
             )
 
@@ -70,16 +76,17 @@ class BuildWithParametersView(BaseView):
         self.layout.place(*self.fields)
 
         # Buttons
-        self.layout.add_row("row_buttons")
-        await self.add_button("OK")
-        await self.add_button("Cancel")
+        self.layout.add_row("row_buttons", size=5)
+
+        await self.add_button(text="ok")
+        await self.add_button(text="cancel")
 
         buttons_view = GridView()
         buttons_view.grid.add_column("ok", size=15)
         buttons_view.grid.add_column("cancel", size=15)
         buttons_view.grid.add_row("row", size=3)
         buttons_view.grid.set_align("center", "center")
-        buttons_view.grid.set_gutter(0, 0)
+        # buttons_view.grid.set_gutter(0, 0)
         buttons_view.grid.place(*list(self.buttons.values()))
 
         self.layout.place(*[buttons_view])
@@ -88,7 +95,7 @@ class BuildWithParametersView(BaseView):
 
     async def handle_button_pressed(self, message: ButtonPressed):
         # reset previous current button toggle value
-        self.log(f"button pressed {message.name}")
+        self.log(f"Handling button press: {message.name}")
         if self.current_button:
             self.current_button.toggle = False
 
@@ -111,14 +118,26 @@ class BuildWithParametersView(BaseView):
             message.stop()
 
             if not validation_failed:
-                field.value = ""
+                field.value = field.default_value or ""
 
-                await self.client.build(path=self.parent.path, parameters=parameters)
+                try:
+                    await self.client.build(
+                        path=self.parent.path, parameters=parameters
+                    )
+                    await self.post_message_from_child(
+                        ShowFlashNotification(
+                            self, value="Build scheduled", type=FlashMessageType.SUCCESS
+                        )
+                    )
+                except Exception as e:
+                    await self.post_message_from_child(
+                        ShowFlashNotification(
+                            self, type=FlashMessageType.ERROR, value=str(e)
+                        )
+                    )
 
-                self.post_message(
-                    ShowFlashNotification(self, value="Build scheduled ✅")
+                await self.post_message_from_child(
+                    ButtonPressed(self.parent.nav.buttons["history"])
                 )
-
-                await self.post_message(ButtonPressed(self.parent.nav.buttons["build"]))
 
         self.refresh()

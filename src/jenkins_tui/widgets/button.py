@@ -27,16 +27,17 @@ class ButtonWidget(Button):
     def render(self) -> RenderableType:
         assert isinstance(self.label, Text)
         text_style = Style(underline=self.toggle)
-        border_style = Style(color="grey82", dim=self.mouse_over or self.toggle)
-
+        border_style = Style(
+            color="grey82", bold=True, dim=self.mouse_over or self.toggle
+        )
+        box_style = box.DOUBLE if self.toggle else box.SQUARE
         self.label.stylize(style=text_style)
         panel_content = ButtonRenderable(self.label)
         return Panel(
-            panel_content, box=box.SQUARE, border_style=border_style, expand=False
+            panel_content, box=box_style, border_style=border_style, expand=False
         )
 
     async def on_click(self, event: events.Click) -> None:
-        self.log(f"button clicked {self.name}")
         self.toggle = False if self.toggle else True
         event.prevent_default().stop()
         await self.emit(ButtonPressed(self))

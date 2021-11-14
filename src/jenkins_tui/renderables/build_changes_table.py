@@ -15,6 +15,7 @@ class BuildChangesTableRenderable(PaginatedTableRenderable):
     def __init__(
         self,
         builds: list[dict[str, Any]],
+        title: str,
         page_size: int = -1,
         page: int = 1,
         row: int = 0,
@@ -23,12 +24,14 @@ class BuildChangesTableRenderable(PaginatedTableRenderable):
 
         Args:
             builds (list[dict[str, Any]]): A list of builds to display.
+            title (str): The title of the table.
             page_size (int, optional): The size of the page before pagination happens. Defaults to -1.
             page (int, optional): The starting page. Defaults to 1.
             row (int, optional): The starting row. Defaults to 0.
         """
-        self.builds = builds
         super().__init__(len(builds), page_size=page_size, page=page, row=row)
+        self.builds = builds
+        self.title = title
 
     def build_table(self) -> Table:
         return Table(title_style="", expand=True, box=None, show_edge=True)
@@ -40,7 +43,7 @@ class BuildChangesTableRenderable(PaginatedTableRenderable):
 
         for build in renderables:
 
-            if len(build["changeSets"]) > 0:
+            if len(build.get("changeSets", [])) > 0:
 
                 timestamp = datetime.fromtimestamp(
                     int(build["timestamp"]) / 1000
