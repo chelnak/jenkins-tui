@@ -18,7 +18,6 @@ class PaginatedTableRenderable(ABC):
 
     __page: int = 1
     __row: int = 0
-    __is_clickable: Reactive[bool] = Reactive(True)
 
     def __init__(
         self,
@@ -32,20 +31,11 @@ class PaginatedTableRenderable(ABC):
         self.page_size = total_items if page_size < 0 else page_size
         self.row_size = row_size
 
-        if row > 0:
-            self.row = row
+        self.row = row
         self.page = page
 
     def total_pages(self) -> int:
         return 0 if self.page_size <= 0 else ceil(self.total_items / self.page_size)
-
-    @property
-    def is_clickable(self) -> bool:
-        return self.__is_clickable
-
-    @is_clickable.setter
-    def is_clickable(self, value: bool) -> None:
-        self.__is_clickable.set(value)
 
     @property
     def row(self) -> int:
