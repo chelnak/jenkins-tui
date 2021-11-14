@@ -116,6 +116,7 @@ class PaginatedTableRenderable(ABC):
             box=box.SIMPLE,
             show_edge=False,
             header_style=Style(bold=True, color="grey82"),
+            border_style=Style(bold=True, color="medium_purple4"),
         )
 
     def __rich__(self) -> Union[Group, str]:
