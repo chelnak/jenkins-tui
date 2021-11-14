@@ -16,22 +16,17 @@ class InfoWidget(Widget):
 
     def __init__(
         self,
-        title: Optional[str | Text] = None,
-        renderable: Optional[str | Text | RenderableType] = None,
+        title: str | Text,
+        renderable: str | Text | RenderableType,
     ) -> None:
         """A generic info widget. This displays information with a ruled title and some text.
 
         Args:
-            title (str, optional): The title of the info widget. Defaults to None.
-            renderable (str, Text, optional): The text that will be rendered in the info widget. Defaults to None.
+            title (str, Text): The title of the info widget.
+            renderable (str, Text): The text that will be rendered in the info widget.
         """
         self.title = title
         self.renderable = renderable
-
-        self.defaults = {
-            "title": "Welcome!",
-            "renderable": "Welcome to Jenkins TUI! 🚀\n\n👀 Use the navigation fly-out on the left!",
-        }
 
         name = self.__class__.__name__
         super().__init__(name=name)
@@ -39,15 +34,7 @@ class InfoWidget(Widget):
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
 
-        # return Padding(
-        #     InfoRenderable(
-        #         title=self.title or self.defaults["title"],
-        #         renderable=self.renderable or self.defaults["renderable"],
-        #     ),
-        #     pad=(1),
-        #     style="on green"
-        # )
         return InfoRenderable(
-            title=self.title or self.defaults["title"],
-            renderable=self.renderable or self.defaults["renderable"],
+            title=self.title,
+            renderable=self.renderable,
         )

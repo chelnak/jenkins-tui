@@ -19,13 +19,13 @@ class InfoRenderable:
     def __init__(
         self,
         title: str | Text | RenderableType,
-        renderable: Optional[str | Text | RenderableType] = None,
+        renderable: str | Text | RenderableType,
     ) -> None:
         """An info renderable.
 
         Args:
-            title (str, optional): The title to display.
-            renderable (Optional[str, optional): A renderable that will be displayed in the main body of a widget.. Defaults to None.
+            title (str, Text, RenderableType): The title to display.
+            renderable (str, Text, RenderableType): A renderable that will be displayed in the main body of a widget.
         """
         self.title = title
         self.renderable = renderable
@@ -43,19 +43,15 @@ class InfoRenderable:
                 if isinstance(self.title, str)
                 else self.title,
                 vertical="middle",
-                pad=False,
             ),
             height=6,
             border_style=Style(color="medium_purple4"),
             padding=(0),
         )
 
-        renderable = Padding("")
-
-        if self.renderable:
-            renderable = Padding(
-                renderable=self.renderable,
-                pad=(1),
-            )
+        renderable = Padding(
+            renderable=self.renderable,
+            pad=(1),
+        )
 
         yield Padding(Group(title, renderable), pad=(1))
