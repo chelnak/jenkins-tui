@@ -1,15 +1,17 @@
 import os
 import sys
+from rich.repr import T
 
 from textual.reactive import Reactive
 from textual.app import App
-from textual.widgets import ScrollView
 
 from . import config
-from .tree import JenkinsTree
-from .views import JenkinsScrollView, JenkinsHomeView
-from .widgets import JenkinsHeader, JenkinsFooter, JenkinsScrollBar
-
+from .views import CustomScrollView, HomeView, SideBarView
+from .widgets import (
+    ScrollBarWidget,
+    FlashWidget,
+    ShowFlashNotification,
+)
 from .containers import Container
 
 
@@ -20,32 +22,27 @@ class JenkinsTUI(App):
 
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
-
-        await self.bind("b", "view.toggle('sidebar')", "Toggle sidebar")
         await self.bind("r", "refresh_tree", "Refresh")
         await self.bind("q", "quit", "Quit")
 
     async def on_mount(self) -> None:
         """Overrides on_mount from App()"""
 
-        # Dock header and footer
-        await self.view.dock(JenkinsHeader(), edge="top")
-        await self.view.dock(JenkinsFooter(), edge="bottom")
-
-        # Dock tree container
-        self.directory = JenkinsTree()
-        self.tree_container = ScrollView(
-            contents=self.directory,
-            name="DirectoryScrollView",
-        )
-        self.tree_container.vscroll = JenkinsScrollBar()
-        await self.view.dock(self.tree_container, edge="left", size=40, name="sidebar")
+        await self.view.dock(SideBarView(), edge="left", size=40, name="sidebar")
 
         # Dock content container
-        home_view = JenkinsHomeView()
-        self.container = JenkinsScrollView(intial_view=home_view)
-        self.container.vscroll = JenkinsScrollBar()
+        self.container = CustomScrollView(
+            intial_view=HomeView(), name="ContentScrollView"
+        )
+        self.container.vscroll = ScrollBarWidget()
         await self.view.dock(self.container)
+
+        self.flash = FlashWidget()
+        await self.view.dock(self.flash, edge="bottom", z=1)
+
+    async def handle_show_flash_notification(self, message: ShowFlashNotification):
+        self.log("Handling ShowFlashNotification message")
+        await self.flash.update_flash_message(value=message.value, type=message.type)
 
 
 def run():
@@ -63,10 +60,16 @@ def run():
     container.wire(modules=[sys.modules[__name__], widgets, views, tree])
 
     # run the app
+    os.environ["JENKINSTUI_LOG"] = "textual.log"
     log = os.getenv("JENKINSTUI_LOG")
-    chicken = os.getenv("JENKINSTUI_DEVMODE")
-    # JenkinsTUI.chicken_mode_enabled = chicken
-    JenkinsTUI.run(title=config.app_name, log=log)
+
+    try:
+        JenkinsTUI.run(title=config.app_name, log=log)
+    except Exception as e:
+        from rich.console import Console
+
+        console = Console()
+        console.print(f"💥 It looks like there has been an error!\n\n {e}")
 
 
 if __name__ == "__main__":

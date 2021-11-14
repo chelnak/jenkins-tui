@@ -12,8 +12,9 @@ from textual.widgets import TreeControl, TreeClick, TreeNode, NodeID
 
 from . import config
 from .client import Jenkins
+
 from .containers import Container
-from .views import JenkinsBuildView
+from .views import JobView
 
 
 @dataclass
@@ -27,9 +28,9 @@ class JobEntry:
     jobs: str | list[dict[str, str]]
 
 
-class JenkinsTree(TreeControl[JobEntry]):
+class Tree(TreeControl[JobEntry]):
 
-    current_node: Reactive[str] = Reactive("root")
+    current_node: JobEntry
     has_focus: Reactive[bool] = Reactive(False)
 
     @inject
@@ -49,11 +50,13 @@ class JenkinsTree(TreeControl[JobEntry]):
         self.client = client
         self.color_map = {
             "aborted": "❌",
+            "aborted_anime": "❌",
             "blue": "🔵",
             "blue_anime": "🔄",
             "disabled": "⭕",
             "grey": "⚪",
             "notbuilt": "⏳",
+            "notbuilt_anime": "⏳",
             "red_anime": "🔄",
             "red": "🔴",
             "yellow": "🟡",
@@ -64,9 +67,12 @@ class JenkinsTree(TreeControl[JobEntry]):
             "org.jenkinsci.plugins.workflow.job.WorkflowJob": "job",
             "com.cloudbees.hudson.plugins.folder.Folder": "folder",
             "org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject": "multibranch",
+            "hudson.model.FreeStyleProject": "freestyle",
         }
 
         self.root.tree.guide_style = self.styles["tree_guide"]
+        self.current_node = self.root.data
+        self.padding = (0, 0)
 
     async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted.
@@ -138,7 +144,7 @@ class JenkinsTree(TreeControl[JobEntry]):
         if is_hover:
             label.stylize(self.styles["node_on_hover"])
 
-        if is_cursor and has_focus:
+        if is_cursor:
             label.stylize(self.styles["tree_on_cursor"])
 
         if type == "root":
@@ -155,6 +161,7 @@ class JenkinsTree(TreeControl[JobEntry]):
 
         else:
             label.stylize(self.styles["node"])
+            self.log(node.data.color)
             icon = self.color_map.get(node.data.color, "?")
 
         icon_label = Text(f"{icon} ", no_wrap=True, overflow="ellipsis") + label
@@ -195,11 +202,7 @@ class JenkinsTree(TreeControl[JobEntry]):
         for entry in jobs:
 
             typeof = self.type_map.get(entry["_class"], "")
-            clean_name = (
-                "chicken"
-                if getattr(self.app, "chicken_mode_enabled", None)
-                else unquote(entry["name"])
-            )
+            clean_name = unquote(entry["name"])
             parts = entry["url"].strip("/").split("/job/")
             full_name = "/".join(parts[1:])
 
@@ -228,30 +231,31 @@ class JenkinsTree(TreeControl[JobEntry]):
             message (TreeClick[JobEntry]): A message that is sent when a tree item is clicked.
         """
         node_data = message.node.data
-
-        if node_data.type == "job":
+        if node_data.type == "job" or node_data.type == "freestyle":
 
             self.log("Handling JobClick message")
 
             async def _set():
                 """Used to update the build info and job table widgets."""
-                view = JenkinsBuildView(url=node_data.url)
+                view = JobView(url=node_data.url)
                 await self.app.container.update(view=view)
 
-            if node_data.name != self.current_node:
+            # if the current node is the same as the clicked node then shouldn't do anything
+            if node_data.name != self.current_node.name:
                 self.current_node = node_data
                 await self.call_later(_set)
 
-        elif node_data.name == "root":
+        elif node_data.type == "root":
             self.log("Handling RootClick message")
 
             async def set() -> None:
                 """Used to set the content of the homescren"""
-                home = self.app.container.home_view
+                home = self.app.container.origin_view
+                home.visible = True
                 await self.app.container.update(view=home)
 
-            if self.current_node != "root":
-                self.current_node = "root"
+            if self.current_node.name != "root":
+                self.current_node = node_data
                 await self.call_later(set)
 
         else:

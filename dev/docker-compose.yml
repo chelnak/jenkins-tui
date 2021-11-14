@@ -1,0 +1,21 @@
+version: "3"
+services:
+  controller:
+    build:
+      context: controller
+    volumes:
+      #- /var/run/docker.sock:/var/run/docker.sock
+      - ./jenkins_home:/var/jenkins_home
+    ports:
+      - 8080:8080
+    environment:
+      - TRY_UPGRADE_IF_NO_MARKER=true
+      - JAVA_OPTS= -Dstapler.jelly.noCache=true  -Dhudson.remoting.ClassFilter=com.google.common.collect.ImmutableListMultimap -DexecutableWar.jetty.disableCustomSessionIdCookieName=true -DexecutableWar.jetty.sessionIdCookieName=jenkins-tui-devenv -Dgroovy.use.classvalue=true
+    user: "${UID}:${GID}"
+  agent:
+    build:
+      context: agent
+    ports:
+      - 8001:8001
+    depends_on:
+      - controller

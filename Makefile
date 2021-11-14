@@ -16,3 +16,11 @@ check:
 	black --check .
 	mypy tools
 	mypy src/jenkins_tui
+
+.PHONY: dev
+dev:
+	@docker compose --env-file dev/.env --project-directory dev up --build
+
+.PHONY: dev-clean
+dev-clean:
+	@find dev/jenkins_home/. \! -name "PLACEHOLDER.txt" -delete

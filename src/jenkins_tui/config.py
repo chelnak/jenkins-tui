@@ -13,26 +13,19 @@ app_name = "Jenkins"
 # Styling
 style = "clean"
 style_map = {
-    "default": {
-        "root_node": "bold red",
-        "folder": "bold magenta",
-        "node": "bright_green",
-        "node_on_hover": "underline",
-        "multibranch_node": "magenta",
-        "tree_guide": "black",
-        "tree_guide_on_hover": "bold not dim red",
-        "tree_on_cursor": "reverse",
-        "scroll_bar_foreground": "red",
-        "scroll_bar_foreground_grabbed": "white",
-        "scroll_bar_background": "#444444",
-        "scroll_bar_background_on_hover": "#555555",
+    "common": {
+        "orange": "orange3",
+        "green": "green",
+        "grey": "grey82",
+        "purple": "medium_purple4",
     },
     "clean": {
-        "root_node": "gray",
-        "folder": "gray",
-        "node": "gray",
+        "grey": "grey82",
+        "root_node": "grey82",
+        "folder": "grey82",
+        "node": "grey82",
         "node_on_hover": "underline",
-        "multibranch_node": "gray",
+        "multibranch_node": "grey82",
         "tree_guide": "black",
         "tree_guide_on_hover": "white",
         "tree_on_cursor": "reverse",

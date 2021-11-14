@@ -1,6 +1,6 @@
 import socket
 import httpx
-
+from urllib.parse import urlencode
 from typing import Any, Optional
 from httpx._auth import BasicAuth
 
@@ -26,15 +26,22 @@ class Jenkins:
         self.url = url.strip("/") if url.endswith("/") else url
         self.timeout = timeout if timeout else socket.getdefaulttimeout()
         self.auth = BasicAuth(username.encode("utf-8"), password.encode("utf-8"))
+        self.version = ""
+        self.description = ""
 
-    async def _test_connection(self) -> bool:
-        """Test the connection to the Jenkins server.
+        self.test_connection()
 
-        Returns:
-            bool: True if the connection is valid.
-        """
-        _ = self._request_async(endpoint=f"api/json")
-        return True
+    def test_connection(self) -> None:
+        """Test the connection to the Jenkins server."""
+
+        with httpx.Client(
+            timeout=self.timeout, auth=self.auth, base_url=self.url
+        ) as client:
+            response = client.request(method="GET", url="/api/json")
+            response.raise_for_status()
+
+            self.version = response.headers["X-Jenkins"]
+            self.description = response.json().get("description", "")
 
     async def _request_async(
         self, endpoint: str, method: str = "GET"
@@ -51,7 +58,20 @@ class Jenkins:
         async with httpx.AsyncClient(
             timeout=self.timeout, auth=self.auth, base_url=self.url
         ) as client:
-            response = await client.request(method=method, url=endpoint)
+
+            headers = {}
+
+            if method != "GET":
+                crumb_issuer_enderpoint = "crumbIssuer/api/json"
+                crumb_response = await client.request(
+                    method="GET", url=crumb_issuer_enderpoint
+                )
+                headers["Jenkins-Crumb"] = crumb_response.json()["crumb"]
+
+            response = await client.request(
+                method=method, url=endpoint, headers=headers
+            )
+
             response.raise_for_status()
             return response
 
@@ -67,18 +87,16 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["computer"]
 
-    async def get_job(self, path: str = None, limit: int = 20) -> list[dict[Any, Any]]:
+    async def get_job(self, path: str = None, limit: int = 20) -> dict[Any, Any]:
         """Get a job and it's details.
-
         Args:
             path (str, optional): The path to the job.
             limit (int, optional): The maximum number of builds that will be returned with the job. Defaults to 20.
-
         Returns:
             list[dict[Any, Any]]: [description]
         """
         _limit = f"{{0,{limit}}}"
-        endpoint = f"{path}api/json?tree=displayName,description,healthReport[description],builds[number,status,timestamp,id,result,duration{_limit}]"
+        endpoint = f"{path}api/json?tree=name,displayName,description,actions[parameterDefinitions[*]],property[parameterDefinitions[*,defaultParameterValue[*]]],healthReport[description],builds[number,status,description,timestamp,id,result,duration,changeSets[*[*]]{_limit}]"
         response = await self._request_async(endpoint=endpoint)
         return response.json()
 
@@ -124,7 +142,7 @@ class Jenkins:
         return response.json()
 
     async def get_builds_for_job(
-        self, path: str, limit: int = 50
+        self, path: str, limit: int = 100
     ) -> list[dict[Any, Any]]:
         """Get a list of builds for a job.
 
@@ -137,6 +155,7 @@ class Jenkins:
         """
         _limit = f"{{0,{limit}}}"
         endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration,changeSets[*[*]]{_limit}]"
+        # endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration,changeSets[*[*]]]"
         response = await self._request_async(endpoint=endpoint)
         return response.json()["builds"]
 
@@ -153,9 +172,10 @@ class Jenkins:
             for executor in node["executors"]:
                 if not executor["idle"]:
                     executable = executor["currentExecutable"]
+
                     builds.append(
                         {
-                            "name": executable["displayName"],
+                            "name": executable["fullDisplayName"],
                             "number": executable["number"],
                             "node": node["displayName"],
                             "progress": executor["progress"],
@@ -175,3 +195,29 @@ class Jenkins:
         endpoint = "/queue/api/json?tree=items[*,task[*]]"
         response = await self._request_async(endpoint=endpoint)
         return response.json()["items"]
+
+    async def build(self, path: str, parameters: dict[str, str] = None) -> int:
+        """Build a job.
+
+        Args:
+            path (str): The path to the job. If the job is nested in a folder it could be /job/{folder}/{job}/my-job.
+            parameters (dict[str, str], optional): A dict of parameters to pass to the job.
+
+        Returns:
+            int: A requests.Response instance.
+        """
+
+        if not parameters:
+            endpoint = f"{path}build"
+        else:
+            endpoint = f"{path}buildWithParameters?{urlencode(parameters)}"
+
+        response = await self._request_async(endpoint=endpoint, method="POST")
+
+        location = response.headers["Location"]
+        if location.endswith("/"):
+            location = location[:-1]
+
+        queue_id = location.split("/")[-1]
+
+        return int(queue_id)
