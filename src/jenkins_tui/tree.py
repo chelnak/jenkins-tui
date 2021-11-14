@@ -50,6 +50,7 @@ class Tree(TreeControl[JobEntry]):
         self.client = client
         self.color_map = {
             "aborted": "❌",
+            "aborted_anime": "❌",
             "blue": "🔵",
             "blue_anime": "🔄",
             "disabled": "⭕",
@@ -160,6 +161,7 @@ class Tree(TreeControl[JobEntry]):
 
         else:
             label.stylize(self.styles["node"])
+            self.log(node.data.color)
             icon = self.color_map.get(node.data.color, "?")
 
         icon_label = Text(f"{icon} ", no_wrap=True, overflow="ellipsis") + label
