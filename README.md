@@ -37,9 +37,11 @@ jenkins
 ## Screenshots
 
 ### Build history
+
 ![build_view](media/build_view.png)
 
 ### Build with parameters
+
 ![build_with_parameters_view](media/build_with_parameters_view.png)
 
 ## Developing
@@ -80,7 +82,7 @@ Once it's started you can access it locally with the following details:
 
 | host | user | password |
 |------|------|----------|
-| http://localhost:8080 | admin | admin |
+| <http://localhost:8080> | admin | admin |
 
 > The dev env set up uses lots of the good stuff from this repository: <https://github.com/uhafner/warnings-ng-plugin-devenv/tree/main/docker> :rocket:
 
