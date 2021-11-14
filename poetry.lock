@@ -369,6 +369,17 @@ python-versions = ">=3.7,<4.0"
 rich = ">=10.7.0,<11.0.0"
 
 [[package]]
+name = "textual-inputs"
+version = "0.1.2"
+description = "textual-inputs is a collection of input widgets for the Textual TUI framework"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+textual = ">=0.1.10"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -438,7 +449,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "b3a11761c885373b74d13543c31e8796691726e15b8fbbd0d700cacd3ac0bad3"
+content-hash = "26f628db2db0e429d34a935b34bb1a87e282900ec07bcbe23b43dd1a29ae1e55"
 
 [metadata.files]
 anyio = [
@@ -714,6 +725,10 @@ sniffio = [
 textual = [
     {file = "textual-0.1.12-py3-none-any.whl", hash = "sha256:2f95e9cc06cf53320a25986dcb4bd751b1e14fba781308e69fbaec3b8a652477"},
     {file = "textual-0.1.12.tar.gz", hash = "sha256:fa70b9f2fe43819afeea64dff355aee1610e1d55e9915df1cef5b0d6f86cb20d"},
+]
+textual-inputs = [
+    {file = "textual-inputs-0.1.2.tar.gz", hash = "sha256:983d205d5ec5aa5228bd468962755013b9fee981da3ec9d95a7846a704d8eba3"},
+    {file = "textual_inputs-0.1.2-py3-none-any.whl", hash = "sha256:c827e9d0af7da69c86430a65d3db225e52b365ab8d0e4dabaffdbf8fdc382694"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
