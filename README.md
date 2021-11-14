@@ -4,7 +4,9 @@
 
 `jenkins-tui` is a terminal based user interface for Jenkins.
 
-> :construction: :warning: This app is a prototype and in very early stages of development. There will be bugs and missing functionality.
+> :construction: :warning: This app is a prototype and in very early stages of development. There will be bugs, bad UX and missing functionality.
+
+![home_view](media/home_view.png)
 
 :rocket: This project is powered by [textual](https://github.com/willmcgugan/textual) and [rich](https://github.com/willmcgugan/rich)!
 
@@ -32,7 +34,15 @@ password = ""
 jenkins
 ```
 
-## Develop
+## Screenshots
+
+### Build history
+![build_view](media/build_view.png)
+
+### Build with parameters
+![build_with_parameters_view](media/build_with_parameters_view.png)
+
+## Developing
 
 ### Install dependencies
 
