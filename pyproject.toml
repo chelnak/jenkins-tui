@@ -2,9 +2,6 @@
 requires = [ "poetry-core>=1.0.0",]
 build-backend = "poetry.core.masonry.api"
 
-[mypy-textual]
-ignore_missing_imports = true
-
 [tool.poetry]
 name = "jenkins-tui"
 version = "0.0.5"
@@ -15,7 +12,7 @@ license = "MIT"
 
 [tool.mypy]
 [[tool.mypy.overrides]]
-module = [ "textual.*",]
+module = [ "textual.*","pyfiglet.*", "textual_inputs.*"]
 ignore_missing_imports = true
 
 [tool.poetry.dependencies]
