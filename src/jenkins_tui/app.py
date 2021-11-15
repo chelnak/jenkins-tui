@@ -1,11 +1,14 @@
+from io import TextIOWrapper
 import os
 import sys
-from rich.repr import T
-
+from typing import Optional
+import click
+from click.types import File
 from textual.reactive import Reactive
 from textual.app import App
 
-from . import config
+from . import __version__
+from .config import CLI_HELP, get_config, APP_NAME
 from .views import CustomScrollView, HomeView, SideBarView
 from .widgets import (
     ScrollBarWidget,
@@ -45,7 +48,15 @@ class JenkinsTUI(App):
         await self.flash.update_flash_message(value=message.value, type=message.type)
 
 
-def run():
+@click.command(help=CLI_HELP)
+@click.option(
+    "--config",
+    default=None,
+    type=File(),
+    help="Explicitly override the config that will be used by jenkins-tui.",
+)
+@click.version_option(__version__)
+def run(config: Optional[TextIOWrapper]) -> None:
     """The entry point."""
 
     # set up di
@@ -53,7 +64,7 @@ def run():
     from . import views
     from . import tree
 
-    conf = config.get_config()
+    conf = get_config(config=config)
     container = Container()
     container.config.from_dict(dict(conf))
     container.init_resources()
@@ -64,7 +75,7 @@ def run():
     log = os.getenv("JENKINSTUI_LOG")
 
     try:
-        JenkinsTUI.run(title=config.app_name, log=log)
+        JenkinsTUI.run(title=APP_NAME, log=log)
     except Exception as e:
         from rich.console import Console
 
