@@ -24,3 +24,8 @@ dev:
 .PHONY: dev-clean
 dev-clean:
 	@find dev/jenkins_home/. \! -name "PLACEHOLDER.txt" -delete
+
+.PHONY: run
+run:
+	@poetry env use 3.9
+	@poetry run jenkins --config ./dev/.jenkins-tui.toml
