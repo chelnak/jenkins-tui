@@ -19,11 +19,12 @@ check:
 
 .PHONY: dev
 dev:
-	@docker compose --env-file dev/.env --project-directory dev up --build
+	@nerdctl compose --env-file dev/.env --project-directory dev up
 
 .PHONY: dev-clean
 dev-clean:
 	@find dev/jenkins_home/. \! -name "PLACEHOLDER.txt" -delete
+	@nerdctl rm $(docker container ls -a -q)
 
 .PHONY: run
 run:

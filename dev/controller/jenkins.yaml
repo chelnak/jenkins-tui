@@ -17,14 +17,14 @@ jenkins:
     - permanent:
         launcher:
           ssh:
-            credentialsId: "java-agent-ssh-private-key"
+            credentialsId: "agent-ssh-private-key"
             host: "agent"
             launchTimeoutSeconds: 210
             maxNumRetries: 10
             port: 22
             retryWaitTime: 15
             jvmOptions: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8001"
-            javaPath: "/opt/java/openjdk/bin/java"
+            javaPath: "/usr/bin/java"
             sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
         name: "agent"
         numExecutors: 1
@@ -33,9 +33,7 @@ jenkins:
           - envVars:
               env:
                 - key: "JAVA_HOME"
-                  value: "/opt/java/openjdk"
-                - key: "MAVEN_HOME"
-                  value: "/opt/maven"
+                  value: "/usr/bin/java"
   numExecutors: 0
   primaryView:
     all:
@@ -55,6 +53,9 @@ jenkins:
     sites:
       - id: "default"
         url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
   viewsTabBar: "standard"
 
 security:
@@ -72,7 +73,7 @@ credentials:
     domainCredentials:
       - credentials:
           - basicSSHUserPrivateKey:
-              id: "java-agent-ssh-private-key"
+              id: "agent-ssh-private-key"
               privateKeySource:
                 directEntry:
                   privateKey: |
@@ -118,172 +119,5 @@ unclassified:
   pollSCM:
     pollingThreadCount: 10
 
-tool:
-  git:
-    installations:
-      - home: "git"
-        name: "Default"
-  maven:
-    installations:
-      - name: "mvn-default"
-        properties:
-          - installSource:
-              installers:
-                - maven:
-                    id: "3.6.3"
-  jdk:
-    defaultProperties:
-      - installSource:
-          installers:
-            - jdkInstaller:
-                acceptLicense: false
-  pipelineMaven:
-    publisherOptions:
-      - jacocoPublisher:
-          disabled: true
-      - junitPublisher:
-          disabled: true
-          healthScaleFactor: 1.0
-    triggerDownstreamUponResultAborted: false
-    triggerDownstreamUponResultFailure: false
-    triggerDownstreamUponResultNotBuilt: false
-    triggerDownstreamUponResultSuccess: true
-    triggerDownstreamUponResultUnstable: false
-
 jobs:
-  - script: >
-      pipelineJob('pipeline-codingstyle') {
-          definition {
-              cpsScm {
-                  scriptPath 'Jenkinsfile'
-                  scm {
-                    git {
-                        remote { url 'https://github.com/uhafner/codingstyle.git' }
-                        branch '*/master'
-                        extensions {}
-                    }
-                  }
-              }
-          }
-      };
-      pipelineJob('pipeline-analysis-model') {
-          definition {
-              cpsScm {
-                  scriptPath 'etc/Jenkinsfile.analysis'
-                  scm {
-                    git {
-                        remote { url 'https://github.com/jenkinsci/analysis-model.git' }
-                        branch '*/master'
-                        extensions {}
-                    }
-                  }
-              }
-          }
-      };
-      pipelineJob('pipeline-warnings-ng') {
-          definition {
-              cpsScm {
-                  scriptPath 'etc/Jenkinsfile.analysis'
-                  scm {
-                    git {
-                        remote { url 'https://github.com/jenkinsci/warnings-ng-plugin.git' }
-                        branch '*/master'
-                        extensions {}
-                    }
-                  }
-              }
-          }
-      };
-      freeStyleJob('freestyle-warnings-ng') {
-          scm {
-              git {
-                  remote { url 'https://github.com/jenkinsci/warnings-ng-plugin.git' }
-                  branch '*/master'
-                  extensions {}
-              }
-          }
-          steps {
-              maven {
-                  mavenInstallation('mvn-default')
-                  goals('clean verify')
-                  rootPOM('plugin/pom.xml')
-                  properties(skipITs: true)
-              }
-          }
-          publishers {
-              recordIssues {
-                  sourceCodeEncoding('UTF-8')
-                  aggregatingResults(true)
-                  tools {
-                      mavenConsole {}
-                      java {}
-                      javaDoc {}
-                      taskScanner {
-                          highTags('FIXME')
-                          normalTags('TODO')
-                          includePattern('**/*.java')
-                          excludePattern('target/**/*,**/TaskScannerTest.java')
-                      }
-                      spotBugs {
-                            pattern('**/target/spotbugsXml.xml')
-                            useRankAsPriority(true)
-                      }
-                      checkStyle {
-                            pattern('**/target/checkstyle-result.xml')
-                      }
-                      pmd {
-                            pattern('**/target/pmd.xml')
-                      }
-                      cpd {
-                            pattern('**/target/cpd.xml')
-                      }
-                  }
-              }
-          }
-      };
-      freeStyleJob('freestyle-analysis-model') {
-          scm {
-              git {
-                  remote { url 'https://github.com/jenkinsci/analysis-model.git' }
-                  branch '*/master'
-                  extensions {}
-              }
-          }
-          steps {
-              maven {
-                  mavenInstallation('mvn-default')
-                  goals('clean verify')
-                  properties(skipITs: true)
-              }
-          }
-          publishers {
-              recordIssues {
-                    sourceCodeEncoding('UTF-8')
-                    aggregatingResults(true)
-                    tools {
-                      mavenConsole {}
-                      java {}
-                      javaDoc {}
-                      taskScanner {
-                          highTags('FIXME')
-                          normalTags('TODO')
-                          includePattern('**/*.java')
-                          excludePattern('target/**/*')
-                      }
-                      spotBugs {
-                            pattern('**/target/spotbugsXml.xml')
-                            useRankAsPriority(true)
-                      }
-                      checkStyle {
-                            pattern('**/target/checkstyle-result.xml')
-                      }
-                      pmd {
-                            pattern('**/target/pmd.xml')
-                      }
-                      cpd {
-                            pattern('**/target/cpd.xml')
-                      }
-                  }
-              }
-        }
-      };
+  - file: /var/jenkins_home/scripts/seed.groovy

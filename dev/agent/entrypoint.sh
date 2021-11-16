@@ -15,7 +15,7 @@ if [ ! -d "/var/run/sshd" ]; then
 fi
 
 TARGET_GID=$(stat -c "%g" /var/data)
-addgroup -g $TARGET_GID tempgroup
+addgroup -gecos $TARGET_GID tempgroup
 addgroup agent tempgroup
 chmod 770 /var/data
 chmod g+s  /var/data
