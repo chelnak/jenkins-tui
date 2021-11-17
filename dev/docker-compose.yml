@@ -15,7 +15,7 @@ services:
       - 8080:8080
     environment:
       - TRY_UPGRADE_IF_NO_MARKER=true
-      - JAVA_OPTS= -Dstapler.jelly.noCache=true  -Dhudson.remoting.ClassFilter=com.google.common.collect.ImmutableListMultimap -DexecutableWar.jetty.disableCustomSessionIdCookieName=true -DexecutableWar.jetty.sessionIdCookieName=jenkins-tui-devenv -Dgroovy.use.classvalue=true
+      - JAVA_OPTS= -Dstapler.jelly.noCache=true -Dhudson.remoting.ClassFilter=com.google.common.collect.ImmutableListMultimap -DexecutableWar.jetty.disableCustomSessionIdCookieName=true -DexecutableWar.jetty.sessionIdCookieName=jenkins-tui-devenv -Dgroovy.use.classvalue=true
     user: ${UID}:${GID}
   agent:
     build:
