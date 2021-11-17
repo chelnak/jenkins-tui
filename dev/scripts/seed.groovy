@@ -1,4 +1,5 @@
 def createPipelineJob(name) {
+    // A method that createse a basic pipeline job
     pipelineJob(name) {
         definition {
             cps {
@@ -29,6 +30,32 @@ def createPipelineJob(name) {
     }
 }
 
+def createFreestyleJob(name) {
+    // A method that createse a basic freestyle job
+    freeStyleJob(name) {
+        steps{
+            shell('''
+                echo "Freestyle job has started."
+                sleep $[ ( $RANDOM % 20 )  + 1 ]s
+            '''.stripIndent()
+            )
+        }
+    }
+}
+
+def createMultibranchPipelineJob(name, sourceId ,owner, repositoryName) {
+    // A method that creates a basic multibranch pipeline job
+    multibranchPipelineJob(name) {
+        branchSources {
+            github {
+                id(sourceId)
+                repoOwner(owner)
+                repository(repositoryName)
+            }
+        }
+    }
+}
+
 // Pipeline jobs
 
 pipelineJobFolderName = "pipeline-jobs"
@@ -43,4 +70,42 @@ pipelineJobs = ['pipeline-a-new-pipeline','pipeline-the-pipeline-strikes-back','
 pipelineJobs.each{ job ->
     println "Creating pipeline ${pipelineJobFolderName}/${job}"
     createPipelineJob("${pipelineJobFolderName}/${job}")
+}
+
+// Freestyle jobs
+
+freestyleJobFolderName = "freestyle-jobs"
+
+folder(freestyleJobFolderName) {
+    displayName('Freestyle Jobs')
+    description('A folder that contains freestyle jobs.')
+}
+
+freestyleJobs = ['freestyle-the-next-generation','freestyle-deep-space-nine','freestyle-enterprise']
+
+freestyleJobs.each{ job ->
+    println "Creating freestyle ${freestyleJobFolderName}/${job}"
+    createFreestyleJob("${freestyleJobFolderName}/${job}")
+}
+
+// Multibranch Pipeline jobs
+
+multibranchPipelineJobFolderName = "multibranch-pipeline-jobs"
+
+folder(multibranchPipelineJobFolderName) {
+    displayName('Multibranch Pipeline Jobs')
+    description('A folder that contains multibranch pipeline jobs.')
+}
+
+multibranchPipelineJobs = [
+    [
+        id: "1",
+        owner: "jenkinsci",
+        repository: "job-dsl-plugin"
+    ]
+]
+
+multibranchPipelineJobs.each{ job ->
+    println "Creating multibranch pipeline ${multibranchPipelineJobFolderName}/${job.repository}"
+    createMultibranchPipelineJob("${multibranchPipelineJobFolderName}/${job.repository}", job.id, job.owner, job.repository)
 }
