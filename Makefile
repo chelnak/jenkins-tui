@@ -17,9 +17,13 @@ check:
 	mypy tools
 	mypy src/jenkins_tui
 
-.PHONY: dev
-dev:
+.PHONY: dev-build
+dev-build:
 	@nerdctl compose --env-file dev/.env --project-directory dev up --build
+
+.PHONY: dev-run
+dev-run:
+	@nerdctl compose --env-file dev/.env --project-directory dev up
 
 .PHONY: dev-clean
 dev-clean:
