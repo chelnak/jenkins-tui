@@ -29,9 +29,18 @@ def createPipelineJob(name) {
     }
 }
 
+// Pipeline jobs
+
+pipelineJobFolderName = "pipeline-jobs"
+
+folder(pipelineJobFolderName) {
+    displayName('Pipeline Jobs')
+    description('A folder that contains pipeline jobs.')
+}
+
 pipelineJobs = ['pipeline-a-new-pipeline','pipeline-the-pipeline-strikes-back','pipeline-return-of-the-pipeline']
 
 pipelineJobs.each{ job ->
-    println "Creating pipeline ${job}"
-    createPipelineJob(job)
+    println "Creating pipeline ${pipelineJobFolderName}/${job}"
+    createPipelineJob("${pipelineJobFolderName}/${job}")
 }
