@@ -5,15 +5,13 @@ from urllib.parse import urlparse
 from dependency_injector.wiring import Container, Provide, inject
 from rich.text import Text
 from textual import events
-from textual.binding import Bindings, NoBinding
-from textual.widgets import ButtonPressed
+from textual.binding import NoBinding
 
 from ..client import Jenkins
 from ..containers import Container
 from ..widgets import (
     ButtonWidget,
     FlashMessageType,
-    InfoWidget,
     JobDetailsWidget,
     NavWidget,
     ShowFlashNotification,
@@ -21,7 +19,6 @@ from ..widgets import (
 )
 from .base import BaseView
 from .build_with_parameters import BuildWithParametersView
-from .job_nav import JobNavView
 
 
 class JobView(BaseView):
@@ -109,7 +106,6 @@ class JobView(BaseView):
         if job["healthReport"]:
             description.append(job["healthReport"][0]["description"])
 
-        self.nav = JobNavView()
         self.details = JobDetailsWidget(path=self.path)
 
         if description.plain == "":

@@ -3,14 +3,13 @@ from __future__ import annotations
 import re
 
 from dependency_injector.wiring import Provide, inject
-from rich.console import Group
 from rich.style import Style
 from rich.text import Text
 
 from .. import __version__
 from ..client import Jenkins
 from ..containers import Container
-from ..widgets import ExecutorStatusWidget, InfoWidget, NavWidget, TextWidget
+from ..widgets import ExecutorStatusWidget, NavWidget, TextWidget
 from .base import BaseView
 
 

@@ -23,18 +23,6 @@ class NavWidget(Widget):
         self._key_text: Text | None = None
 
         self.title = title
-        self.box: Box = Box(
-            """\
-╭─┬╮
-│ ││
-├─┼┤
-│ ││
-├─┼┤
-├─┼┤
-│  │
-└  ┘
-"""
-        )
 
     highlight_key: Reactive[str | None] = Reactive(None)
 

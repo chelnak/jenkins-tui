@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from dependency_injector.wiring import Container, Provide, inject
-from rich import box
 from rich.style import Style
 from rich.text import Text
 from textual.layouts.grid import GridLayout
