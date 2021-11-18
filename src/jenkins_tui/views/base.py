@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from rich.text import Text
-
-from textual import messages
-from textual.geometry import SpacingDimensions
-from textual.view import View
+from textual import events, messages
+from textual.binding import Bindings
+from textual.geometry import Size, SpacingDimensions
 from textual.layouts.grid import GridLayout
-from textual.views._window_view import WindowChange
 from textual.reactive import Reactive
-from textual import events
-from textual.geometry import Size
+from textual.view import View
+from textual.views._window_view import WindowChange
 
 from ..widgets import ButtonWidget
 
@@ -30,6 +28,7 @@ class BaseView(View):
 
         self.layout: GridLayout = layout
         self.buttons: dict[str, ButtonWidget] = {}
+        self.bindings = Bindings()
 
     async def add_button(self, text: str, id: str = None) -> None:
         if id is None:

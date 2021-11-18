@@ -6,4 +6,9 @@
     "python.analysis.extraPaths": [
         "./src/jenkins_tui"
     ],
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    }
 }

@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from typing import Any, Optional
-from dependency_injector.wiring import inject, Provide
 
-
+from dependency_injector.wiring import Provide, inject
+from rich import box
+from rich.align import Align
 from rich.console import RenderableType
 from rich.panel import Panel
-from rich.align import Align
 from rich.style import Style
-
 from textual import events
 from textual.keys import Keys
 from textual.widget import Widget
@@ -93,7 +92,8 @@ class ExecutorStatusWidget(Widget):
         return Panel(
             renderable=self.renderable,
             title=f"[grey82](queued: [orange3]{self.queued_builds_count}[/] / running [green]{self.running_builds_count}[/])[/]",
-            expand=True,
-            padding=(1),
             border_style=Style(color="medium_purple4"),
+            padding=(1),
+            expand=True,
+            box=box.HEAVY_EDGE,
         )

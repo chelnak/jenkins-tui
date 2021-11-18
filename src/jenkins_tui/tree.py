@@ -1,18 +1,19 @@
 from __future__ import annotations
-from dependency_injector.wiring import Container, Provide, inject
-from urllib.parse import unquote
-from functools import lru_cache
+
 from dataclasses import dataclass
+from functools import lru_cache
+from urllib.parse import unquote
 
+from dependency_injector.wiring import Container, Provide, inject
 from rich.console import RenderableType
+from rich.style import Style
 from rich.text import Text
-
+from textual import events
 from textual.reactive import Reactive
-from textual.widgets import TreeControl, TreeClick, TreeNode, NodeID
+from textual.widgets import NodeID, TreeClick, TreeControl, TreeNode
 
 from . import config
 from .client import Jenkins
-
 from .containers import Container
 from .views import JobView
 
@@ -44,7 +45,7 @@ class Tree(TreeControl[JobEntry]):
         """
         data = JobEntry(name="root", url="", color="", type="root", jobs=[])
         name = self.__class__.__name__
-        super().__init__(label="pipelines", name=name, data=data)
+        super().__init__(label="home", name=name, data=data)
 
         self.styles = config.style_map[config.style]
         self.client = client
@@ -81,6 +82,8 @@ class Tree(TreeControl[JobEntry]):
             event (events.Mount): A mount event.
         """
         await self.load_jobs(self.root)
+        self.cursor = self.root.id
+        self.show_cursor = True
 
     def on_focus(self) -> None:
         """Sets has_focus to true when the item is clicked."""
@@ -89,6 +92,29 @@ class Tree(TreeControl[JobEntry]):
     def on_blur(self) -> None:
         """Sets has_focus to false when an item no longer has focus."""
         self.has_focus = False
+
+    async def key_right(self, event: events.Key) -> None:
+        cursor_node: TreeNode = self.nodes[self.cursor]
+        event.stop()
+
+        if cursor_node.data.type == "folder" or cursor_node.data.type == "multibranch":
+
+            if not cursor_node.expanded:
+
+                if not cursor_node.loaded:
+                    await self.load_jobs(cursor_node)
+                    await cursor_node.expand()
+                else:
+                    await cursor_node.toggle()
+
+    async def key_left(self, event: events.Key) -> None:
+        cursor_node: TreeNode = self.nodes[self.cursor]
+        event.stop()
+
+        if cursor_node.data.type == "folder" or cursor_node.data.type == "multibranch":
+            if cursor_node.expanded:
+                await cursor_node.toggle()
+                self.refresh(layout=True)
 
     def render_node(self, node: TreeNode[JobEntry]) -> RenderableType:
         """Renders a node in the tree.
@@ -145,11 +171,12 @@ class Tree(TreeControl[JobEntry]):
             label.stylize(self.styles["node_on_hover"])
 
         if is_cursor:
-            label.stylize(self.styles["tree_on_cursor"])
+            style = self.styles["tree_on_cursor"] if self.has_focus else "on black"
+            label.stylize(style)
 
         if type == "root":
             label.stylize(self.styles["root_node"])
-            icon = "📂"
+            icon = "🏠"  # "📂"
 
         elif type == "folder":
             label.stylize(self.styles["folder"])
@@ -161,7 +188,6 @@ class Tree(TreeControl[JobEntry]):
 
         else:
             label.stylize(self.styles["node"])
-            self.log(node.data.color)
             icon = self.color_map.get(node.data.color, "?")
 
         icon_label = Text(f"{icon} ", no_wrap=True, overflow="ellipsis") + label

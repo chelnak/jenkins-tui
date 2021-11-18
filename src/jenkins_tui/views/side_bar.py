@@ -1,14 +1,19 @@
 from __future__ import annotations
+
 from rich.style import Style
 from textual.widgets import ScrollView
 
-from .base import BaseView
 from ..tree import Tree
 from ..widgets import FigletTextWidget, ScrollBarWidget
+from .base import BaseView
 
 
 class SideBarView(BaseView):
     """A view that contains widgets that make up the sidebar."""
+
+    async def set_tree_focus(self) -> None:
+        """Set the focus to the tree."""
+        await self.app.set_focus(self.tree)
 
     async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted."""
@@ -24,16 +29,18 @@ class SideBarView(BaseView):
             head="col,head",
             tree="col,tree",
         )
-
-        tree = ScrollView(
-            contents=Tree(),
+        self.tree = Tree()
+        self.scroll_view = ScrollView(
+            contents=self.tree,
             name="DirectoryScrollView",
         )
-        tree.vscroll = ScrollBarWidget()
+        self.scroll_view.vscroll = ScrollBarWidget()
 
         self.layout.place(
             head=FigletTextWidget(
                 text=self.app.title, name="header", style=Style(color="green")
             )
         )
-        self.layout.place(tree=tree)
+        self.layout.place(tree=self.scroll_view)
+
+        await self.set_tree_focus()

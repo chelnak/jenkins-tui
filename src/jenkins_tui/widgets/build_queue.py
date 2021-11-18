@@ -1,12 +1,11 @@
 from datetime import datetime
-from dependency_injector.wiring import Provide, inject
 
+from dependency_injector.wiring import Provide, inject
+from rich import box
+from rich.align import Align
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.table import Table
-from rich.align import Align
-from rich import box
-
 from textual.widget import Widget
 
 from ..client import Jenkins

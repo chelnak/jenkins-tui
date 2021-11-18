@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from typing import Optional
-from textual_inputs import TextInput
+
 from rich.text import Text
+from textual_inputs import TextInput
 
 
 class TextInputFieldWidget(TextInput):

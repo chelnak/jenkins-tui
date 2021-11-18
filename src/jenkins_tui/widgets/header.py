@@ -2,17 +2,16 @@ from __future__ import annotations
 
 from typing import Optional
 
-from rich.console import RenderableType
-from textual.widget import Widget
-
-from rich.text import Text
-from rich.table import Table
 from rich import box, style
-from rich.padding import Padding
 from rich.align import Align
+from rich.console import RenderableType
+from rich.padding import Padding
 from rich.panel import Panel
 from rich.style import Style
+from rich.table import Table
+from rich.text import Text
 from textual.reactive import Reactive
+from textual.widget import Widget
 
 from ..renderables import FigletTextRenderable
 
@@ -64,4 +63,3 @@ class HeaderWidget(Widget):
         )
 
         return header
-        # Panel(header, border_style=Style(color="medium_purple4"), padding=(0,0,0,0), style="on green")

@@ -1,22 +1,20 @@
 from __future__ import annotations
 
 from typing import Any, Optional
-from dependency_injector.wiring import Provide, inject
 
+from dependency_injector.wiring import Provide, inject
+from rich import box
 from rich.console import RenderableType
+from rich.panel import Panel
 from rich.style import Style
 from rich.text import Text
-from rich.panel import Panel
-
-from textual.widget import Widget
-from textual.keys import Keys
 from textual import events
+from textual.keys import Keys
+from textual.widget import Widget
 
 from ..client import Jenkins
 from ..containers import Container
-from ..renderables import (
-    BuildHistoryTableRenderable,
-)
+from ..renderables import BuildHistoryTableRenderable
 
 
 class JobDetailsWidget(Widget):
@@ -85,8 +83,9 @@ class JobDetailsWidget(Widget):
         assert isinstance(self.renderable, BuildHistoryTableRenderable)
         return Panel(
             renderable=self.renderable,
-            title=Text.from_markup(f"[grey82]( {self.renderable.title} )[/]"),
+            title=f"[grey82]( {self.renderable.title} )[/]",
             border_style=Style(color="medium_purple4"),
-            title_align="center",
+            padding=(1),
             expand=True,
+            box=box.HEAVY_EDGE,
         )

@@ -1,5 +1,6 @@
-import toml
 import os
+
+import toml
 from pkg_resources import parse_version
 
 # Exception: The ref refs/pull/55/merge is not valid.

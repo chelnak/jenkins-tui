@@ -17,7 +17,7 @@ class JobNavView(BaseView):
             self.layout.add_column(f"col_{k}", size=15)
 
         self.layout.add_row("row", size=3)
-        self.layout.set_align("center", "center")
+        # self.layout.set_align("center", "center")
         self.layout.set_gutter(0, 0)
 
         # we always land on history so toggle the button

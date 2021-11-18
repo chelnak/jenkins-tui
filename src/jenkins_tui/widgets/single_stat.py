@@ -1,12 +1,11 @@
 from __future__ import annotations
 
+from rich import box
+from rich.align import Align
 from rich.console import RenderableType
 from rich.panel import Panel
-from rich.align import Align
-from rich import box
-
-from textual.widget import Widget
 from textual.reactive import Reactive, watch
+from textual.widget import Widget
 
 from ..renderables import FigletTextRenderable
 

@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from dependency_injector.wiring import Provide, inject
 
-from .base import BaseView
-from ..widgets import SingleStatWidget
 from ..client import Jenkins
 from ..containers import Container
+from ..widgets import SingleStatWidget
+from .base import BaseView
 
 
 class StatsView(BaseView):

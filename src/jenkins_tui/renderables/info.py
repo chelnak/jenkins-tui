@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-from __future__ import annotations
 from typing import Optional
-from rich.align import Align
-from rich.style import Style
 
-from rich.text import Text
-from rich.console import Group, RenderResult, RenderableType, Console, ConsoleOptions
+from rich.align import Align
+from rich.console import Console, ConsoleOptions, Group, RenderableType, RenderResult
 from rich.padding import Padding
-from rich.text import Text
-from rich.rule import Rule
 from rich.panel import Panel
+from rich.rule import Rule
+from rich.style import Style
+from rich.text import Text
 
 
 class InfoRenderable:
@@ -19,13 +17,13 @@ class InfoRenderable:
     def __init__(
         self,
         title: str | Text | RenderableType,
-        renderable: str | Text | RenderableType,
+        renderable: Optional[str | Text | RenderableType],
     ) -> None:
         """An info renderable.
 
         Args:
             title (str, Text, RenderableType): The title to display.
-            renderable (str, Text, RenderableType): A renderable that will be displayed in the main body of a widget.
+            renderable (optional, str, Text, RenderableType): A renderable that will be displayed in the main body of a widget.
         """
         self.title = title
         self.renderable = renderable
@@ -46,12 +44,13 @@ class InfoRenderable:
             ),
             height=6,
             border_style=Style(color="medium_purple4"),
-            padding=(0),
+            padding=(0, 0, 0, 0),
         )
 
-        renderable = Padding(
-            renderable=self.renderable,
-            pad=(1),
-        )
+        if not self.renderable:
+            group = Group(title)
+        else:
+            renderable = Padding(renderable=self.renderable, pad=(1))
+            group = Group(title, renderable)
 
-        yield Padding(Group(title, renderable), pad=(1))
+        yield Padding(group, pad=(1, 0, 0, 0))

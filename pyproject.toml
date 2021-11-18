@@ -15,6 +15,9 @@ license = "MIT"
 module = [ "textual.*","pyfiglet.*", "textual_inputs.*"]
 ignore_missing_imports = true
 
+[tool.isort]
+profile = "black"
+
 [tool.poetry.dependencies]
 python = "^3.9"
 textual = "^0.1.12"
@@ -33,6 +36,7 @@ mypy = "^0.910"
 types-requests = "^2.25.9"
 types-toml = "^0.10.0"
 types-setuptools = "^57.4.2"
+isort = "^5.10.1"
 
 [tool.poetry.scripts]
 jenkins = "jenkins_tui.app:run"
