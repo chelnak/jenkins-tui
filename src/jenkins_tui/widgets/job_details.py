@@ -76,6 +76,7 @@ class JobDetailsWidget(Widget):
         await self._update()
         self.render_history_table()
         self.set_interval(20, self._update)
+        await self.app.set_focus(self)
 
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
