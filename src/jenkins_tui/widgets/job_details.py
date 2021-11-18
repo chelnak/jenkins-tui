@@ -86,7 +86,6 @@ class JobDetailsWidget(Widget):
             renderable=self.renderable,
             title=f"[grey82]( {self.renderable.title} )[/]",
             border_style=Style(color="medium_purple4"),
-            padding=(1),
             expand=True,
             box=box.HEAVY_EDGE,
         )
