@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
+from rich.style import Style
 from rich.text import Text
 from textual_inputs import TextInput
 
@@ -19,8 +20,8 @@ class TextInputFieldWidget(TextInput):
         title: Text = Text(""),
         choices: list[str] = [],
         required: bool = False,
-        width=100,
-        border_style="grey82",
+        width: int = 100,
+        border_style: str | Style = "grey82",
     ) -> None:
         """A custom text input field.
 
@@ -31,24 +32,24 @@ class TextInputFieldWidget(TextInput):
             border_style (str, optional): The style of the border. Defaults to "grey82".
         """
 
-        if default_value != "":
-            value = str(default_value)
-
         super().__init__(
             name=name,
-            value=str(value),  # because bools make len(self.value) fail
+            value=str(default_value)
+            if default_value != ""
+            else str(value),  # because bools make len(self.value) fail
             placeholder=placeholder,
             title=title,
-            width=width,
-            border_style=border_style,
         )
+
         self.title: str | Text = f"[grey82]{title}[/]"
         self.choices = choices
         self.required = required
         self.original_title = self.title
+        self.border_style = border_style
         self.original_border_style = self.border_style
         self.layout_size = 3
         self.default_value = str(default_value)
+        self.width = width
 
     async def validate(self) -> bool:
         """Validates the field input against configured criteria."""
