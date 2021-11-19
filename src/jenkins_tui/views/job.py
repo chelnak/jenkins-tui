@@ -126,6 +126,8 @@ class JobView(BaseView):
 
         self.details.render_history_table()
         self.details.refresh()
+
+        await self.app.set_focus(self.details)
         self.refresh(layout=True)
 
     async def action_build(self) -> None:
@@ -135,6 +137,7 @@ class JobView(BaseView):
             self.layout.show_row("build_view", True)
             self.layout.show_row("details", False)
             self.build_with_params.visible = True
+            await self.app.set_focus(self.build_with_params)
             self.build_with_params.refresh()
         else:
 
