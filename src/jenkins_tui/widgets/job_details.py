@@ -3,11 +3,9 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from dependency_injector.wiring import Provide, inject
-from rich import box
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.style import Style
-from rich.text import Text
 from textual import events
 from textual.keys import Keys
 from textual.widget import Widget
@@ -21,6 +19,9 @@ from ..renderables import BuildHistoryTableRenderable
 class JobDetailsWidget(Widget):
     """A build table widget. Used to display builds within a job."""
 
+    page: int = 1
+    row: int = 0
+
     @inject
     def __init__(self, path: str, client: Jenkins = Provide[Container.client]) -> None:
         """A build table widget.
@@ -33,7 +34,7 @@ class JobDetailsWidget(Widget):
         super().__init__(name=name)
         self.path = path
         self.client = client
-        self.job: dict[str, Any] = {}
+        self.builds: list[dict[str, Any]] = []
         self.renderable: Optional[BuildHistoryTableRenderable] = None
 
     def on_key(self, event: events.Key) -> None:
@@ -60,16 +61,17 @@ class JobDetailsWidget(Widget):
         """Renders the build history table."""
 
         self.renderable = BuildHistoryTableRenderable(
-            builds=self.job.get("builds", []),
+            builds=self.builds,
             title="history",
             page_size=self.size.height - 5,
-            page=self.renderable.page if self.renderable else 1,
-            row=self.renderable.row if self.renderable else 0,
+            page=self.page,
+            row=self.row,
         )
 
     async def _update(self) -> None:
         """Update the current renderable object."""
-        self.job = await self.client.get_job(path=self.path)
+        job = await self.client.get_job(path=self.path)
+        self.builds = job.get("builds", [])
         self.refresh(layout=True)
 
     async def on_mount(self) -> None:
@@ -81,6 +83,11 @@ class JobDetailsWidget(Widget):
 
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
+
+        if self.renderable is not None:
+            self.page = self.renderable.page
+            self.row = self.renderable.row
+
         self.render_history_table()
         assert isinstance(self.renderable, BuildHistoryTableRenderable)
         return Panel(

@@ -35,7 +35,6 @@ class JenkinsTUI(App):
 
     async def action_refocus_tree(self) -> None:
         """Actions that are executed when the history button is pressed."""
-        self.log("action_history")
         self.show_help = False
         await self.side_bar.set_tree_focus()
 

@@ -5,12 +5,12 @@ from math import ceil
 from typing import Any, List, Union
 
 from rich import box
+from rich.align import Align
 from rich.console import Group
 from rich.padding import Padding
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
-from textual.reactive import Reactive
 
 from .. import styles
 
@@ -31,10 +31,10 @@ class PaginatedTableRenderable(ABC):
     ) -> None:
         self.total_items = total_items
         self.page_size = total_items if page_size < 0 else page_size
-        self.row_size = row_size
-
-        self.row = row
         self.page = page
+        if row > 0:
+            self.row = row
+        self.row_size = row_size
 
     def total_pages(self) -> int:
         return 0 if self.page_size <= 0 else ceil(self.total_items / self.page_size)
@@ -75,8 +75,6 @@ class PaginatedTableRenderable(ABC):
         else:
             self.__page = page
 
-        self.__row = 0
-
     def first_page(self) -> None:
         self.page = 1
 
@@ -112,8 +110,10 @@ class PaginatedTableRenderable(ABC):
         )
 
     def __rich__(self) -> Union[Group, str]:
+        current_page = 1 if self.page == 0 else self.page
+        total_pages = 1 if self.total_pages() == 0 else self.total_pages()
         pagination_info = Text.from_markup(
-            f"[{styles.GREY}]page [bold][{styles.ORANGE}]{self.page}[/][/] of [bold][{styles.GREEN}]{1 if self.total_pages() == 0 else self.total_pages()}[/][/][/]",
+            f"[{styles.GREY}]page [bold][{styles.ORANGE}]{current_page}[/][/] of [bold][{styles.GREEN}]{total_pages}[/][/][/]",
         )
 
         table = self.build_table()
@@ -129,10 +129,8 @@ class PaginatedTableRenderable(ABC):
 
         if 0 < self.row <= len(table.rows):
             table.rows[self.row - 1].style = Style(
-                bold=True, dim=False, bgcolor="green"
+                bold=True, dim=False, bgcolor="grey37"
             )
-
-        from rich.align import Align
 
         padding = Padding(
             Align.right(pagination_info),
