@@ -270,6 +270,8 @@ class Tree(TreeControl[JobEntry]):
             if node_data.name != self.current_node.name:
                 self.current_node = node_data
                 await self.call_later(_set)
+            else:
+                await self.app.set_focus(self.app.container.window)
 
         elif node_data.type == "root":
             self.log("Handling RootClick message")
