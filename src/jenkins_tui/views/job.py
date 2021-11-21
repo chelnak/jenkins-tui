@@ -41,8 +41,8 @@ class JobView(BaseView):
         self.buttons: dict[str, ButtonWidget] = {}
         self.job_has_parameters: bool = False
 
-        self.bindings.bind("h", "history", "History")
-        self.bindings.bind("b", "build", "Build")
+        self.bindings.bind("h", "history", show=False)
+        self.bindings.bind("b", "build", show=False)
 
     async def get_job(self) -> dict:
         """Get job information from the server.

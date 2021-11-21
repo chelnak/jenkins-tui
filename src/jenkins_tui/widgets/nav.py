@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import rich.repr
-from rich import box, padding
+from rich import box
 from rich.align import Align
-from rich.box import Box
 from rich.console import Group, RenderableType
 from rich.padding import Padding
 from rich.panel import Panel
@@ -50,7 +49,10 @@ class NavWidget(Widget):
             justify="center",
             end="",
         )
-        for binding in self.parent.bindings.shown_keys:
+
+        bindings = self.app.bindings.shown_keys + self.parent.bindings.shown_keys
+
+        for binding in bindings:
             key_display = (
                 binding.key.upper()
                 if binding.key_display is None

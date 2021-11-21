@@ -13,22 +13,30 @@ from . import __version__
 from .config import APP_NAME, CLI_HELP, get_config
 from .containers import Container
 from .views import CustomScrollView, HomeView, SideBarView
-from .widgets import FlashWidget, ScrollBarWidget, ShowFlashNotification
+from .widgets import FlashWidget, HelpWidget, ScrollBarWidget, ShowFlashNotification
 
 
 class JenkinsTUI(App):
     """This is the base class for Jenkins TUI."""
 
+    show_help = Reactive(False)
     chicken_mode_enabled: Reactive[bool] = Reactive(False)
 
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
-        await self.bind("q", "quit", "Quit")
+        await self.bind("?", "toggle_help", "help")
         await self.bind(Keys.Escape, "refocus_tree", show=False)
+
+    async def watch_show_help(self, show_help: bool) -> None:
+        self.help.visible = show_help
+
+    async def action_toggle_help(self) -> None:
+        self.show_help = not self.show_help
 
     async def action_refocus_tree(self) -> None:
         """Actions that are executed when the history button is pressed."""
         self.log("action_history")
+        self.show_help = False
         await self.side_bar.set_tree_focus()
 
     async def on_mount(self) -> None:
@@ -46,6 +54,11 @@ class JenkinsTUI(App):
 
         self.flash = FlashWidget()
         await self.view.dock(self.flash, edge="bottom", z=1)
+
+        self.help = HelpWidget()
+        self.help.visible = False
+
+        await self.view.dock(self.help, edge="left", size=40, z=1)
 
     async def handle_show_flash_notification(self, message: ShowFlashNotification):
         self.log("Handling ShowFlashNotification message")

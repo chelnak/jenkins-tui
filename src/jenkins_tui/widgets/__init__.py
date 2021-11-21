@@ -2,6 +2,7 @@ from .button import ButtonWidget
 from .executor_status import ExecutorStatusWidget
 from .figlet_text_widget import FigletTextWidget
 from .flash import FlashMessageType, FlashWidget, ShowFlashNotification
+from .help import HelpWidget
 from .job_details import JobDetailsWidget
 from .nav import NavWidget
 from .scroll_bar import ScrollBarWidget
@@ -20,4 +21,5 @@ __all__ = (
     "FlashMessageType",
     "TextWidget",
     "NavWidget",
+    "HelpWidget",
 )
