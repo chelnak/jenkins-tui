@@ -40,7 +40,6 @@ class ExecutorStatusTableRenderable(PaginatedTableRenderable):
 
     def render_rows(self, table: Table, renderables: list[dict[str, Any]]) -> None:
         for build in renderables:
-
             name = build["name"]
 
             progress = Progress(

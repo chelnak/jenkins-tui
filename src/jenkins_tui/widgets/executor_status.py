@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from dependency_injector.wiring import Provide, inject
-from rich import box
 from rich.align import Align
 from rich.console import RenderableType
 from rich.panel import Panel
@@ -21,6 +20,9 @@ from ..renderables import ExecutorStatusTableRenderable
 class ExecutorStatusWidget(Widget):
     """An executor status widget. Used to display running builds on the server."""
 
+    page: int = 1
+    row: int = 0
+
     @inject
     def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
         """An executor status widget.
@@ -28,10 +30,9 @@ class ExecutorStatusWidget(Widget):
         Args:
             client (Jenkins): An instance of Jenkins
         """
-        self.client = client
         name = self.__class__.__name__
         super().__init__(name=name)
-
+        self.client = client
         self.running_builds: list[dict[str, Any]] = []
         self.queued_builds: list[dict[str, Any]] = []
         self.running_builds_count: int = 0
@@ -40,9 +41,6 @@ class ExecutorStatusWidget(Widget):
 
     def on_key(self, event: events.Key) -> None:
         if self.renderable is None:
-            return
-
-        if isinstance(self.renderable, Align):
             return
 
         key = event.key
@@ -66,8 +64,8 @@ class ExecutorStatusWidget(Widget):
         self.renderable = ExecutorStatusTableRenderable(
             builds=self.running_builds or [],
             page_size=self.size.height - 4,
-            page=self.renderable.page if self.renderable else 1,
-            row=self.renderable.row if self.renderable else 0,
+            page=self.page,
+            row=self.row,
         )
 
     async def _update(self):
@@ -88,7 +86,12 @@ class ExecutorStatusWidget(Widget):
 
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
+
+        if self.renderable is not None:
+            self.page = self.renderable.page
+
         self.render_executor_status_table()
+
         assert isinstance(self.renderable, ExecutorStatusTableRenderable)
         return Panel(
             renderable=self.renderable,
