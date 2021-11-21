@@ -57,7 +57,7 @@ class NavWidget(Widget):
         title = Align.center(
             renderable=Text(
                 self.title,
-                style=Style(color=styles.GREEN, bold=True),
+                style=Style(color=styles.GREY, bold=True),
             )
             if isinstance(self.title, str)
             else self.title,
