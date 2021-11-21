@@ -15,6 +15,7 @@ class HelpRenderable:
             "back": Keys.Escape,
             "toggle help": "?",
             "quit": Keys.ControlC,
+            "command pallet": Keys.ControlK,
         },
         "navigation": {
             "navigate": f"{UP} {DOWN}",
