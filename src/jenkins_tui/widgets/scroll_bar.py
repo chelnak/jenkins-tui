@@ -3,8 +3,6 @@ from rich.console import RenderableType
 from rich.style import Style
 from textual.scrollbar import ScrollBar, ScrollBarRender
 
-from .. import config
-
 
 class ScrollBarWidget(ScrollBar):
     """A custom scrollbar widget"""
@@ -12,21 +10,9 @@ class ScrollBarWidget(ScrollBar):
     def render(self) -> RenderableType:
         """Overrides render from textual.scrollbar.ScrollBar"""
 
-        _styles = config.style_map[config.style]
-
         style = Style(
-            bgcolor=(
-                Color.parse(
-                    _styles["scroll_bar_background_on_hover"]
-                    if self.mouse_over
-                    else _styles["scroll_bar_background"]
-                )
-            ),
-            color=Color.parse(
-                _styles["scroll_bar_grabbed_foreground"]
-                if self.grabbed
-                else _styles["scroll_bar_foreground"]
-            ),
+            bgcolor=Color.parse("#444444"),
+            color=Color.parse("#9c9a9a" if self.grabbed else "#6e6d6d"),
         )
 
         return ScrollBarRender(
