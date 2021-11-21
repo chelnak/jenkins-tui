@@ -24,7 +24,7 @@ class JenkinsTUI(App):
 
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
-        await self.bind("?", "toggle_help", "help")
+        await self.bind("?", "toggle_help", "show help")
         await self.bind(Keys.Escape, "refocus_tree", show=False)
 
     async def watch_show_help(self, show_help: bool) -> None:

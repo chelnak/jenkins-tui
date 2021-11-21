@@ -20,22 +20,7 @@ class NavWidget(Widget):
         super().__init__()
         self.layout_size = 1
         self._key_text: Text | None = None
-
         self.title = title
-
-    highlight_key: Reactive[str | None] = Reactive(None)
-
-    async def watch_highlight_key(self, value) -> None:
-        """If highlight key changes we need to regenerate the text."""
-        self._key_text = None
-
-    async def on_mouse_move(self, event: events.MouseMove) -> None:
-        """Store any key we are moving over."""
-        self.highlight_key = event.style.meta.get("key")
-
-    async def on_leave(self, event: events.Leave) -> None:
-        """Clear any highlight when the mouse leave the widget"""
-        self.highlight_key = None
 
     def __rich_repr__(self) -> rich.repr.Result:
         yield "keys", self.keys
@@ -43,10 +28,10 @@ class NavWidget(Widget):
     def make_key_text(self) -> Text:
         """Create text containing all the keys."""
         text = Text(
-            style="grey82 on medium_purple4",
+            style="grey82 dim",
             no_wrap=True,
             overflow="ellipsis",
-            justify="center",
+            justify="right",
             end="",
         )
 
@@ -58,11 +43,9 @@ class NavWidget(Widget):
                 if binding.key_display is None
                 else binding.key_display
             )
-            hovered = self.highlight_key == binding.key
             key_text = Text.assemble(
                 f" {binding.description} ",
-                (f"[{key_display}]", "reverse" if hovered else "on medium_purple4"),
-                meta={"@click": f"parent.press('{binding.key}')", "key": binding.key},
+                (f"[{key_display}]"),
             )
             text.append_text(key_text)
 

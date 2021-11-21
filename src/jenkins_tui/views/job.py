@@ -85,7 +85,7 @@ class JobView(BaseView):
         name = job["displayName"]
 
         self.layout.add_column("col")
-        self.layout.add_row("nav", size=7)
+        self.layout.add_row("nav", size=8)
         self.layout.add_row("text", size=5)
         self.layout.add_row("details", min_size=20)
         self.layout.add_row("build_view", min_size=20)

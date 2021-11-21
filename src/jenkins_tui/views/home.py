@@ -30,7 +30,7 @@ class HomeView(BaseView):
         """Actions that are executed when the widget is mounted."""
 
         self.layout.add_column("col")
-        self.layout.add_row("nav", size=7)
+        self.layout.add_row("nav", size=8)
         self.layout.add_row("info", size=3)
         self.layout.add_row("executor", min_size=25)
 
