@@ -35,4 +35,4 @@ dev-clean:
 .PHONY: run
 run:
 	@poetry env use 3.9
-	@poetry run jenkins --config ./dev/.jenkins-tui.toml
+	@poetry run jenkins --config ./dev/.jenkins-tui.toml --debug

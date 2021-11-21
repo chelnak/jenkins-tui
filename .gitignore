@@ -9,3 +9,4 @@ dist
 
 dev/jenkins_home/*
 !dev/jenkins_home/PLACEHOLDER.txt
+jenkins_tui.log

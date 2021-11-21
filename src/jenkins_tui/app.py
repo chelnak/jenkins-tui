@@ -87,8 +87,13 @@ class JenkinsTUI(App):
     type=File(),
     help="Explicitly override the config that will be used by jenkins-tui.",
 )
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Enable debug mode.",
+)
 @click.version_option(__version__)
-def run(config: Optional[TextIOWrapper]) -> None:
+def run(config: Optional[TextIOWrapper], debug: bool) -> None:
     """The entry point."""
 
     # set up di
@@ -101,22 +106,19 @@ def run(config: Optional[TextIOWrapper]) -> None:
     container.wire(modules=[sys.modules[__name__], widgets, views, tree])
 
     # run the app
-    os.environ["JENKINSTUI_LOG"] = "textual.log"
-    log = os.getenv("JENKINSTUI_LOG")
+    if debug:
+        JenkinsTUI.run(title=APP_NAME, log="jenkins_tui.log")
+    else:
+        try:
+            JenkinsTUI.run(title=APP_NAME)
 
-    try:
-        JenkinsTUI.run(title=APP_NAME, log=log)
-    except Exception as e:
-        from rich.console import Console
+        except Exception as e:
+            from rich.console import Console
 
-        console = Console()
-        console.print(f"💥 It looks like there has been an error!\n\n {e}")
+            console = Console()
+            console.print(f"💥 It looks like there has been an error!\n\n {e}")
 
 
 if __name__ == "__main__":
     """Stuff that runs when you call the package directly (python -m jenkins_tui.app)"""
-
-    os.environ["JENKINSTUI_LOG"] = "textual.log"
-    os.environ["JENKINSTUI_DEVMODE"] = "true"
-    os.environ["JENKINSTUI_FEATURE_NAV"] = "true"
     run()
