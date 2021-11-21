@@ -4,16 +4,14 @@ from dataclasses import dataclass
 from functools import lru_cache
 from urllib.parse import unquote
 
-import styles
 from dependency_injector.wiring import Container, Provide, inject
 from rich.console import RenderableType
-from rich.style import Style
 from rich.text import Text
 from textual import events
 from textual.reactive import Reactive
 from textual.widgets import NodeID, TreeClick, TreeControl, TreeNode
 
-from . import config
+from . import styles
 from .client import Jenkins
 from .containers import Container
 from .views import JobView
