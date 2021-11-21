@@ -12,6 +12,7 @@ from textual import events
 from textual.keys import Keys
 from textual.widget import Widget
 
+from .. import styles
 from ..client import Jenkins
 from ..containers import Container
 from ..renderables import BuildHistoryTableRenderable
@@ -84,8 +85,8 @@ class JobDetailsWidget(Widget):
         assert isinstance(self.renderable, BuildHistoryTableRenderable)
         return Panel(
             renderable=self.renderable,
-            title=f"[grey82]( {self.renderable.title} )[/]",
-            border_style=Style(color="medium_purple4"),
+            title=f"[{styles.GREY}]( {self.renderable.title} )[/]",
+            border_style=Style(color=styles.PURPLE),
             expand=True,
-            box=box.HEAVY_EDGE,
+            box=styles.BOX,
         )

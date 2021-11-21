@@ -9,6 +9,7 @@ from textual import events
 from textual.reactive import Reactive
 from textual.widgets import Button, ButtonPressed
 
+from .. import styles
 from ..renderables import ButtonRenderable
 
 
@@ -27,7 +28,7 @@ class ButtonWidget(Button):
         assert isinstance(self.label, Text)
         text_style = Style(underline=self.toggle)
         border_style = Style(
-            color="grey82", bold=True, dim=self.mouse_over or self.toggle
+            color=styles.GREY, bold=True, dim=self.mouse_over or self.toggle
         )
         box_style = box.DOUBLE if self.toggle else box.SQUARE
         self.label.stylize(style=text_style)

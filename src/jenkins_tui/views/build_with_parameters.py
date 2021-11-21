@@ -10,6 +10,7 @@ from textual.views import GridView
 from textual.widget import Widget
 from textual.widgets import ButtonPressed
 
+from .. import styles
 from ..client import Jenkins
 from ..containers import Container
 from ..widgets import (
@@ -74,7 +75,7 @@ class BuildWithParametersView(BaseView):
                 placeholder=placeholder,
                 default_value=default_parameter,
                 choices=parameter.get("choices", []),
-                border_style="medium_purple4"
+                border_style=styles.PURPLE
                 # validation_regex=parameter.get("validationRegex", None),
             )
 

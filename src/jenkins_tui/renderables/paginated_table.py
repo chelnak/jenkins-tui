@@ -12,6 +12,8 @@ from rich.table import Table
 from rich.text import Text
 from textual.reactive import Reactive
 
+from .. import styles
+
 
 class PaginatedTableRenderable(ABC):
     """This class originates from here: https://github.com/sauljabin/kaskade/blob/main/kaskade/renderables/paginated_table.py"""
@@ -105,13 +107,13 @@ class PaginatedTableRenderable(ABC):
             expand=True,
             box=box.SIMPLE,
             show_edge=False,
-            header_style=Style(bold=True, color="grey82"),
-            border_style=Style(bold=True, color="medium_purple4"),
+            header_style=Style(bold=True, color=styles.GREY),
+            border_style=Style(bold=True, color=styles.PURPLE),
         )
 
     def __rich__(self) -> Union[Group, str]:
         pagination_info = Text.from_markup(
-            f"[gray82]page [bold][orange3]{self.page}[/][/] of [bold][green]{1 if self.total_pages() == 0 else self.total_pages()}[/][/][/]",
+            f"[{styles.GREY}]page [bold][{styles.ORANGE}]{self.page}[/][/] of [bold][{styles.GREEN}]{1 if self.total_pages() == 0 else self.total_pages()}[/][/][/]",
         )
 
         table = self.build_table()

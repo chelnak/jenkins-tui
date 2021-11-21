@@ -8,6 +8,7 @@ from rich.progress import BarColumn, Progress
 from rich.rule import Rule
 from rich.table import Table
 
+from .. import styles
 from .paginated_table import PaginatedTableRenderable
 
 
@@ -55,9 +56,9 @@ class ExecutorStatusTableRenderable(PaginatedTableRenderable):
             )
             render_group = Group(
                 *[
-                    f"[grey82][bold]{name}[/][/]",
+                    f"[{styles.GREY}][bold]{name}[/][/]",
                     progress.get_renderable(),
-                    Rule(style="grey82"),
+                    Rule(style=styles.GREY),
                 ]
             )
             table.add_row(Padding(render_group, pad=(0, 1)))

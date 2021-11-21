@@ -7,6 +7,7 @@ from rich.style import Style
 from rich.table import Table
 from rich.text import Text
 
+from .. import styles
 from .paginated_table import PaginatedTableRenderable
 
 
@@ -50,10 +51,10 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
 
         result_style_map: dict[str, str | Style]
         result_style_map = {
-            "SUCCESS": "green",
-            "FAILURE": "red",
-            "ABORTED": "#d45b0b",
-            "IN PROGRESS": "orange3",
+            "SUCCESS": styles.GREEN,
+            "FAILURE": styles.RED,
+            "ABORTED": styles.ORANGE,
+            "IN PROGRESS": styles.ORANGE,
             "NOT BUILT": "",
         }
 
@@ -79,9 +80,9 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
             table.add_row(f"{build['number']}", build["description"], result, timestamp)
 
     def render_columns(self, table: Table) -> None:
-        table.add_column("#", header_style="grey82 bold")
+        table.add_column("#", header_style=f"{styles.GREY} bold")
         table.add_column(
-            "description", header_style="grey82 bold", no_wrap=True, ratio=40
+            "description", header_style=f"{styles.GREY} bold", no_wrap=True, ratio=40
         )
-        table.add_column("result", header_style="grey82 bold")
-        table.add_column("timestamp", header_style="grey82 bold", no_wrap=True)
+        table.add_column("result", header_style=f"{styles.GREY} bold")
+        table.add_column("timestamp", header_style=f"{styles.GREY} bold", no_wrap=True)

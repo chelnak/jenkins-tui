@@ -12,6 +12,7 @@ from textual import events
 from textual.keys import Keys
 from textual.widget import Widget
 
+from .. import styles
 from ..client import Jenkins
 from ..containers import Container
 from ..renderables import ExecutorStatusTableRenderable
@@ -91,9 +92,9 @@ class ExecutorStatusWidget(Widget):
         assert isinstance(self.renderable, ExecutorStatusTableRenderable)
         return Panel(
             renderable=self.renderable,
-            title=f"[grey82](queued: [orange3]{self.queued_builds_count}[/] / running [green]{self.running_builds_count}[/])[/]",
-            border_style=Style(color="medium_purple4"),
+            title=f"[{styles.GREY}](queued: [{styles.ORANGE}]{self.queued_builds_count}[/] / running [green]{self.running_builds_count}[/])[/]",
+            border_style=Style(color=styles.PURPLE),
             padding=(1),
             expand=True,
-            box=box.HEAVY_EDGE,
+            box=styles.BOX,
         )

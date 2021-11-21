@@ -6,6 +6,8 @@ from rich.style import Style
 from rich.text import Text
 from textual_inputs import TextInput
 
+from .. import styles
+
 
 class TextInputFieldWidget(TextInput):
     """A custom text input field."""
@@ -21,7 +23,7 @@ class TextInputFieldWidget(TextInput):
         choices: list[str] = [],
         required: bool = False,
         width: int = 100,
-        border_style: str | Style = "grey82",
+        border_style: str | Style = styles.GREY,
     ) -> None:
         """A custom text input field.
 
@@ -29,7 +31,7 @@ class TextInputFieldWidget(TextInput):
             choices (list[str], optional): A list of choices for validation. Defaults to [].
             required (bool, optional): Sets the field as mandatory. Defaults to False.
             width (int, optional): A fixed width for the field. Defaults to 100.
-            border_style (str, optional): The style of the border. Defaults to "grey82".
+            border_style (str, optional): The style of the border. Defaults to "styles.GREY".
         """
 
         super().__init__(
@@ -41,7 +43,7 @@ class TextInputFieldWidget(TextInput):
             title=title,
         )
 
-        self.title: str | Text = f"[grey82]{title}[/]"
+        self.title: str | Text = f"[{styles.GREY}]{title}[/]"
         self.choices = choices
         self.required = required
         self.original_title = self.title
@@ -53,15 +55,19 @@ class TextInputFieldWidget(TextInput):
 
     async def validate(self) -> bool:
         """Validates the field input against configured criteria."""
-        error_border_style = "red"
+        error_border_style = styles.RED
         if self.choices and self.value not in self.choices:
             self.border_style = error_border_style
-            self.title = Text.from_markup(f"{self.title} - [red]Invalid choice![/]")
+            self.title = Text.from_markup(
+                f"{self.title} - [{styles.RED}]Invalid choice![/]"
+            )
             return False
 
         if self.required and (self.value == "" or self.value is None):
             self.border_style = error_border_style
-            self.title = Text.from_markup(f"{self.title} - [red]Required field![/]")
+            self.title = Text.from_markup(
+                f"{self.title} - [{styles.RED}]Required field![/]"
+            )
             return False
 
         self.border_style = self.original_border_style

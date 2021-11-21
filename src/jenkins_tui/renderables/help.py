@@ -1,6 +1,8 @@
 from rich.table import Table
 from textual.keys import Keys
 
+from .. import styles
+
 UP = "\u2191"
 DOWN = "\u2193"
 LEFT = "\u2190"
@@ -36,8 +38,8 @@ class HelpRenderable:
 
     def __rich__(self) -> Table:
         table = Table(box=None, expand=False, show_footer=False, show_header=False)
-        table.add_column(style="grey82")
-        table.add_column(style="orange3 bold")
+        table.add_column(style=styles.GREY)
+        table.add_column(style=f"{styles.PURPLE} bold")
         for category, shortcuts in self.shortcuts.items():
             table.add_row(f"[green]{category}[/]")
             for action, shortcut in shortcuts.items():
