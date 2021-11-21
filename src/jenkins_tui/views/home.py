@@ -6,7 +6,7 @@ from dependency_injector.wiring import Provide, inject
 from rich.style import Style
 from rich.text import Text
 
-from .. import __version__
+from .. import __version__, styles
 from ..client import Jenkins
 from ..containers import Container
 from ..widgets import ExecutorStatusWidget, NavWidget, TextWidget
@@ -51,9 +51,9 @@ class HomeView(BaseView):
 
         title = Text.assemble(
             *[
-                Text.from_markup(f"[grey82][bold]{clean_description}[/][/]\n"),
+                Text.from_markup(f"[{styles.GREY}][bold]{clean_description}[/][/]\n"),
                 Text.from_markup(
-                    f"server: [green]{server_version}[/] [orange3]⚡[/]client: [green]{client_version}[/]"
+                    f"server: [{styles.GREEN}]{server_version}[/] [{styles.ORANGE}]⚡[/]client: [{styles.GREEN}]{client_version}[/]"
                 ),
             ],
             justify="center",

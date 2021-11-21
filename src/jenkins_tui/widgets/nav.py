@@ -8,9 +8,9 @@ from rich.padding import Padding
 from rich.panel import Panel
 from rich.style import Style
 from rich.text import Text
-from textual import events
-from textual.reactive import Reactive
 from textual.widget import Widget
+
+from .. import styles
 
 
 @rich.repr.auto
@@ -28,7 +28,7 @@ class NavWidget(Widget):
     def make_key_text(self) -> Text:
         """Create text containing all the keys."""
         text = Text(
-            style="grey82 dim",
+            style=f"{styles.GREY} dim",
             no_wrap=True,
             overflow="ellipsis",
             justify="right",
@@ -57,7 +57,7 @@ class NavWidget(Widget):
         title = Align.center(
             renderable=Text(
                 self.title,
-                style=Style(color="grey82", bold=True),
+                style=Style(color=styles.GREEN, bold=True),
             )
             if isinstance(self.title, str)
             else self.title,
@@ -68,9 +68,9 @@ class NavWidget(Widget):
 
         head = Panel(
             Group(title, self._key_text),
-            box=box.HEAVY_EDGE,
+            box=styles.BOX,
             height=7,
-            border_style=Style(color="medium_purple4"),
+            border_style=Style(color=styles.PURPLE),
             padding=(0, 0, 0, 0),
         )
 

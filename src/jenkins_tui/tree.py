@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from urllib.parse import unquote
 
+import styles
 from dependency_injector.wiring import Container, Provide, inject
 from rich.console import RenderableType
 from rich.style import Style
@@ -47,7 +48,6 @@ class Tree(TreeControl[JobEntry]):
         name = self.__class__.__name__
         super().__init__(label="home", name=name, data=data)
 
-        self.styles = config.style_map[config.style]
         self.client = client
         self.color_map = {
             "aborted": "❌",
@@ -71,7 +71,7 @@ class Tree(TreeControl[JobEntry]):
             "hudson.model.FreeStyleProject": "freestyle",
         }
 
-        self.root.tree.guide_style = self.styles["tree_guide"]
+        self.root.tree.guide_style = styles.BLACK
         self.current_node = self.root.data
         self.padding = (0, 0)
 
@@ -168,26 +168,26 @@ class Tree(TreeControl[JobEntry]):
         label = Text(node.label) if isinstance(node.label, str) else node.label
 
         if is_hover:
-            label.stylize(self.styles["node_on_hover"])
+            label.stylize("underline")
 
         if is_cursor:
-            style = self.styles["tree_on_cursor"] if self.has_focus else "on black"
+            style = "reverse" if self.has_focus else "on black"
             label.stylize(style)
 
         if type == "root":
-            label.stylize(self.styles["root_node"])
+            label.stylize(styles.GREY)
             icon = "🏠"  # "📂"
 
         elif type == "folder":
-            label.stylize(self.styles["folder"])
+            label.stylize(styles.GREY)
             icon = "📂" if expanded else "📁"
 
         elif type == "multibranch":
-            label.stylize(self.styles["multibranch_node"])
+            label.stylize(styles.GREY)
             icon = "🌱"
 
         else:
-            label.stylize(self.styles["node"])
+            label.stylize(styles.GREY)
             icon = self.color_map.get(node.data.color, "?")
 
         icon_label = Text(f"{icon} ", no_wrap=True, overflow="ellipsis") + label
@@ -198,9 +198,7 @@ class Tree(TreeControl[JobEntry]):
         """Configures styles for a node when hovered over by the mouse pointer."""
         for node in self.nodes.values():
             node.tree.guide_style = (
-                self.styles["tree_guide_on_hover"]
-                if node.id == hover_node
-                else self.styles["tree_guide"]
+                styles.GREY if node.id == hover_node else styles.BLACK
             )
         self.refresh(layout=True)
 

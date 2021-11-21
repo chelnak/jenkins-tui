@@ -2,6 +2,7 @@ from rich import box
 from rich.panel import Panel
 from textual.widget import Widget
 
+from .. import styles
 from ..renderables import HelpRenderable
 
 
@@ -10,8 +11,8 @@ class HelpWidget(Widget):
         return Panel(
             HelpRenderable(),
             title="❔ [bold]help[/]",
-            border_style="medium_purple4",
-            box=box.HEAVY_EDGE,
+            border_style=styles.PURPLE,
+            box=styles.BOX,
             title_align="left",
             padding=(1, 0, 0, 0),
         )
