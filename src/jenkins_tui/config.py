@@ -1,8 +1,9 @@
 import os
-import toml
 from io import TextIOWrapper
-from rich.console import Console
 from typing import Any, MutableMapping, Optional
+
+import toml
+from rich.console import Console
 
 """
 All of the good stuff. This is should be the main point for app configuration.

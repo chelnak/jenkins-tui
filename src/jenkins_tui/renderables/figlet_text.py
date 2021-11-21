@@ -1,7 +1,6 @@
+from pyfiglet import Figlet
 from rich.console import Console, ConsoleOptions, RenderResult
 from rich.text import Text
-
-from pyfiglet import Figlet
 
 
 class FigletTextRenderable:

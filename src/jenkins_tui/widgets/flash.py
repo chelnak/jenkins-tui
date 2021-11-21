@@ -1,13 +1,13 @@
 from __future__ import annotations
+
 from enum import Enum, EnumMeta
 
 from rich.console import RenderableType
 from rich.style import Style
 from rich.text import Text
-
-from textual.widget import Widget
-from textual.reactive import Reactive
 from textual.message import Message, MessageTarget
+from textual.reactive import Reactive
+from textual.widget import Widget
 
 
 class FlashMessageType(Enum):

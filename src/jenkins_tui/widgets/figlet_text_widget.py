@@ -3,9 +3,8 @@ from typing import Optional
 from rich.align import Align
 from rich.console import RenderableType
 from rich.style import Style
-
-from textual.widget import Widget
 from textual.reactive import Reactive
+from textual.widget import Widget
 
 from ..renderables import FigletTextRenderable
 

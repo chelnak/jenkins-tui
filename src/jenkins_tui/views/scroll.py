@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from textual.layouts.grid import GridLayout
+from textual.reactive import Reactive
 from textual.view import View
 from textual.widgets import ScrollView
-from textual.reactive import Reactive
 
 
 class CustomScrollView(ScrollView):

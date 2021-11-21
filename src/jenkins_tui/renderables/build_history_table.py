@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-from rich.text import Text
 from rich.style import Style
 from rich.table import Table
+from rich.text import Text
 
 from .paginated_table import PaginatedTableRenderable
 
@@ -30,8 +30,10 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
             page (int, optional): The starting page. Defaults to 1.
             row (int, optional): The starting row. Defaults to 0.
         """
+
         self.builds = builds
         self.title = title
+
         super().__init__(
             len(builds), page_size=page_size, page=page, row=row, row_size=1
         )

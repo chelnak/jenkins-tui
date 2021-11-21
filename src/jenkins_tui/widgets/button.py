@@ -5,7 +5,6 @@ from rich.console import RenderableType
 from rich.panel import Panel
 from rich.style import Style
 from rich.text import Text
-
 from textual import events
 from textual.reactive import Reactive
 from textual.widgets import Button, ButtonPressed

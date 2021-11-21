@@ -3,21 +3,18 @@ from __future__ import annotations
 from typing import Optional
 
 from rich.console import RenderableType
+from rich.text import Text
 from textual.widget import Widget
 
-from rich.text import Text
-from rich.padding import Padding
-
-from ..renderables import InfoRenderable
+from ..renderables import TextRenderable
 
 
-class InfoWidget(Widget):
+class TextWidget(Widget):
     """A generic info widget. This displays information with a ruled title and some text"""
 
     def __init__(
         self,
-        title: str | Text,
-        renderable: str | Text | RenderableType,
+        text: Optional[str | Text | RenderableType] = None,
     ) -> None:
         """A generic info widget. This displays information with a ruled title and some text.
 
@@ -25,8 +22,7 @@ class InfoWidget(Widget):
             title (str, Text): The title of the info widget.
             renderable (str, Text): The text that will be rendered in the info widget.
         """
-        self.title = title
-        self.renderable = renderable
+        self.text = text or ""
 
         name = self.__class__.__name__
         super().__init__(name=name)
@@ -34,7 +30,6 @@ class InfoWidget(Widget):
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
 
-        return InfoRenderable(
-            title=self.title,
-            renderable=self.renderable,
+        return TextRenderable(
+            text=self.text,
         )

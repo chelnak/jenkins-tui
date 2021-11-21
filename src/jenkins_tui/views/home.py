@@ -3,16 +3,14 @@ from __future__ import annotations
 import re
 
 from dependency_injector.wiring import Provide, inject
-
-from rich.console import Group
-from rich.text import Text
 from rich.style import Style
+from rich.text import Text
 
-from .base import BaseView
-from ..widgets import ExecutorStatusWidget, InfoWidget
+from .. import __version__
 from ..client import Jenkins
 from ..containers import Container
-from .. import __version__
+from ..widgets import ExecutorStatusWidget, NavWidget, TextWidget
+from .base import BaseView
 
 
 class HomeView(BaseView):
@@ -32,10 +30,12 @@ class HomeView(BaseView):
         """Actions that are executed when the widget is mounted."""
 
         self.layout.add_column("col")
-        self.layout.add_row("info", size=10)
+        self.layout.add_row("nav", size=8)
+        self.layout.add_row("info", size=3)
         self.layout.add_row("executor", min_size=25)
 
         self.layout.add_areas(
+            nav="col,nav",
             info="col,info",
             executor="col,executor",
         )
@@ -45,14 +45,6 @@ class HomeView(BaseView):
         )
         server_version = self.client.version
         client_version = __version__
-
-        render_group = Group(
-            *[
-                f"[bold]server:[/] {server_address}",
-                f"[bold]server version:[/] {server_version}",
-                f"[bold]client version:[/] {client_version}",
-            ]
-        )
 
         HTML = re.compile(r"<[^>]+>")
         clean_description = HTML.sub("", self.client.description)
@@ -66,10 +58,14 @@ class HomeView(BaseView):
             ],
             justify="center",
         )
+
         self.layout.place(
-            info=InfoWidget(
-                title=title,
-                renderable=f"Welcome to Jenkins TUI! 🚀\nYour instance url is: {server_address}",
+            nav=NavWidget(title=title),
+        )
+
+        self.layout.place(
+            info=TextWidget(
+                text=f"Welcome to Jenkins TUI! 🚀\nYour instance url is: {server_address}",
             )
         )
         self.layout.place(executor=ExecutorStatusWidget())

@@ -75,7 +75,7 @@ pre-commit install
 The dev environment gives you a fully configured dev instance. To start it run the following command:
 
 ```bash
-make dev
+make dev-run
 ```
 
 Once it's started you can access it locally with the following details:
@@ -83,6 +83,12 @@ Once it's started you can access it locally with the following details:
 | host | user | password |
 |------|------|----------|
 | <http://localhost:8080> | admin | admin |
+
+You can also start an instance of jenkins-tui that is configured to talk to the local jenkins instance with:
+
+```bash
+make run
+```
 
 > The dev env set up uses lots of the good stuff from this repository: <https://github.com/uhafner/warnings-ng-plugin-devenv/tree/main/docker> :rocket:
 

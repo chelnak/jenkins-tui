@@ -1,7 +1,6 @@
-from rich.style import StyleType
-from rich.console import Console, ConsoleOptions, RenderResult
 from rich.align import Align
-from rich.console import RenderableType
+from rich.console import Console, ConsoleOptions, RenderableType, RenderResult
+from rich.style import StyleType
 
 
 class ButtonRenderable:

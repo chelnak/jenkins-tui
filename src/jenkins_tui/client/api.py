@@ -1,7 +1,8 @@
 import socket
-import httpx
-from urllib.parse import urlencode
 from typing import Any, Optional
+from urllib.parse import urlencode
+
+import httpx
 from httpx._auth import BasicAuth
 
 

@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from math import ceil
 from typing import Any, List, Union
@@ -9,7 +10,6 @@ from rich.padding import Padding
 from rich.style import Style
 from rich.table import Table
 from rich.text import Text
-
 from textual.reactive import Reactive
 
 

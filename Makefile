@@ -15,6 +15,7 @@ check:
 	@source $(VENV)
 	black --check .
 	mypy tools
+	isort --check src/jenkins_tui
 	mypy src/jenkins_tui
 
 .PHONY: dev-build
