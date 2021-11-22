@@ -5,24 +5,30 @@ from typing import Optional
 
 import click
 from click.types import File
+from rich.text import Text
 from textual.app import App
 from textual.keys import Keys
 from textual.reactive import Reactive
 from textual.widgets import Placeholder
 
-from . import __version__
+from . import __version__, styles
 from .config import APP_NAME, CLI_HELP, get_config
 from .containers import Container
 from .views import CustomScrollView, HomeView, SideBarView
-from .widgets import FlashWidget, HelpWidget, ScrollBarWidget, ShowFlashNotification
+from .widgets import (
+    FlashWidget,
+    HelpWidget,
+    ScrollBarWidget,
+    ShowFlashNotification,
+    TextInputFieldWidget,
+)
 
 
 class JenkinsTUI(App):
     """This is the base class for Jenkins TUI."""
 
     show_help = Reactive(False)
-    show_command_pallet = Reactive(False)
-    chicken_mode_enabled: Reactive[bool] = Reactive(False)
+    # show_command_pallet = Reactive(False)
 
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
@@ -36,26 +42,34 @@ class JenkinsTUI(App):
     async def action_toggle_help(self) -> None:
         self.show_help = not self.show_help
 
-    async def watch_show_command_pallet(self, show_command_pallet: bool) -> None:
-        self.command_pallet.visible = show_command_pallet
+    # async def watch_show_command_pallet(self, show_command_pallet: bool) -> None:
+    #     self.command_pallet.visible = show_command_pallet
 
-    async def action_toggle_command_pallet(self) -> None:
-        self.show_command_pallet = not self.show_command_pallet
+    # async def action_toggle_command_pallet(self) -> None:
+    #     self.show_command_pallet = not self.show_command_pallet
+
+    #     if self.show_command_pallet:
+    #         await self.app.set_focus(self.command_pallet)
 
     async def action_refocus_tree(self) -> None:
         """Actions that are executed when the history button is pressed."""
         self.show_help = False
-        self.show_command_pallet = False
+        # self.show_command_pallet = False
         await self.side_bar.set_tree_focus()
 
     async def on_mount(self) -> None:
         """Overrides on_mount from App()"""
 
-        self.command_pallet = Placeholder()
-        self.command_pallet.visible = False
-        await self.view.dock(
-            self.command_pallet, edge="top", size=3, name="command_pallet"
-        )
+        # self.command_pallet = TextInputFieldWidget(
+        #     name="search",
+        #     title=Text("🔍 search"),
+        #     border_style=styles.PURPLE,
+        #     required=True,
+        # )
+        # self.command_pallet.visible = False
+        # await self.view.dock(
+        #     self.command_pallet, edge="top", size=3, name="command_pallet"
+        # )
 
         self.side_bar = SideBarView()
         await self.view.dock(self.side_bar, edge="left", size=40, name="sidebar")
