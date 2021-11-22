@@ -42,16 +42,6 @@ You can also run the app with docker:
 run --rm -it --volume $HOME:/root ghcr.io/chelnak/jenkins-tui:latest --host github.com
 ```
 
-## Screenshots
-
-### Build history
-
-![build_view](media/build_view.png)
-
-### Build with parameters
-
-![build_with_parameters_view](media/build_with_parameters_view.png)
-
 ## Developing
 
 ### Install dependencies
