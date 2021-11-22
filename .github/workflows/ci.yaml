@@ -9,6 +9,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: jenkins-tui
+
 jobs:
   build:
 
