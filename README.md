@@ -39,7 +39,7 @@ jenkins
 You can also run the app with docker:
 
 ```bash
-run --rm -it --volume $HOME:/root ghcr.io/chelnak/jenkins-tui:latest --host github.com
+docker run --rm -it --volume $HOME:/root ghcr.io/chelnak/jenkins-tui:latest --host github.com
 ```
 
 ## Developing
