@@ -1,3 +1,5 @@
+from rich.box import HEAVY_EDGE
+from rich.console import Console, ConsoleOptions, RenderResult
 from rich.table import Table
 from textual.keys import Keys
 
@@ -37,15 +39,19 @@ class HelpRenderable:
     def __str__(self) -> str:
         return str(self.shortcuts)
 
-    def __rich__(self) -> Table:
-        table = Table(box=None, expand=False, show_footer=False, show_header=False)
+    def __rich_console__(
+        self, console: Console, options: ConsoleOptions
+    ) -> RenderResult:
+
+        table = Table(box=None, expand=True, show_footer=False, show_header=False)
+
         table.add_column(style=styles.GREY)
-        table.add_column(style=f"{styles.PURPLE} bold")
+        table.add_column(style=f"{styles.ORANGE} bold")
         for category, shortcuts in self.shortcuts.items():
-            table.add_row(f"[green]{category}[/]")
+            table.add_row(f"[{styles.GREEN}]{category}[/]")
             for action, shortcut in shortcuts.items():
                 table.add_row(action, shortcut)
             else:
                 table.add_row()
 
-        return table
+        yield table
