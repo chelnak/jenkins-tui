@@ -38,6 +38,31 @@ jobs:
         source $VENV
         make build
 
+    - name: Build image 🐳
+      run: docker build . --file Dockerfile --tag chkdns
+
+    - name: Log into registry 🐳
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Push image 🐳
+      run: |
+        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        if [[ "${{ github.ref }}" == "refs/tags/v"* ]]; then
+          docker tag $IMAGE_NAME $IMAGE_ID:$(echo $VERSION | sed -e 's/^v//')
+          # latest should always reflect the most recent tagged release
+          VERSION=latest
+        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          # main represents the latest build from main branch
+          VERSION=main
+        else
+          # dev represents the latest build from prs or branches
+          VERSION=dev
+        fi
+        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        docker push -a $IMAGE_ID
+
     - name: Publish 📦
       if: startsWith(github.ref, 'refs/tags/v')
       run: |

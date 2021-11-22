@@ -34,6 +34,14 @@ password = ""
 jenkins
 ```
 
+## Run with Docker
+
+You can also run the app with docker:
+
+```bash
+run --rm -it --volume $HOME:/root ghcr.io/chelnak/jenkins-tui:latest --host github.com
+```
+
 ## Screenshots
 
 ### Build history
