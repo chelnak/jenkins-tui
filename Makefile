@@ -2,10 +2,12 @@
 SHELL := /bin/bash
 VENV ?= "$(shell poetry env list --full-path | cut -f1 -d " ")/bin/activate"
 
+# Releasing
 tag:
 	@git tag -a $(version) -m "Release $(version) -> Jenkins TUI"
 	@git push --follow-tags
 
+# Building
 build: check
 	@source $(VENV)
 	python tools/bump_version.py
@@ -18,21 +20,27 @@ check:
 	isort --check src/jenkins_tui
 	mypy src/jenkins_tui
 
-.PHONY: dev-build
-dev-build:
+# Developing
+.PHONY: init
+init:
+	@poetry install
+	@pre-commit install
+
+.PHONY: env-build
+env-build:
 	@nerdctl compose --env-file dev/.env --project-directory dev up --build
 
-.PHONY: dev-run
-dev-run:
+.PHONY: env-run
+env-run:
 	@nerdctl compose --env-file dev/.env --project-directory dev up
 
-.PHONY: dev-clean
-dev-clean:
+.PHONY: env-clean
+env-clean:
 	@nerdctl container rm dev_controller_1
 	@nerdctl container rm dev_agent_1
 	@nerdctl volume rm dev_jenkins_home
 
-.PHONY: run
-run:
+.PHONY: app-run
+app-run:
 	@poetry env use 3.9
 	@poetry run jenkins --config ./dev/.jenkins-tui.toml --debug
