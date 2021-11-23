@@ -17,12 +17,17 @@ class HelpRenderable:
             "back": Keys.Escape,
             "toggle help": "?",
             "quit": Keys.ControlC,
-            "command pallet": Keys.ControlK,
+            "search": Keys.ControlK,
         },
         "navigation": {
             "navigate": f"{UP} {DOWN}",
             "toggle folder": f"{LEFT} {RIGHT}",
             "select": Keys.Enter,
+        },
+        "search": {
+            "cycle suggestions": Keys.Tab,
+            "complete suggestion": f"{RIGHT}",
+            "search": Keys.Enter,
         },
         "jobs": {
             "history": "h",

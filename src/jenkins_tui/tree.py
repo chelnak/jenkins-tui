@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
+from typing import Any
 from urllib.parse import unquote
 
 from dependency_injector.wiring import Container, Provide, inject
 from rich.console import RenderableType
 from rich.text import Text
 from textual import events
-from textual.reactive import Reactive
+from textual.message import Message, MessageTarget
+from textual.reactive import Reactive, watch
 from textual.widgets import NodeID, TreeClick, TreeControl, TreeNode
 
 from . import styles
@@ -79,6 +81,9 @@ class Tree(TreeControl[JobEntry]):
         Args:
             event (events.Mount): A mount event.
         """
+
+        watch(self.app, "search_node", self.action_click_label)
+
         await self.load_jobs(self.root)
         self.cursor = self.root.id
         self.show_cursor = True
@@ -202,6 +207,7 @@ class Tree(TreeControl[JobEntry]):
 
     async def action_click_label(self, node_id: NodeID) -> None:
         """Overrides action_click_label from tree control and sets show cursor to True"""
+        self.log(f"node clicked - {node_id}")
         node = self.nodes[node_id]
         self.cursor = node.id
         self.cursor_line = self.find_cursor() or 0
@@ -214,37 +220,57 @@ class Tree(TreeControl[JobEntry]):
         Args:
             node (TreeNode[JobEntry]): [description]
         """
-        jobs = []
-        if node.data.type == "root":
-            jobs = await self.client.get_jobs(recursive=True)
-        else:
-            jobs = node.data.jobs
+        jobs = await self.client.get_jobs(recursive=True)
 
-        entry: dict[str, str]
-        for entry in jobs:
+        async def map_nodes(
+            node: TreeNode[JobEntry], jobs: list[dict[str, Any]]
+        ) -> None:
 
-            typeof = self.type_map.get(entry["_class"], "")
-            clean_name = unquote(entry["name"])
-            parts = entry["url"].strip("/").split("/job/")
-            full_name = "/".join(parts[1:])
+            if not jobs:
+                return
 
-            job = JobEntry(
-                name=full_name,
-                url=entry["url"],
-                color=entry.get("color", "none"),
-                type=typeof,
-                jobs=entry.get("jobs", []),
-            )
+            for entry in jobs:
+                typeof = self.type_map.get(entry["_class"], "")
+                clean_name = unquote(entry["name"])
+                parts = entry["url"].strip("/").split("/job/")
+                full_name = "/".join(parts[1 : len(parts) - 1] + [clean_name])
 
-            await node.add(clean_name, job)
+                job = JobEntry(
+                    name=unquote(full_name),
+                    url=entry["url"],
+                    color=entry.get("color", "none"),
+                    type=typeof,
+                    jobs=entry.get("jobs", []),
+                )
 
-        node.loaded = True
+                await node.add(clean_name, job)
+                node.loaded = True
+
+                if entry.get("jobs"):
+                    await map_nodes(self.nodes[self.id], entry["jobs"])
+
+        await map_nodes(node, jobs)
         await node.expand()
+
+        self.app.searchable_nodes = self.nodes
+
+        # This sets the nodes that can be searched
         self.refresh(layout=True)
 
     async def refresh_tree(self):
         self.root.tree.children.clear()
         await self.load_jobs(self.root)
+
+    async def expand_parent_nodes(self, node: TreeNode[JobEntry]) -> None:
+        """Expands the parent of a node.
+
+        Args:
+            node (TreeNode[JobEntry]): A node in the tree.
+        """
+        if node.parent and not node.parent.expanded:
+            self.log("node has parent")
+            await self.expand_parent_nodes(node.parent)
+            await node.parent.expand()
 
     async def handle_tree_click(self, message: TreeClick[JobEntry]) -> None:
         """Handle messages that are sent when a tree item is clicked.
@@ -253,6 +279,9 @@ class Tree(TreeControl[JobEntry]):
             message (TreeClick[JobEntry]): A message that is sent when a tree item is clicked.
         """
         node_data = message.node.data
+
+        await self.expand_parent_nodes(message.node)
+
         if node_data.type == "job" or node_data.type == "freestyle":
 
             self.log("Handling JobClick message")
@@ -283,8 +312,4 @@ class Tree(TreeControl[JobEntry]):
                 await self.call_later(set)
 
         else:
-            if not message.node.loaded:
-                await self.load_jobs(message.node)
-                await message.node.expand()
-            else:
-                await message.node.toggle()
+            await message.node.toggle()

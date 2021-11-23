@@ -29,4 +29,4 @@ class TextRenderable:
         self, console: Console, options: ConsoleOptions
     ) -> RenderResult:
 
-        yield Padding(self.text, pad=(0, 1, 0, 1))
+        yield Padding(self.text, pad=(1, 1, 0, 1))

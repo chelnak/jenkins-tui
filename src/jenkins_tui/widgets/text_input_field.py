@@ -53,6 +53,13 @@ class TextInputFieldWidget(TextInput):
         self.default_value = str(default_value)
         self.width = width
 
+    async def toggle_field_status(self, valid=True) -> None:
+        """Toggles field status"""
+        if not valid:
+            self.border_style = styles.RED
+        else:
+            self.border_style = self.original_border_style
+
     async def validate(self) -> bool:
         """Validates the field input against configured criteria."""
         error_border_style = styles.RED

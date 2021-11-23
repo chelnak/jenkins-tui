@@ -9,7 +9,7 @@ from rich.text import Text
 from .. import __version__, styles
 from ..client import Jenkins
 from ..containers import Container
-from ..widgets import ExecutorStatusWidget, NavWidget, TextWidget
+from ..widgets import ExecutorStatusWidget, TextWidget
 from .base import BaseView
 
 
@@ -30,12 +30,10 @@ class HomeView(BaseView):
         """Actions that are executed when the widget is mounted."""
 
         self.layout.add_column("col")
-        self.layout.add_row("nav", size=8)
         self.layout.add_row("info", size=3)
         self.layout.add_row("executor", min_size=25)
 
         self.layout.add_areas(
-            nav="col,nav",
             info="col,info",
             executor="col,executor",
         )
@@ -49,7 +47,7 @@ class HomeView(BaseView):
         HTML = re.compile(r"<[^>]+>")
         clean_description = HTML.sub("", self.client.description)
 
-        title = Text.assemble(
+        self.app.nav.title = Text.assemble(
             *[
                 Text.from_markup(f"[{styles.GREY}][bold]{clean_description}[/][/]\n"),
                 Text.from_markup(
@@ -57,10 +55,6 @@ class HomeView(BaseView):
                 ),
             ],
             justify="center",
-        )
-
-        self.layout.place(
-            nav=NavWidget(title=title),
         )
 
         self.layout.place(
