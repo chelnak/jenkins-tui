@@ -54,4 +54,4 @@ For Ubuntu 20.04, it may be necessary to install the `python3.9` package.
 
 ## Contributing
 
-If you would like to contribute to `jenkins-tui` head over to the [contributing guid](CONTRIBUTING.md) to find out more!
+If you would like to contribute to `jenkins-tui` head over to the [contributing guide](CONTRIBUTING.md) to find out more!
