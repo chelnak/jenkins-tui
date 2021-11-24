@@ -26,21 +26,8 @@ class HomeView(BaseView):
         super().__init__()
         self.client = client
 
-    async def on_mount(self) -> None:
-        """Actions that are executed when the widget is mounted."""
+    async def on_show(self):
 
-        self.layout.add_column("col")
-        self.layout.add_row("info", size=3)
-        self.layout.add_row("executor", min_size=25)
-
-        self.layout.add_areas(
-            info="col,info",
-            executor="col,executor",
-        )
-
-        server_address = Text(
-            self.client.url, style=Style(link=self.client.url), overflow="ellipsis"
-        )
         server_version = self.client.version
         client_version = __version__
 
@@ -55,6 +42,22 @@ class HomeView(BaseView):
                 ),
             ],
             justify="center",
+        )
+
+    async def on_mount(self) -> None:
+        """Actions that are executed when the widget is mounted."""
+
+        self.layout.add_column("col")
+        self.layout.add_row("info", size=3)
+        self.layout.add_row("executor", min_size=25)
+
+        self.layout.add_areas(
+            info="col,info",
+            executor="col,executor",
+        )
+
+        server_address = Text(
+            self.client.url, style=Style(link=self.client.url), overflow="ellipsis"
         )
 
         self.layout.place(
