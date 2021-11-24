@@ -83,6 +83,7 @@ class JenkinsTUI(App):
             await self.app.set_focus(self.search)
         else:
             await self.side_bar.set_tree_focus()
+            self.search.value = ""
 
     async def action_refocus_tree(self) -> None:
 
