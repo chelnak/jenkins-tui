@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import rich.repr
-from rich import box
 from rich.align import Align
 from rich.console import Group, RenderableType
 from rich.padding import Padding
@@ -78,7 +77,7 @@ class NavWidget(Widget):
             box=styles.BOX,
             height=7,
             border_style=Style(color=styles.PURPLE),
-            padding=(0, 0, 0, 0),
+            padding=(0, 1, 0, 0),
         )
 
-        return Padding(head, pad=(1, 0, 0, 0))
+        return Padding(head, pad=(1, 1))
