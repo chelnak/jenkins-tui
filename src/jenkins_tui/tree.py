@@ -196,14 +196,6 @@ class Tree(TreeControl[JobEntry]):
         icon_label.apply_meta(meta)
         return icon_label
 
-    async def watch_hover_node(self, hover_node: NodeID) -> None:
-        """Configures styles for a node when hovered over by the mouse pointer."""
-        for node in self.nodes.values():
-            node.tree.guide_style = (
-                styles.GREY if node.id == hover_node else styles.BLACK
-            )
-        self.refresh(layout=True)
-
     async def action_click_label(self, node_id: NodeID) -> None:
         """Overrides action_click_label from tree control and sets show cursor to True"""
         node = self.nodes[node_id]
