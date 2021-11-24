@@ -206,7 +206,6 @@ class Tree(TreeControl[JobEntry]):
 
     async def action_click_label(self, node_id: NodeID) -> None:
         """Overrides action_click_label from tree control and sets show cursor to True"""
-        self.log(f"node clicked - {node_id}")
         node = self.nodes[node_id]
         self.cursor = node.id
         self.cursor_line = self.find_cursor() or 0

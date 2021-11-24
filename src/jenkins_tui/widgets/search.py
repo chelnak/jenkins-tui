@@ -80,9 +80,7 @@ class SearchWidget(TextInputFieldWidget):
             word = self.autocompleter.words.get(self.value.strip().lower(), None)
 
             if not word:
-                self.log(
-                    f"No word match found for {self.value} words:\n{self.autocompleter.words}"
-                )
+                self.log(f"No word match found for {self.value}")
                 await self.toggle_field_status(valid=False)
                 return
 
