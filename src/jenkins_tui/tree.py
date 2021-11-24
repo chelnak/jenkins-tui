@@ -9,7 +9,6 @@ from dependency_injector.wiring import Container, Provide, inject
 from rich.console import RenderableType
 from rich.text import Text
 from textual import events
-from textual.message import Message, MessageTarget
 from textual.reactive import Reactive, watch
 from textual.widgets import NodeID, TreeClick, TreeControl, TreeNode
 
