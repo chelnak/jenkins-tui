@@ -13,7 +13,6 @@ from ..widgets import (
     ButtonWidget,
     FlashMessageType,
     JobDetailsWidget,
-    NavWidget,
     ShowFlashNotification,
     TextWidget,
 )
