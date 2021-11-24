@@ -1,4 +1,3 @@
-from rich.box import HEAVY_EDGE
 from rich.console import Console, ConsoleOptions, RenderResult
 from rich.table import Table
 from textual.keys import Keys
@@ -15,14 +14,19 @@ class HelpRenderable:
     shortcuts = {
         "global": {
             "back": Keys.Escape,
-            "toggle help": "?",
+            "help": "?",
+            "search": Keys.ControlK,
             "quit": Keys.ControlC,
-            "command pallet": Keys.ControlK,
         },
         "navigation": {
             "navigate": f"{UP} {DOWN}",
             "toggle folder": f"{LEFT} {RIGHT}",
             "select": Keys.Enter,
+        },
+        "search": {
+            "cycle suggestions": Keys.Tab,
+            "complete suggestion": f"{RIGHT}",
+            "search": Keys.Enter,
         },
         "jobs": {
             "history": "h",

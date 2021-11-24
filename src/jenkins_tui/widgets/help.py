@@ -8,6 +8,10 @@ from ..renderables import HelpRenderable
 
 
 class HelpWidget(Widget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.visible = False
+
     def render(self) -> RenderableType:
         top_padding = 1
         _, height = self.size

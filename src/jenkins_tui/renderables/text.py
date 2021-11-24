@@ -2,12 +2,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from rich.align import Align
-from rich.console import Console, ConsoleOptions, Group, RenderableType, RenderResult
+from rich.console import Console, ConsoleOptions, RenderableType, RenderResult
 from rich.padding import Padding
-from rich.panel import Panel
-from rich.rule import Rule
-from rich.style import Style
 from rich.text import Text
 
 
@@ -29,4 +25,4 @@ class TextRenderable:
         self, console: Console, options: ConsoleOptions
     ) -> RenderResult:
 
-        yield Padding(self.text, pad=(0, 1, 0, 1))
+        yield Padding(self.text, pad=(1, 1, 0, 1))

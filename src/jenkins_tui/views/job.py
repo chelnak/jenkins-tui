@@ -13,7 +13,6 @@ from ..widgets import (
     ButtonWidget,
     FlashMessageType,
     JobDetailsWidget,
-    NavWidget,
     ShowFlashNotification,
     TextWidget,
 )
@@ -85,14 +84,12 @@ class JobView(BaseView):
         name = job["displayName"]
 
         self.layout.add_column("col")
-        self.layout.add_row("nav", size=8)
         self.layout.add_row("text", size=5)
         self.layout.add_row("details", min_size=20)
         self.layout.add_row("build_view", min_size=20)
         self.layout.show_row("build_view", False)
 
         self.layout.add_areas(
-            nav="col,nav",
             text="col,text",
             details="col,details",
             build_view="col,build_view",
@@ -111,7 +108,8 @@ class JobView(BaseView):
         if description.plain == "":
             self.layout.show_row("text", False)
 
-        self.layout.place(nav=NavWidget(title=name))
+        self.app.nav.title = name
+
         self.layout.place(text=TextWidget(text=description))
         self.layout.place(details=self.details)
 

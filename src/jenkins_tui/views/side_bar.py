@@ -11,10 +11,6 @@ from .base import BaseView
 class SideBarView(BaseView):
     """A view that contains widgets that make up the sidebar."""
 
-    async def set_tree_focus(self) -> None:
-        """Set the focus to the tree."""
-        await self.app.set_focus(self.tree)
-
     async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted."""
 
@@ -44,3 +40,16 @@ class SideBarView(BaseView):
         self.layout.place(tree=self.scroll_view)
 
         await self.set_tree_focus()
+
+    async def reset_tree(self) -> None:
+        """Reset the tree to node 0 (root)."""
+        await self.tree.action_click_label(0)
+
+    async def set_tree_focus(self) -> None:
+        """Set the focus to the tree."""
+        await self.app.set_focus(self.tree)
+
+    @property
+    def tree_has_focus(self) -> bool:
+        """Return whether the tree has focus."""
+        return self.tree.has_focus

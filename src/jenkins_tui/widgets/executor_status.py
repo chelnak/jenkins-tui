@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from dependency_injector.wiring import Provide, inject
-from rich.align import Align
 from rich.console import RenderableType
 from rich.panel import Panel
 from rich.style import Style

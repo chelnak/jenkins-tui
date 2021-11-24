@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import Any
 
 from rich.console import Group
-from rich.padding import Padding
 from rich.progress import BarColumn, Progress
 from rich.rule import Rule
 from rich.table import Table
+from rich.text import Text
 
 from .. import styles
 from .paginated_table import PaginatedTableRenderable
@@ -53,14 +53,18 @@ class ExecutorStatusTableRenderable(PaginatedTableRenderable):
                 "[green]➜ [/]",
                 completed=completed,
             )
+
+            row_text = Text(name, style=styles.GREY)
+            row_text.highlight_regex(re_highlight="\([^)]+\)", style=styles.ORANGE)
+            row_text.highlight_regex(re_highlight="(#\d+)", style=styles.GREEN)
             render_group = Group(
                 *[
-                    f"[{styles.GREY}][bold]{name}[/][/]",
+                    row_text,
                     progress.get_renderable(),
                     Rule(style=styles.GREY),
                 ]
             )
-            table.add_row(Padding(render_group, pad=(0, 1)))
+            table.add_row(render_group)
 
     def render_columns(self, table: Table) -> None:
         table.show_header = False

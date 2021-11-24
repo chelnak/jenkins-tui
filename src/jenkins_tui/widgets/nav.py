@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import rich.repr
-from rich import box
 from rich.align import Align
 from rich.console import Group, RenderableType
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.style import Style
 from rich.text import Text
+from textual.reactive import Reactive
 from textual.widget import Widget
 
 from .. import styles
@@ -15,15 +15,20 @@ from .. import styles
 
 @rich.repr.auto
 class NavWidget(Widget):
-    def __init__(self, title: str | Text) -> None:
+
+    title: Reactive[str | Text] = Reactive("aaa")
+
+    def __init__(self) -> None:
         self.keys: list[tuple[str, str]] = []
         super().__init__()
         self.layout_size = 1
         self._key_text: Text | None = None
-        self.title = title
 
     def __rich_repr__(self) -> rich.repr.Result:
         yield "keys", self.keys
+
+    async def watch_title(self, title):
+        self.refresh()
 
     def make_key_text(self) -> Text:
         """Create text containing all the keys."""
@@ -35,7 +40,7 @@ class NavWidget(Widget):
             end="",
         )
 
-        bindings = self.app.bindings.shown_keys + self.parent.bindings.shown_keys
+        bindings = self.app.bindings.shown_keys
 
         for binding in bindings:
             key_display = (
@@ -54,6 +59,7 @@ class NavWidget(Widget):
     def render(self) -> RenderableType:
         if self._key_text is None:
             self._key_text = self.make_key_text()
+
         title = Align.center(
             renderable=Text(
                 self.title,
@@ -71,7 +77,7 @@ class NavWidget(Widget):
             box=styles.BOX,
             height=7,
             border_style=Style(color=styles.PURPLE),
-            padding=(0, 0, 0, 0),
+            padding=(0, 1, 0, 0),
         )
 
-        return Padding(head, pad=(1, 0, 0, 0))
+        return Padding(head, pad=(1, 1))

@@ -49,7 +49,6 @@ class BaseView(View):
         pass
 
     async def handle_layout(self, message: messages.Layout) -> None:
-        self.log("TRANSLATING layout")
         self.layout.require_update()
         message.stop()
         self.refresh()
