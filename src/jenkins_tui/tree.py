@@ -232,10 +232,10 @@ class Tree(TreeControl[JobEntry]):
                 typeof = self.type_map.get(entry["_class"], "")
                 clean_name = unquote(entry["name"])
                 parts = entry["url"].strip("/").split("/job/")
-                full_name = "/".join(parts[1 : len(parts) - 1] + [clean_name])
+                full_name = "/".join(parts[1:])
 
                 job = JobEntry(
-                    name=unquote(full_name),
+                    name=full_name,
                     url=entry["url"],
                     color=entry.get("color", "none"),
                     type=typeof,
@@ -267,7 +267,6 @@ class Tree(TreeControl[JobEntry]):
             node (TreeNode[JobEntry]): A node in the tree.
         """
         if node.parent and not node.parent.expanded:
-            self.log("node has parent")
             await self.expand_parent_nodes(node.parent)
             await node.parent.expand()
 
