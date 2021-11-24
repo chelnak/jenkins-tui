@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from rich.console import Group
-from rich.padding import Padding
 from rich.progress import BarColumn, Progress
 from rich.rule import Rule
 from rich.table import Table
