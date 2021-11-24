@@ -14,9 +14,9 @@ class HelpRenderable:
     shortcuts = {
         "global": {
             "back": Keys.Escape,
-            "toggle help": "?",
-            "quit": Keys.ControlC,
+            "help": "?",
             "search": Keys.ControlK,
+            "quit": Keys.ControlC,
         },
         "navigation": {
             "navigate": f"{UP} {DOWN}",
