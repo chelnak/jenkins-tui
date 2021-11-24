@@ -12,7 +12,7 @@ license = "MIT"
 
 [tool.mypy]
 [[tool.mypy.overrides]]
-module = [ "textual.*","pyfiglet.*", "textual_inputs.*"]
+module = [ "textual.*","pyfiglet.*", "textual_inputs.*", "fast_autocomplete.*"]
 ignore_missing_imports = true
 
 [tool.isort]
