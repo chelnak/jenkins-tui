@@ -1,4 +1,3 @@
-from rich.box import HEAVY_EDGE
 from rich.console import Console, ConsoleOptions, RenderResult
 from rich.table import Table
 from textual.keys import Keys
