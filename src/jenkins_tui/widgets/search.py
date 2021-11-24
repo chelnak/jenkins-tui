@@ -1,26 +1,19 @@
 from __future__ import annotations
 
-import re
 from itertools import cycle
-from random import choice
-from typing import Any, Optional
-from urllib.parse import unquote
+from typing import Any
 
-from fast_autocomplete import AutoComplete, autocomplete_factory
-from fast_autocomplete.misc import read_csv_gen
-from rich.align import Align
-from rich.color import ANSI_COLOR_NAMES
+from fast_autocomplete import AutoComplete
+from rich import box
 from rich.console import RenderableType
+from rich.padding import Padding
+from rich.panel import Panel
 from rich.style import Style
 from rich.text import Text
 from textual import events
-from textual.app import App
 from textual.keys import Keys
-from textual.message import Message, MessageTarget
 from textual.reactive import Reactive, watch
-from textual.widget import Widget
 from textual.widgets import NodeID, TreeNode
-from textual_inputs import TextInput
 from textual_inputs.events import InputOnChange
 
 from .. import styles
@@ -51,10 +44,12 @@ class SearchWidget(TextInputFieldWidget):
             name=name, title=title, border_style=border_style, required=required
         )
 
+        self.visible = False
+
     async def on_mount(self) -> None:
         async def map(nodes: dict[NodeID, TreeNode]):
-            _nodes = self.map_nodes(nodes=nodes)
-            self.autocompleter = AutoComplete(words=_nodes)
+            searchable_words, synonyms = self.map_nodes(nodes=nodes)
+            self.autocompleter = AutoComplete(words=searchable_words, synonyms=synonyms)
             self.log("Searchable nodes have been mapped")
 
         watch(self.app, "searchable_nodes", map)
@@ -166,16 +161,52 @@ class SearchWidget(TextInputFieldWidget):
 
         return segments
 
-    def map_nodes(self, nodes: dict[NodeID, TreeNode]) -> dict[str, Any]:
-        """Get the words from the csv file.
-        In this case we are loading in a list of animals..
+    def map_nodes(
+        self, nodes: dict[NodeID, TreeNode]
+    ) -> tuple[dict[str, Any], dict[str, list[str]]]:
+        """Build a map of nodes and synonyms.
+
+        Returns:
+            tuple[dict[str, Any], dict[str, list[str]]]: A tuple containing searchable_words and synonyms.
         """
 
-        searchables: dict[str, Any] = {}
+        searchable_words: dict[str, Any] = {}
+        synonyms: dict[str, list[str]] = {}
         for id, node in nodes.items():
 
             name = node.data.name.lower()
             if name != "root":
-                searchables[name] = {"id": id}
+                searchable_words[name] = {"id": id}
+                synonyms[name] = name.split(
+                    "/"
+                )  # Pretty sure this isn't the best but it's a start!..
 
-        return searchables
+        return searchable_words, synonyms
+
+    def render(self) -> RenderableType:
+        """
+        Produce a Panel object containing placeholder text or value
+        and cursor.
+        """
+        if self.has_focus:
+            segments = self._render_text_with_cursor()
+        else:
+            if len(self.value) == 0:
+                segments = [self.placeholder]
+            else:
+                segments = [self._conceal_or_reveal(self.value)]
+
+        text = Text.assemble(*segments)
+
+        return Padding(
+            Panel(
+                text,
+                title=self.title,
+                title_align="left",
+                height=3,
+                style=self.style or "",
+                border_style=self.border_style,
+                box=box.DOUBLE if self.has_focus else styles.BOX,
+            ),
+            pad=(0, 1),
+        )
