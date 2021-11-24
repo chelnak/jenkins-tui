@@ -175,11 +175,14 @@ class SearchWidget(TextInputFieldWidget):
         for id, node in nodes.items():
 
             name = node.data.name.lower()
+            label = node.label.lower()
+            parts = name.split("/")
+            clean_name = "/".join(parts[1 : len(parts) - 1] + [label])
+
             if name != "root":
-                searchable_words[name] = {"id": id}
-                synonyms[name] = name.split(
-                    "/"
-                )  # Pretty sure this isn't the best but it's a start!..
+                searchable_words[clean_name] = {"id": id}
+                # Pretty sure this isn't the best but it's a start!..
+                synonyms[clean_name] = parts[1 : len(parts) - 1] + [label]
 
         return searchable_words, synonyms
 
