@@ -43,13 +43,20 @@ class SideBarView(BaseView):
 
     async def reset_tree(self) -> None:
         """Reset the tree to node 0 (root)."""
+
         await self.tree.action_click_label(0)
 
     async def set_tree_focus(self) -> None:
         """Set the focus to the tree."""
+
         await self.app.set_focus(self.tree)
 
     @property
     def tree_has_focus(self) -> bool:
-        """Return whether the tree has focus."""
+        """Return whether the tree has focus.
+
+        Returns:
+            bool: Whether the tree has focus.
+        """
+
         return self.tree.has_focus

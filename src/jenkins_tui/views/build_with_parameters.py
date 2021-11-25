@@ -33,7 +33,8 @@ class BuildWithParametersView(BaseView):
 
         Args:
             job (dict[str, Any]): A job dictionary.
-            client (Jenkins, optional): An injected Jenkins http client instance. Defaults to Provide[Container.client].
+
+        # noqa: DAR101 client
         """
 
         super().__init__()
@@ -44,7 +45,7 @@ class BuildWithParametersView(BaseView):
         self.fields: list[Widget] = []
         self.current_button: ButtonWidget | None = None
 
-    async def on_show(self):
+    async def on_show(self) -> None:
         await self.app.set_focus(self.fields[0])
 
     async def on_mount(self) -> None:
@@ -101,7 +102,13 @@ class BuildWithParametersView(BaseView):
         # set focus on first text input field
         await self.refresh_layout()
 
-    async def handle_button_pressed(self, message: ButtonPressed):
+    async def handle_button_pressed(self, message: ButtonPressed) -> None:
+        """Handles button pressed messages.
+
+        Args:
+            message (ButtonPressed): The button pressed message.
+        """
+
         # reset previous current button toggle value
         self.log(f"Handling button press: {message.name}")
         message.stop()

@@ -14,6 +14,7 @@ from ..renderables import ButtonRenderable
 
 
 class ButtonWidget(Button):
+    """A custom button widget."""
 
     mouse_over: bool = Reactive(False)
     toggle: bool = Reactive(False)
@@ -25,6 +26,12 @@ class ButtonWidget(Button):
         self.mouse_over = False
 
     def render(self) -> RenderableType:
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
+
         assert isinstance(self.label, Text)
         text_style = Style(underline=self.toggle)
         border_style = Style(

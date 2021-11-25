@@ -39,9 +39,7 @@ class Tree(TreeControl[JobEntry]):
         """Creates a directory tree struction from Jenkins jobs and builds.
         This class is a copy of textual.widgets.DirectoryTree with ammendments that allow it to be used with Jenkins Api responses.
 
-        Args:
-            client (Jenkins): A jenkins.Jenkins client instance.
-            name (str): The name of the Tree instance.
+        # noqa: DAR101 client
         """
         data = JobEntry(name="root", url="", color="", type="root", jobs=[])
         name = self.__class__.__name__
@@ -75,11 +73,7 @@ class Tree(TreeControl[JobEntry]):
         self.padding = (0, 0)
 
     async def on_mount(self) -> None:
-        """Actions that are executed when the widget is mounted.
-
-        Args:
-            event (events.Mount): A mount event.
-        """
+        """Actions that are executed when the widget is mounted."""
 
         watch(self.app, "search_node", self.action_click_label)
 
@@ -197,7 +191,11 @@ class Tree(TreeControl[JobEntry]):
         return icon_label
 
     async def action_click_label(self, node_id: NodeID) -> None:
-        """Overrides action_click_label from tree control and sets show cursor to True"""
+        """Overrides action_click_label from tree control and sets show cursor to True.
+
+        Args:
+            node_id (NodeID): The node id of the node that was clicked.
+        """
         node = self.nodes[node_id]
         self.cursor = node.id
         self.cursor_line = self.find_cursor() or 0

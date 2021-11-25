@@ -20,13 +20,14 @@ class HomeView(BaseView):
     def __init__(self, client: Jenkins = Provide[Container.client]):
         """A view that contains widgets that are displayed on the home screen.
 
-        Args:
-            client (Jenkins, optional): An injected Jenkins http client instance. Defaults to Provide[Container.client].
+        # noqa: DAR101 client
         """
+
         super().__init__()
         self.client = client
 
-    async def on_show(self):
+    async def on_show(self) -> None:
+        """Actions that are executed when the widget is shown."""
 
         server_version = self.client.version
         client_version = __version__

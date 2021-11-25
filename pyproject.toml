@@ -38,6 +38,7 @@ types-requests = "^2.25.9"
 types-toml = "^0.10.0"
 types-setuptools = "^57.4.2"
 isort = "^5.10.1"
+darglint = "^1.8.1"
 
 [tool.poetry.scripts]
 jenkins = "jenkins_tui.app:run"

@@ -51,7 +51,7 @@ class Jenkins:
 
         Args:
             endpoint (str): The api endpoint.
-            method (str, optional): A Valid HTTP method. Defaults to 'GET'.
+            method (str): A Valid HTTP method. Defaults to 'GET'.
 
         Returns:
             requests.Response: A requests.Response instance.
@@ -88,11 +88,15 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["computer"]
 
-    async def get_job(self, path: str = None, limit: int = 20) -> dict[Any, Any]:
+    async def get_job(
+        self, path: Optional[str] = None, limit: int = 20
+    ) -> dict[Any, Any]:
         """Get a job and it's details.
+
         Args:
-            path (str, optional): The path to the job.
-            limit (int, optional): The maximum number of builds that will be returned with the job. Defaults to 20.
+            path (Optional[str]): The path to the job.
+            limit (int): The maximum number of builds that will be returned with the job. Defaults to 20.
+
         Returns:
             list[dict[Any, Any]]: [description]
         """
@@ -102,14 +106,17 @@ class Jenkins:
         return response.json()
 
     async def get_jobs(
-        self, path: str = None, recursive=False, folder_depth=10
+        self,
+        path: str = None,
+        recursive: bool = False,
+        folder_depth: int = 10,
     ) -> list[dict[Any, Any]]:
         """Return a list of jobs starting from the root of the server.
 
         Args:
-            path (str, optional): The path to node that has nested jobs. Defaults to None.
-            recursive (bool, optional): If true the method will recursively build the query up to folder_depth. Defaults to False.
-            folder_depth (int, optional): The maximum level of recursion while gathering nested jobs. Has no impact if recursive is False. Defaults to 10.
+            path (str): The path to node that has nested jobs. Defaults to None.
+            recursive (bool): If true the method will recursively build the query up to folder_depth. Defaults to False.
+            folder_depth (int): The maximum level of recursion while gathering nested jobs. Has no impact if recursive is False. Defaults to 10.
 
         Returns:
             list[dict[Any, Any]]: [description]

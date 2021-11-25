@@ -34,6 +34,7 @@ class JenkinsTUI(App):
 
     async def on_load(self) -> None:
         """Overrides on_load from App()"""
+
         await self.bind("?", "toggle_help", "show help")
         await self.bind(Keys.Escape, "refocus_tree", show=False)
         await self.bind(Keys.ControlK, "toggle_search", show=False)
@@ -63,12 +64,26 @@ class JenkinsTUI(App):
         await self.view.dock(self.help, edge="left", size=40, z=1)
 
     async def watch_show_help(self, show_help: bool) -> None:
+        """Watch show_help and update widget visibility.
+
+        Args:
+            show_help (bool): Widget is shown if True and not shown if False.
+        """
+
         self.help.visible = show_help
 
     async def watch_show_search(self, show_search: bool) -> None:
+        """Watch show_search and update widget visibility.
+
+        Args:
+            show_search (bool): Widget is shown if True and not shown if False.
+        """
+
         self.search.visible = show_search
 
     async def action_toggle_help(self) -> None:
+        """Toggle the help widget."""
+
         self.show_help = not self.show_help
 
         if self.show_help:
@@ -77,6 +92,8 @@ class JenkinsTUI(App):
             await self.side_bar.set_tree_focus()
 
     async def action_toggle_search(self) -> None:
+        """Toggle the search widget"""
+
         self.show_search = not self.show_search
 
         if self.show_search:
@@ -86,6 +103,7 @@ class JenkinsTUI(App):
             self.search.value = ""
 
     async def action_refocus_tree(self) -> None:
+        """Refocus the tree."""
 
         if self.side_bar.tree_has_focus:
             await self.side_bar.reset_tree()
@@ -96,7 +114,15 @@ class JenkinsTUI(App):
 
             await self.side_bar.set_tree_focus()
 
-    async def handle_show_flash_notification(self, message: ShowFlashNotification):
+    async def handle_show_flash_notification(
+        self, message: ShowFlashNotification
+    ) -> None:
+        """Handle a ShowFlashNotification message.
+
+        Args:
+            message (ShowFlashNotification): The message to handle.
+        """
+
         self.log("Handling ShowFlashNotification message")
         await self.flash.update_flash_message(value=message.value, type=message.type)
 
@@ -115,7 +141,12 @@ class JenkinsTUI(App):
 )
 @click.version_option(__version__)
 def run(config: Optional[TextIOWrapper], debug: bool) -> None:
-    """The entry point."""
+    """The entry point.
+
+    Args:
+        config (Optional[TextIOWrapper]): The config file to use.
+        debug (bool): Enable debug mode.
+    """
 
     # set up di
     from . import tree, views, widgets

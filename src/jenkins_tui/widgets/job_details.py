@@ -17,7 +17,7 @@ from ..renderables import BuildHistoryTableRenderable
 
 
 class JobDetailsWidget(Widget):
-    """A build table widget. Used to display builds within a job."""
+    """A job details widget. Used to display builds within a job."""
 
     page: int = 1
     row: int = 0
@@ -26,10 +26,12 @@ class JobDetailsWidget(Widget):
     def __init__(
         self, job: dict[str, Any], client: Jenkins = Provide[Container.client]
     ) -> None:
-        """A build table widget.
+        """A job details widget. Used to display builds within a job.
 
         Args:
             job (dict[str, Any]): A dict of job info.
+
+        # noqa: DAR101 client
         """
 
         name = self.__class__.__name__
@@ -41,14 +43,26 @@ class JobDetailsWidget(Widget):
 
     async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted."""
+
         await self.app.set_focus(self)
 
     async def update(self, job: dict[str, Any]) -> None:
-        """Updates the widget with new job info."""
+        """Updates the widget with new job info.
+
+        Args:
+            job (dict[str, Any]): A dict of job info.
+        """
+
         self.job = job
         self.refresh(layout=True)
 
     def on_key(self, event: events.Key) -> None:
+        """Handle a key press.
+
+        Args:
+            event (events.Key): The event containing the pressed key.
+        """
+
         if self.renderable is None:
             return
 
@@ -70,6 +84,7 @@ class JobDetailsWidget(Widget):
 
     def render_history_table(self) -> None:
         """Renders the build history table."""
+
         self.builds = self.job.get("builds", [])
         self.renderable = BuildHistoryTableRenderable(
             builds=self.builds,
@@ -80,7 +95,12 @@ class JobDetailsWidget(Widget):
         )
 
     def render(self) -> RenderableType:
-        """Overrides render from textual.widget.Widget"""
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
+
         if self.renderable is not None:
             self.page = self.renderable.page
             self.row = self.renderable.row

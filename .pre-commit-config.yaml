@@ -14,3 +14,7 @@ repos:
     rev: '5.5.3'  # Use the revision sha / tag you want to point at
     hooks:
     -   id: isort
+-   repo: https://github.com/terrencepreilly/darglint
+    rev: master
+    hooks:
+    - id: darglint

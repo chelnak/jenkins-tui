@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Optional
 
 from rich.console import RenderableType
 from rich.style import Style
@@ -10,6 +11,8 @@ from textual.widget import Widget
 
 
 class FlashMessageType(Enum):
+    """An enum containing valid flash message types."""
+
     SUCCESS = "success"
     ERROR = "error"
     WARNING = "warning"
@@ -17,7 +20,7 @@ class FlashMessageType(Enum):
 
 
 class ShowFlashNotification(Message):
-    """A message type to signal the flash widget display."""
+    """A message to signal the flash widget display."""
 
     def __init__(
         self,
@@ -25,6 +28,14 @@ class ShowFlashNotification(Message):
         value: str,
         type: FlashMessageType = FlashMessageType.INFO,
     ) -> None:
+        """A message to signal the flash widget display.
+
+        Args:
+            sender (MessageTarget): The sender of the message.
+            value (str): The value of the message. This will be displayed in the flash widget.
+            type (FlashMessageType): The flash message type. Defaults to FlashMessageType.INFO.
+        """
+
         self.value = value
         self.type = type
         super().__init__(sender)
@@ -37,8 +48,9 @@ class FlashWidget(Widget):
         """A widget for showing temporary status updates
 
         Args:
-            timeout (int, optional): Time until the flash message disappears in seconds. Defaults to 5.
+            timeout (int): Time until the flash message disappears in seconds. Defaults to 5.
         """
+
         name = self.__class__.__name__
         super().__init__(name=name)
         self.timeout = timeout
@@ -68,9 +80,10 @@ class FlashWidget(Widget):
         """Update the flash message.
 
         Args:
-            value (str): A value to display
-            style (Style, optional): An optional style object. Defaults to None.
+            type (FlashMessageType): The flash message type.
+            value (str): A value to display.
         """
+
         self.log("Handling ShowFlashNotification message")
 
         message_type = self.message_type[type.value]
@@ -93,6 +106,7 @@ class FlashWidget(Widget):
         """Render the widget.
 
         Returns:
-            RenderableType: Text to be rendered
+            RenderableType: Object to be rendered
         """
+
         return Text(self.value, justify="center", style=self.style)

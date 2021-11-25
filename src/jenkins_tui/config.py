@@ -20,6 +20,9 @@ jenkins-tui is a terminal based user interface for Jenkins!
 def get_config(config: Optional[TextIOWrapper] = None) -> MutableMapping[str, Any]:
     """Retrieve or create configuration for the Jenkins client.
 
+    Args:
+        config: A file-like object to read the configuration from.
+
     Returns:
         MutableMapping[str, Any]: Configuration for the client.
     """

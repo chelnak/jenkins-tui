@@ -28,10 +28,15 @@ class TextInputFieldWidget(TextInput):
         """A custom text input field.
 
         Args:
-            choices (list[str], optional): A list of choices for validation. Defaults to [].
-            required (bool, optional): Sets the field as mandatory. Defaults to False.
-            width (int, optional): A fixed width for the field. Defaults to 100.
-            border_style (str, optional): The style of the border. Defaults to "styles.GREY".
+            name (optional, str): The name of the field.
+            value (str): The value of the field.
+            default_value (str): The default value of the field.
+            placeholder (Text): The placeholder text of the field.
+            title (Text): The title of the field.
+            choices (list[str]): A list of choices for validation. Defaults to [].
+            required (bool): Sets the field as mandatory. Defaults to False.
+            width (int): A fixed width for the field. Defaults to 100.
+            border_style (str, Style): The style of the border. Defaults to "styles.GREY".
         """
 
         super().__init__(
@@ -54,14 +59,24 @@ class TextInputFieldWidget(TextInput):
         self.width = width
 
     async def toggle_field_status(self, valid=True) -> None:
-        """Toggles field status"""
+        """Toggles field status.
+
+        Args:
+            valid (bool): Whether the field is valid or not.
+        """
+
         if not valid:
             self.border_style = styles.RED
         else:
             self.border_style = self.original_border_style
 
     async def validate(self) -> bool:
-        """Validates the field input against configured criteria."""
+        """Validates the field input against configured criteria.
+
+        Returns:
+            bool: Whether the value is valid or not.
+        """
+
         error_border_style = styles.RED
         if self.choices and self.value not in self.choices:
             self.border_style = error_border_style

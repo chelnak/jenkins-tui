@@ -10,25 +10,28 @@ from ..renderables import TextRenderable
 
 
 class TextWidget(Widget):
-    """A generic info widget. This displays information with a ruled title and some text"""
+    """A generic text widget."""
 
     def __init__(
         self,
-        text: Optional[str | Text | RenderableType] = None,
+        text: Optional[str | Text] = None,
     ) -> None:
-        """A generic info widget. This displays information with a ruled title and some text.
+        """A generic text widget.
 
         Args:
-            title (str, Text): The title of the info widget.
-            renderable (str, Text): The text that will be rendered in the info widget.
+            text (Optional[str | Text]): Text to be displayed
         """
-        self.text = text or ""
 
+        self.text = text or ""
         name = self.__class__.__name__
         super().__init__(name=name)
 
     def render(self) -> RenderableType:
-        """Overrides render from textual.widget.Widget"""
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
 
         return TextRenderable(
             text=self.text,

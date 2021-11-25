@@ -25,10 +25,10 @@ class FigletTextWidget(Widget):
         """A widget that will generate and display figlet text.
 
         Args:
-            text (str, optional): The text that will be rendered in the widget.
-            name (str, optional): The name of the widget. Defaults to the name of the class.
-            style (Style, optional): The style of the widget.
-            layout_size (int, optional): The size of the widget. Defaults to 10.
+            text (str): The text that will be rendered in the widget.
+            name (Optional[str]): The name of the widget. Defaults to the name of the class.
+            style (Optional[Style]): The style of the widget.
+            layout_size (int): The size of the widget. Defaults to 10.
         """
 
         super().__init__(name=name or self.__class__.__name__)
@@ -49,6 +49,11 @@ class FigletTextWidget(Widget):
         self.has_focus = False
 
     def render(self) -> RenderableType:
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
 
         return Align.left(
             renderable=FigletTextRenderable(text=self.text),
