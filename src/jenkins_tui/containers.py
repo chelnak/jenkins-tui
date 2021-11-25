@@ -1,6 +1,6 @@
 from dependency_injector import containers, providers
 
-from .client import Jenkins
+from .jenkins import Jenkins
 
 
 class Container(containers.DeclarativeContainer):

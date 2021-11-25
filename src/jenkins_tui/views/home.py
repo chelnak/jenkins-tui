@@ -7,8 +7,8 @@ from rich.style import Style
 from rich.text import Text
 
 from .. import __version__, styles
-from ..client import Jenkins
 from ..containers import Container
+from ..jenkins import Jenkins
 from ..widgets import ExecutorStatusWidget, TextWidget
 from .base import BaseView
 

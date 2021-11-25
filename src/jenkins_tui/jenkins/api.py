@@ -126,40 +126,6 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["jobs"]
 
-    async def get_info_for_job(self, path: str) -> dict[Any, Any]:
-        """Get top level information about a job. The query used in this method will
-        return: displayName,description and healthReport
-
-        Args:
-            path (str): The path to the job. If the job is nested in a folder it could be /job/{folder}/{job}/my-job.
-
-        Returns:
-            Dict[Any, Any]: A dict containing information about the job.
-        """
-        endpoint = (
-            f"{path}api/json?tree=displayName,description,healthReport[description]"
-        )
-        response = await self._request_async(endpoint=endpoint)
-        return response.json()
-
-    async def get_builds_for_job(
-        self, path: str, limit: int = 100
-    ) -> list[dict[Any, Any]]:
-        """Get a list of builds for a job.
-
-        Args:
-            path (str): The path to the job. If the job is nested in a folder it could be /job/{folder}/{job}/my-job.
-            limit (int): The maximum number of jobs to return. Defaults to 20.
-
-        Returns:
-            list[dict[Any, Any]]: A list of builds.
-        """
-        _limit = f"{{0,{limit}}}"
-        endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration,changeSets[*[*]]{_limit}]"
-        # endpoint = f"{path}api/json?tree=builds[number,status,timestamp,id,result,duration,changeSets[*[*]]]"
-        response = await self._request_async(endpoint=endpoint)
-        return response.json()["builds"]
-
     async def get_running_builds(self) -> list[dict[Any, Any]]:
         """Get a list of running builds on the server.
 
