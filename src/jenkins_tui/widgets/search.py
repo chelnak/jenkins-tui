@@ -17,15 +17,9 @@ from textual.widgets import NodeID, TreeNode
 from textual_inputs.events import InputOnChange
 
 from .. import styles
+from ..util import replace_last
 from ..widgets import FlashMessageType, ShowFlashNotification
 from .text_input_field import TextInputFieldWidget
-
-
-def replace_last(string: str, find: str, replace: str) -> str:
-    """Replace the last occurrence of a string."""
-    reversed = string[::-1]
-    replaced = reversed.replace(find[::-1], replace[::-1], 1)
-    return replaced[::-1]
 
 
 class SearchWidget(TextInputFieldWidget):
