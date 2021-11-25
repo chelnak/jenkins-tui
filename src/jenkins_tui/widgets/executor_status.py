@@ -24,11 +24,11 @@ class ExecutorStatusWidget(Widget):
 
     @inject
     def __init__(self, client: Jenkins = Provide[Container.client]) -> None:
-        """An executor status widget.
+        """An executor status widget. Used to display running builds on the server.
 
-        Args:
-            client (Jenkins): An instance of Jenkins
+        # noqa: DAR101 client
         """
+
         name = self.__class__.__name__
         super().__init__(name=name)
         self.client = client
@@ -39,6 +39,12 @@ class ExecutorStatusWidget(Widget):
         self.renderable: Optional[ExecutorStatusTableRenderable] = None
 
     def on_key(self, event: events.Key) -> None:
+        """Handle a key press.
+
+        Args:
+            event (events.Key): The event containing the pressed key.
+        """
+
         if self.renderable is None:
             return
 
@@ -60,6 +66,7 @@ class ExecutorStatusWidget(Widget):
 
     def render_executor_status_table(self) -> None:
         """Render the executor status table."""
+
         self.renderable = ExecutorStatusTableRenderable(
             builds=self.running_builds or [],
             page_size=self.size.height - 4,
@@ -67,7 +74,7 @@ class ExecutorStatusWidget(Widget):
             row=self.row,
         )
 
-    async def _update(self):
+    async def _update(self) -> None:
         """Update the current renderable object."""
 
         self.running_builds = await self.client.get_running_builds()
@@ -77,14 +84,19 @@ class ExecutorStatusWidget(Widget):
 
         self.refresh(layout=True)
 
-    async def on_mount(self):
+    async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted."""
+
         await self._update()
         self.render_executor_status_table()
         self.set_interval(10, self._update)
 
     def render(self) -> RenderableType:
-        """Overrides render from textual.widget.Widget"""
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
 
         if self.renderable is not None:
             self.page = self.renderable.page

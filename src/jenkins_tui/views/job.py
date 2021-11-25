@@ -32,7 +32,8 @@ class JobView(BaseView):
 
         Args:
             url (str): The url of the current job.
-            client (Jenkins, optional): An injected Jenkins http client instance. Defaults to Provide[Container.client].
+
+        # noqa: DAR101 client
         """
         super().__init__()
         self.url = url
@@ -114,6 +115,7 @@ class JobView(BaseView):
         Returns:
             bool: True if the key was handled by a binding, otherwise False
         """
+
         try:
             binding = self.bindings.get_key(key)
         except NoBinding:
@@ -123,6 +125,12 @@ class JobView(BaseView):
         return True
 
     async def on_key(self, event: events.Key) -> None:
+        """Handle a key press.
+
+        Args:
+            event (events.Key): A key event
+        """
+
         await self.press(event.key)
 
     async def action_history(self) -> None:

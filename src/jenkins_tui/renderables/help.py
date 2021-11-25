@@ -11,6 +11,8 @@ RIGHT = "\u2192"
 
 
 class HelpRenderable:
+    """A help renderable"""
+
     shortcuts = {
         "global": {
             "back": Keys.Escape,

@@ -23,6 +23,7 @@ from .text_input_field import TextInputFieldWidget
 
 
 class SearchWidget(TextInputFieldWidget):
+    """A custom search widget."""
 
     autocompleter: AutoComplete = None
     value: Reactive[str] = Reactive("")
@@ -31,6 +32,8 @@ class SearchWidget(TextInputFieldWidget):
     last_word: Reactive[str] = Reactive("")
 
     def __init__(self) -> None:
+        """A custom search widget."""
+
         name = "search"
         title = Text("🔍 search")
         border_style = styles.PURPLE
@@ -42,6 +45,8 @@ class SearchWidget(TextInputFieldWidget):
         self.visible = False
 
     async def on_mount(self) -> None:
+        """Actions that are executed when the widget is mounted."""
+
         async def map(nodes: dict[NodeID, TreeNode]):
             searchable_words, synonyms = self.map_nodes(nodes=nodes)
             self.autocompleter = AutoComplete(words=searchable_words, synonyms=synonyms)
@@ -51,9 +56,15 @@ class SearchWidget(TextInputFieldWidget):
 
     async def handle_input_on_change(self) -> None:
         """Handle an InputOnChange message."""
+
         self.refresh()
 
     async def on_key(self, event: events.Key) -> None:
+        """Handle a key press.
+
+        Args:
+            event (events.Key): The event containing the pressed key.
+        """
 
         await self.toggle_field_status(valid=True)
         search_string = self.value.split(" ")[-1]
@@ -112,8 +123,10 @@ class SearchWidget(TextInputFieldWidget):
         await self.post_message(InputOnChange(self))
 
     def _render_text_with_cursor(self) -> list[str | tuple[str, Style]]:
-        """
-        Produces the renderable Text object combining value and cursor
+        """Produces the renderable Text object combining value and cursor
+
+        Returns:
+            list[str | tuple[str, Style]]: A list of segments.
         """
 
         if len(self.value) == 0:
@@ -160,6 +173,9 @@ class SearchWidget(TextInputFieldWidget):
     ) -> tuple[dict[str, Any], dict[str, list[str]]]:
         """Build a map of nodes and synonyms.
 
+        Args:
+            nodes (dict[NodeID, TreeNode]): A dictionary of nodes.
+
         Returns:
             tuple[dict[str, Any], dict[str, list[str]]]: A tuple containing searchable_words and synonyms.
         """
@@ -181,10 +197,12 @@ class SearchWidget(TextInputFieldWidget):
         return searchable_words, synonyms
 
     def render(self) -> RenderableType:
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
         """
-        Produce a Panel object containing placeholder text or value
-        and cursor.
-        """
+
         if self.has_focus:
             segments = self._render_text_with_cursor()
         else:

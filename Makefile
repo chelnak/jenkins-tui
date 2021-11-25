@@ -19,6 +19,7 @@ check:
 	mypy tools
 	isort --check src/jenkins_tui
 	mypy src/jenkins_tui
+	darglint -m "{path}:{line} -> {msg_id}: {msg}" src/jenkins_tui
 
 # Developing
 .PHONY: init

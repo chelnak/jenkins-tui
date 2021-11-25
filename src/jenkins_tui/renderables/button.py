@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rich.align import Align
 from rich.console import Console, ConsoleOptions, RenderableType, RenderResult
 from rich.style import StyleType
@@ -11,8 +13,9 @@ class ButtonRenderable:
 
         Args:
             label (RenderableType): The text to display.
-            style (StyleType, optional): A style object. Defaults to "".
+            style (StyleType): A style object. Defaults to "".
         """
+
         self.label = label
         self.style = style
 

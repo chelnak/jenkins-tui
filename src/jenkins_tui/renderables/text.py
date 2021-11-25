@@ -17,8 +17,9 @@ class TextRenderable:
         """A text renderable.
 
         Args:
-            renderable (optional, str, Text, RenderableType): A renderable that will be displayed in the main body of a widget.
+            text (Optional[str, Text, RenderableType]): A renderable that will be displayed in the main body of a widget.
         """
+
         self.text = text or ""
 
     def __rich_console__(

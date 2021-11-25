@@ -14,7 +14,16 @@ class FigletTextRenderable:
     def __rich_console__(
         self, console: Console, options: ConsoleOptions
     ) -> RenderResult:
-        """Build a Rich renderable to render the Figlet text."""
+        """Build a Rich renderable to render the Figlet text.
+
+        Args:
+            console (Console): The console to render to.
+            options (ConsoleOptions): The options to render with.
+
+        Yields:
+            RenderResult: The renderable.
+        """
+
         size = min(options.max_width / 2, options.max_height)
         if size < 4:
             yield Text(self.text, style="bold")

@@ -8,7 +8,11 @@ class ScrollBarWidget(ScrollBar):
     """A custom scrollbar widget"""
 
     def render(self) -> RenderableType:
-        """Overrides render from textual.scrollbar.ScrollBar"""
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
 
         style = Style(
             bgcolor=Color.parse("#444444"),

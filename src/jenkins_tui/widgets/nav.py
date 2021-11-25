@@ -15,10 +15,13 @@ from .. import styles
 
 @rich.repr.auto
 class NavWidget(Widget):
+    """A custom navigation widget."""
 
     title: Reactive[str | Text] = Reactive("aaa")
 
     def __init__(self) -> None:
+        """A custom navigation widget."""
+
         self.keys: list[tuple[str, str]] = []
         super().__init__()
         self.layout_size = 1
@@ -27,11 +30,22 @@ class NavWidget(Widget):
     def __rich_repr__(self) -> rich.repr.Result:
         yield "keys", self.keys
 
-    async def watch_title(self, title):
+    async def watch_title(self, title: str) -> None:
+        """Watch the title attribute.
+
+        Args:
+            title (str): The title to watch.
+        """
+
         self.refresh()
 
     def make_key_text(self) -> Text:
-        """Create text containing all the keys."""
+        """Create text containing all the keys.
+
+        Returns:
+            Text: A Text renderable containing all the keys.
+        """
+
         text = Text(
             style=f"{styles.GREY} dim",
             no_wrap=True,
@@ -57,6 +71,12 @@ class NavWidget(Widget):
         return text
 
     def render(self) -> RenderableType:
+        """Render the widget.
+
+        Returns:
+            RenderableType: Object to be rendered
+        """
+
         if self._key_text is None:
             self._key_text = self.make_key_text()
 

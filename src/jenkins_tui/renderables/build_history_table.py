@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from rich.style import Style
 from rich.table import Table
@@ -27,9 +27,9 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
         Args:
             builds (list[dict[str, Any]]): A list of builds to display.
             title (str): Title of the table.
-            page_size (int, optional): The size of the page before pagination happens. Defaults to -1.
-            page (int, optional): The starting page. Defaults to 1.
-            row (int, optional): The starting row. Defaults to 0.
+            page_size (int): The size of the page before pagination happens. Defaults to -1.
+            page (int): The starting page. Defaults to 1.
+            row (int): The starting row. Defaults to 0.
         """
 
         self.builds = builds
@@ -61,9 +61,26 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
         return result_style_map[result]
 
     def renderables(self, start_index: int, end_index: int) -> list[dict[str, Any]]:
+        """Generate a list of renderables.
+
+        Args:
+            start_index (int): The starting index.
+            end_index (int): The ending index.
+
+        Returns:
+            list[dict[str, Any]]: A list of renderables.
+        """
+
         return self.builds[start_index:end_index]
 
     def render_rows(self, table: Table, renderables: list[dict[str, Any]]) -> None:
+        """Renders rows for the table.
+
+        Args:
+            table (Table): The table to render rows for.
+            renderables (list[dict[str, Any]]): The renderables to render.
+        """
+
         for build in renderables:
 
             timestamp = datetime.fromtimestamp(int(build["timestamp"]) / 1000).strftime(
@@ -80,6 +97,12 @@ class BuildHistoryTableRenderable(PaginatedTableRenderable):
             table.add_row(f"{build['number']}", build["description"], result, timestamp)
 
     def render_columns(self, table: Table) -> None:
+        """Renders columns for the table.
+
+        Args:
+            table (Table): The table to render columns for.
+        """
+
         table.add_column("#", header_style=f"{styles.GREY} bold")
         table.add_column(
             "description", header_style=f"{styles.GREY} bold", no_wrap=True, ratio=40

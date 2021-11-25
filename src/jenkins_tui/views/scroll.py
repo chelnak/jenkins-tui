@@ -34,6 +34,7 @@ class CustomScrollView(ScrollView):
         Args:
             view (View): The view that will replace the current one assigned to the content area.
         """
+
         assert isinstance(self.layout, GridLayout)
         widgets = self.layout.widgets
 
