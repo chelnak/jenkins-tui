@@ -40,7 +40,7 @@ jobs:
         virtualenvs-in-project: true
 
     - name: Install dependencies 🚧
-      run: poetry install --no-dev
+      run: poetry install
 
     - name: Build 👷
       run: |
