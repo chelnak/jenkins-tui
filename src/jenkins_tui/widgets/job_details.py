@@ -23,7 +23,9 @@ class JobDetailsWidget(Widget):
     row: int = 0
 
     @inject
-    def __init__(self, path: str, client: Jenkins = Provide[Container.client]) -> None:
+    def __init__(
+        self, job: dict[str, Any], client: Jenkins = Provide[Container.client]
+    ) -> None:
         """A build table widget.
 
         Args:
@@ -32,10 +34,19 @@ class JobDetailsWidget(Widget):
 
         name = self.__class__.__name__
         super().__init__(name=name)
-        self.path = path
+        self.job = job
         self.client = client
         self.builds: list[dict[str, Any]] = []
         self.renderable: Optional[BuildHistoryTableRenderable] = None
+
+    async def on_mount(self) -> None:
+        """Actions that are executed when the widget is mounted."""
+        await self.app.set_focus(self)
+
+    async def update(self, job: dict[str, Any]) -> None:
+        """Updates the widget with new job info."""
+        self.job = job
+        self.refresh(layout=True)
 
     def on_key(self, event: events.Key) -> None:
         if self.renderable is None:
@@ -59,7 +70,7 @@ class JobDetailsWidget(Widget):
 
     def render_history_table(self) -> None:
         """Renders the build history table."""
-
+        self.builds = self.job.get("builds", [])
         self.renderable = BuildHistoryTableRenderable(
             builds=self.builds,
             title="history",
@@ -68,22 +79,8 @@ class JobDetailsWidget(Widget):
             row=self.row,
         )
 
-    async def _update(self) -> None:
-        """Update the current renderable object."""
-        job = await self.client.get_job(path=self.path)
-        self.builds = job.get("builds", [])
-        self.refresh(layout=True)
-
-    async def on_mount(self) -> None:
-        """Actions that are executed when the widget is mounted."""
-        await self._update()
-        self.render_history_table()
-        self.set_interval(20, self._update)
-        await self.app.set_focus(self)
-
     def render(self) -> RenderableType:
         """Overrides render from textual.widget.Widget"""
-
         if self.renderable is not None:
             self.page = self.renderable.page
             self.row = self.renderable.row

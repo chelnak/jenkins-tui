@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 from dependency_injector.wiring import Container, Provide, inject
@@ -23,7 +24,7 @@ from .build_with_parameters import BuildWithParametersView
 class JobView(BaseView):
     """A view that contains widgets that display job information."""
 
-    current_button: ButtonWidget | None = None
+    details: Optional[JobDetailsWidget] = None
 
     @inject
     def __init__(self, url: str, client: Jenkins = Provide[Container.client]) -> None:
@@ -38,22 +39,71 @@ class JobView(BaseView):
         self.path = urlparse(url).path
         self.client = client
         self.buttons: dict[str, ButtonWidget] = {}
+        self.job: dict[str, Any] = {}
         self.job_has_parameters: bool = False
 
         self.bindings.bind("h", "history", show=False)
         self.bindings.bind("b", "build", show=False)
 
-    async def get_job(self) -> dict:
-        """Get job information from the server.
+    async def on_mount(self) -> None:
+        """Actions that are executed when the widget is mounted."""
 
-        Returns:
-            dict: A dictionary containing job information.
-        """
-        job = await self.client.get_job(path=self.path)
-        if len(job["property"]) > 0 and job["property"][0].get("parameterDefinitions"):
+        await self.app.set_focus(self)
+
+        self.log("Updating job")
+        await self.update()
+        self.log("Finished updating job")
+        self.set_interval(20, self.update)
+
+        name = self.job.get("displayName")
+        description = self.job.get("description")
+        health_report = self.job.get("healthReport")
+
+        self.app.nav.title = name
+        description_renderable = Text("")
+
+        if description:
+            description_renderable.append(f"{description}\n\n")
+
+        if health_report:
+            description_renderable.append(health_report[0]["description"])
+
+        if description_renderable.plain == "":
+            self.layout.show_row("text", False)
+
+        self.layout.add_column("col")
+        self.layout.add_row("text", size=5)
+        self.layout.add_row("body", min_size=20)
+
+        self.layout.add_areas(
+            text="col,text",
+            body="col,body",
+        )
+
+        self.details = JobDetailsWidget(job=self.job)
+        self.layout.place(text=TextWidget(text=description_renderable))
+        self.layout.place(body=self.details)
+
+        if self.job_has_parameters:
+            self.build_with_params = BuildWithParametersView(job=self.job)
+            self.build_with_params.visible = False
+
+            self.layout.place(body=self.build_with_params)
+
+    async def update(self) -> None:
+        """Updates the current job"""
+
+        self.job = await self.client.get_job(path=self.path)
+        if len(self.job["property"]) > 0 and self.job["property"][0].get(
+            "parameterDefinitions"
+        ):
             self.job_has_parameters = True
 
-        return job
+        # Update the job details widget if it has been intialized
+        if self.details:
+            await self.details.update(job=self.job)
+
+        self.refresh(layout=True)
 
     async def press(self, key: str) -> bool:
         """Handle a key press.
@@ -75,68 +125,26 @@ class JobView(BaseView):
     async def on_key(self, event: events.Key) -> None:
         await self.press(event.key)
 
-    async def on_mount(self) -> None:
-        """Actions that are executed when the widget is mounted."""
-
-        await self.app.set_focus(self)
-
-        job = await self.get_job()
-        name = job["displayName"]
-
-        self.layout.add_column("col")
-        self.layout.add_row("text", size=5)
-        self.layout.add_row("details", min_size=20)
-        self.layout.add_row("build_view", min_size=20)
-        self.layout.show_row("build_view", False)
-
-        self.layout.add_areas(
-            text="col,text",
-            details="col,details",
-            build_view="col,build_view",
-        )
-
-        description = Text("")
-
-        if job["description"] != "":
-            description.append(f"{job['description']}\n\n")
-
-        if job["healthReport"]:
-            description.append(job["healthReport"][0]["description"])
-
-        self.details = JobDetailsWidget(path=self.path)
-
-        if description.plain == "":
-            self.layout.show_row("text", False)
-
-        self.app.nav.title = name
-
-        self.layout.place(text=TextWidget(text=description))
-        self.layout.place(details=self.details)
-
-        if self.job_has_parameters:
-            self.build_with_params = BuildWithParametersView(job=job)
-            self.layout.place(build_view=self.build_with_params)
-
     async def action_history(self) -> None:
         """Actions that are executed when the history button is pressed."""
-        self.layout.show_row("build_view", False)
-        self.layout.show_row("details", True)
 
-        self.details.render_history_table()
-        self.details.refresh()
+        assert isinstance(self.details, JobDetailsWidget)
+
+        self.details.visible = True
+        self.build_with_params.visible = False
 
         await self.app.set_focus(self.details)
-        self.refresh(layout=True)
+        self.layout.require_update()
 
     async def action_build(self) -> None:
         """Actions that are executed when the build button is pressed."""
 
+        assert isinstance(self.details, JobDetailsWidget)
+
         if self.job_has_parameters:
-            self.layout.show_row("build_view", True)
-            self.layout.show_row("details", False)
+            self.details.visible = False
             self.build_with_params.visible = True
             await self.app.set_focus(self.build_with_params)
-            self.build_with_params.refresh()
         else:
 
             try:
@@ -153,5 +161,4 @@ class JobView(BaseView):
                     )
                 )
 
-        self.details.refresh()
-        self.refresh(layout=True)
+        self.layout.require_update()
