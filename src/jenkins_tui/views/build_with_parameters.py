@@ -11,8 +11,8 @@ from textual.widget import Widget
 from textual.widgets import ButtonPressed
 
 from .. import styles
-from ..client import Jenkins
 from ..containers import Container
+from ..jenkins import Jenkins
 from ..widgets import (
     ButtonWidget,
     FlashMessageType,

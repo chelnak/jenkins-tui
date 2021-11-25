@@ -13,8 +13,8 @@ from textual.reactive import Reactive, watch
 from textual.widgets import NodeID, TreeClick, TreeControl, TreeNode
 
 from . import styles
-from .client import Jenkins
 from .containers import Container
+from .jenkins import Jenkins
 from .views import JobView
 
 

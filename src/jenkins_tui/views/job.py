@@ -7,8 +7,8 @@ from rich.text import Text
 from textual import events
 from textual.binding import NoBinding
 
-from ..client import Jenkins
 from ..containers import Container
+from ..jenkins import Jenkins
 from ..widgets import (
     ButtonWidget,
     FlashMessageType,
