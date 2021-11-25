@@ -178,7 +178,7 @@ class Tree(TreeControl[JobEntry]):
 
         if type == "root":
             label.stylize(styles.GREY)
-            icon = "🏠"  # "📂"
+            icon = "🏠"
 
         elif type == "folder":
             label.stylize(styles.GREY)
@@ -272,33 +272,24 @@ class Tree(TreeControl[JobEntry]):
         await self.expand_parent_nodes(message.node)
 
         if node_data.type == "job" or node_data.type == "freestyle":
-
             self.log("Handling JobClick message")
-
-            async def _set():
-                """Used to update the build info and job table widgets."""
-                view = JobView(url=node_data.url)
-                await self.app.container.update(view=view)
 
             # if the current node is the same as the clicked node then shouldn't do anything
             if node_data.name != self.current_node.name:
                 self.current_node = node_data
-                await self.call_later(_set)
+                view = JobView(url=node_data.url)
+                await self.app.container.update(view=view)
             else:
                 await self.app.set_focus(self.app.container.window)
 
         elif node_data.type == "root":
             self.log("Handling RootClick message")
 
-            async def set() -> None:
-                """Used to set the content of the homescren"""
+            if self.current_node.name != "root":
+                self.current_node = node_data
                 home = self.app.container.origin_view
                 home.visible = True
                 await self.app.container.update(view=home)
-
-            if self.current_node.name != "root":
-                self.current_node = node_data
-                await self.call_later(set)
 
         else:
             await message.node.toggle()
