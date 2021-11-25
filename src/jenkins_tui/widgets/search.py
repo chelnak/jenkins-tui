@@ -17,6 +17,7 @@ from textual.widgets import NodeID, TreeNode
 from textual_inputs.events import InputOnChange
 
 from .. import styles
+from ..widgets import FlashMessageType, ShowFlashNotification
 from .text_input_field import TextInputFieldWidget
 
 
@@ -67,21 +68,18 @@ class SearchWidget(TextInputFieldWidget):
             event.stop()
 
             self.log(f"Searching for {self.value}")
-            search_result = self.autocompleter.get_tokens_flat_list(
-                word=self.value, max_cost=0, size=0
-            )
-
-            # if there are no results, we can't do anything so we return and set the widget border
-            if not search_result:
-                self.log(f"No results found for {self.value}")
-                await self.toggle_field_status(valid=False)
-                return
-
             word = self.autocompleter.words.get(self.value.strip().lower(), None)
 
             if not word:
                 self.log(f"No word match found for {self.value}")
                 await self.toggle_field_status(valid=False)
+                await self.post_message_from_child(
+                    ShowFlashNotification(
+                        self,
+                        type=FlashMessageType.ERROR,
+                        value=f'No results found for "{self.value}"',
+                    )
+                )
                 return
 
             node_id = word["id"]
@@ -91,12 +89,16 @@ class SearchWidget(TextInputFieldWidget):
             self.current_prediction = next(self.predictions)
 
         elif event.key == Keys.Right:
+            self._cursor_position: int
 
-            self.value = replace_last(
-                self.value, self.last_word, self.current_prediction
-            )
-            self._cursor_position = len(self.value)
-            self.last_word = self.current_prediction
+            if self._cursor_position != len(self.value):
+                self._cursor_position = self._cursor_position + 1
+            else:
+                self.value = replace_last(
+                    self.value, self.last_word, self.current_prediction
+                )
+                self._cursor_position = len(self.value)
+                self.last_word = self.current_prediction
 
         else:
 
