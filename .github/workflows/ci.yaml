@@ -33,7 +33,7 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install and configure Poetry
+    - name: Install and configure Poetry 🎉
       uses: snok/install-poetry@v1
       with:
         version: 1.1.10
@@ -71,6 +71,16 @@ jobs:
         fi
         docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
         docker push -a $IMAGE_ID
+
+    - name: Push version change ✅
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        if [[ `git status --porcelain pyproject.toml` ]]; then
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git commit -am "Bump version"
+          git push
+        fi
 
     - name: Publish 📦
       if: startsWith(github.ref, 'refs/tags/v')

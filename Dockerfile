@@ -7,8 +7,8 @@ RUN apt-get update \
     && apt-get clean
 
 WORKDIR /jenkins
-COPY dist/ /jenkins/
-RUN pip install --no-cache-dir jenkins*.whl \
-    && rm ./*
+
+COPY dist/ /tmp/
+RUN pip install --no-cache-dir /tmp/jenkins*.whl
 
 ENTRYPOINT ["jenkins"]

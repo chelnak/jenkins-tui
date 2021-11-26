@@ -11,7 +11,7 @@ tag:
 build: check
 	@source $(VENV)
 	python tools/bump_version.py
-	rm -rf /dist/*
+	rm -rf dist || true
 	@poetry build
 
 check:
