@@ -1,9 +1,12 @@
 import os
-from io import TextIOWrapper
 from typing import Any, MutableMapping, Optional
 
 import toml
 from rich.console import Console
+from validators import url
+
+from . import styles
+from .ask import Ask
 
 """
 All of the good stuff. This is should be the main point for app configuration.
@@ -17,34 +20,58 @@ jenkins-tui is a terminal based user interface for Jenkins!
 """
 
 
-def get_config(config: Optional[TextIOWrapper] = None) -> MutableMapping[str, Any]:
-    """Retrieve or create configuration for the Jenkins client.
+def set_config(path: str) -> MutableMapping[str, Any]:
+    """Create a configuration file for the client.
 
     Args:
-        config: A file-like object to read the configuration from.
+        path (str): Path to the configuration file.
 
     Returns:
         MutableMapping[str, Any]: Configuration for the client.
     """
 
-    if config:
+    config = {}
+    console = Console()
+    ask = Ask()
+
+    console.print(
+        "It looks like this is the first time you are using this app.. lets add some configuration before we start :smiley:\n"
+    )
+    config["url"] = ask.question(f"[b][{styles.GREY}]url[/][/]", validation=url)
+    config["username"] = ask.question(f"[b][{styles.GREY}]username[/][/]")
+    config["password"] = ask.question(
+        f"[b][{styles.GREY}]password[/][/]", password=True
+    )
+
+    with open(path, "w") as f:
+        toml.dump(config, f)
+
+    return toml.load(path)
+
+
+def get_config(config: Optional[str] = None) -> MutableMapping[str, Any]:
+    """Retrieve or create configuration for the Jenkins client.
+
+    Args:
+        config (Optional[str]): Path to the configuration file.
+
+    Returns:
+        MutableMapping[str, Any]: Configuration for the client.
+    """
+
+    if config and os.path.exists(config):
         client_config = toml.load(config)
+
+    elif config and not os.path.exists(config):
+        client_config = set_config(config)
+
     else:
         home = os.getenv("HOME")
         config_path = f"{home}/.jenkins-tui.toml"
-        console = Console()
+
         if not os.path.exists(config_path):
-            _config = {}
-            console.print(
-                "It looks like this is the first time you are using this app.. lets add some configuration before we start :smiley:\n"
-            )
-            _config["url"] = console.input("[b]url: [/]")
-            _config["username"] = console.input("[b]username: [/]")
-            _config["password"] = console.input("[b]password: [/]", password=True)
-
-            with open(config_path, "w") as f:
-                toml.dump(_config, f)
-
-        client_config = toml.load(config_path)
+            client_config = set_config(config_path)
+        else:
+            client_config = toml.load(config_path)
 
     return client_config
