@@ -80,6 +80,7 @@ jobs:
         commit-message: "bump pyproject.toml"
         branch: bump_version
         body: This PR bumps pyproject.toml from ${{ github.ref }}
+        base: main
 
     - name: Publish 📦
       if: startsWith(github.ref, 'refs/tags/v')
