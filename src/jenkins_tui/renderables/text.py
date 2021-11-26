@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
-
-from rich.console import Console, ConsoleOptions, RenderableType, RenderResult
+from rich.console import Console, ConsoleOptions, RenderResult
 from rich.padding import Padding
 from rich.text import Text
 
@@ -12,12 +10,12 @@ class TextRenderable:
 
     def __init__(
         self,
-        text: Optional[str | Text | RenderableType] = None,
+        text: str | Text | None = None,
     ) -> None:
         """A text renderable.
 
         Args:
-            text (Optional[str, Text, RenderableType]): A renderable that will be displayed in the main body of a widget.
+            text (str | Text | None): A renderable that will be displayed in the main body of a widget.
         """
 
         self.text = text or ""

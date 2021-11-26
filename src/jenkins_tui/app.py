@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import sys
-from typing import Optional
 
 import click
 from click.types import Path
@@ -140,11 +141,11 @@ class JenkinsTUI(App):
     help="Enable debug mode.",
 )
 @click.version_option(__version__)
-def run(config: Optional[str], debug: bool) -> None:
+def run(config: str | None, debug: bool) -> None:
     """The entry point.
 
     Args:
-        config (Optional[str]): The config file to use.
+        config (str | None): The config file to use.
         debug (bool): Enable debug mode.
     """
 

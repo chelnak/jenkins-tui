@@ -13,7 +13,7 @@ class Ask:
         """Ask provides an easy way to ask for input with some validation.
 
         Args:
-            console (Optional[Console], optional): A Rich Console object. Defaults to None.
+            console (Console | None): A Rich Console object. Defaults to None.
         """
 
         self.console = console if console else Console()
@@ -31,10 +31,10 @@ class Ask:
 
         Args:
             question (str): The question to ask the user. This can be formatted with console markup from Rich (https://rich.readthedocs.io/en/latest/markup.html).
-            default (str, optional): The default value to use if the user doesn't provide one. Defaults to None.
+            default (str | None): The default value to use if the user doesn't provide one. Defaults to None.
             required (bool): Whether or not the user must provide a value. Defaults to True.
-            end (str, optional): The end of line character to use. Defaults to "".
-            validation (str, Callable, optional): A regex string to or callable to validate the user's input. Defaults to None.
+            end (str | None): The end of line character to use. Defaults to "".
+            validation (str, Callable | None): A regex string to or callable to validate the user's input. Defaults to None.
             password (bool): Whether or not the user's input should be hidden. Defaults to False.
 
         Returns:

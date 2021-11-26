@@ -4,7 +4,6 @@ ENV JENKINS_TUI_CONFIG /jenkins/.jenkins-tui.toml
 
 RUN apt-get update \
     && apt-get install gcc -y \
-    && bash \
     && apt-get clean
 
 WORKDIR /jenkins

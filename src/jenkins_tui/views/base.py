@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from rich.text import Text
 from textual import events, messages
 from textual.binding import Bindings
@@ -31,12 +29,12 @@ class BaseView(View):
         self.buttons: dict[str, ButtonWidget] = {}
         self.bindings = Bindings()
 
-    async def add_button(self, text: str, id: Optional[str] = None) -> None:
+    async def add_button(self, text: str, id: str | None = None) -> None:
         """Add a button to the view.
 
         Args:
             text (str): This is the text that will be displayed on the button.
-            id (Optional[str]): The id of the button. Defaults to None.
+            id (str | None): The id of the button. Defaults to None.
         """
 
         if id is None:

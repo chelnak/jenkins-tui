@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from rich.align import Align
 from rich.console import RenderableType
@@ -18,16 +18,16 @@ class FigletTextWidget(Widget):
     def __init__(
         self,
         text: str,
-        name: Optional[str] = None,
-        style: Optional[Style] = None,
+        name: str | None = None,
+        style: Style | None = None,
         layout_size: int = 8,
     ) -> None:
         """A widget that will generate and display figlet text.
 
         Args:
             text (str): The text that will be rendered in the widget.
-            name (Optional[str]): The name of the widget. Defaults to the name of the class.
-            style (Optional[Style]): The style of the widget.
+            name (str | None): The name of the widget. Defaults to the name of the class.
+            style (Style | None): The style of the widget.
             layout_size (int): The size of the widget. Defaults to 10.
         """
 
