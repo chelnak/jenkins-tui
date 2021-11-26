@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import socket
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urlencode
 
 import httpx
@@ -14,7 +16,7 @@ class Jenkins:
         url: str,
         username: str,
         password: str,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
     ) -> None:
         """Create a Jenkins instance.
 
@@ -22,7 +24,7 @@ class Jenkins:
             url (str): The url of the Jenkins server.
             username (str): [description]. The username of the user permitted to access the Jenkins server.
             password (str): [description]. The password of the user permitted to access the Jenkins server.
-            timeout (int, optional): The request timeout. Defaults to socket._GLOBAL_DEFAULT_TIMEOUT.
+            timeout (float | None): The request timeout. Defaults to socket._GLOBAL_DEFAULT_TIMEOUT.
         """
         self.url = url.strip("/") if url.endswith("/") else url
         self.timeout = timeout if timeout else socket.getdefaulttimeout()
@@ -88,13 +90,11 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["computer"]
 
-    async def get_job(
-        self, path: Optional[str] = None, limit: int = 20
-    ) -> dict[Any, Any]:
+    async def get_job(self, path: str | None = None, limit: int = 20) -> dict[Any, Any]:
         """Get a job and it's details.
 
         Args:
-            path (Optional[str]): The path to the job.
+            path (str | None): The path to the job.
             limit (int): The maximum number of builds that will be returned with the job. Defaults to 20.
 
         Returns:
@@ -170,12 +170,12 @@ class Jenkins:
         response = await self._request_async(endpoint=endpoint)
         return response.json()["items"]
 
-    async def build(self, path: str, parameters: dict[str, str] = None) -> int:
+    async def build(self, path: str, parameters: dict[str, str] | None = None) -> int:
         """Build a job.
 
         Args:
             path (str): The path to the job. If the job is nested in a folder it could be /job/{folder}/{job}/my-job.
-            parameters (dict[str, str], optional): A dict of parameters to pass to the job.
+            parameters (dict[str, str] | None): A dict of parameters to pass to the job.
 
         Returns:
             int: A requests.Response instance.

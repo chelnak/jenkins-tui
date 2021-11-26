@@ -1,5 +1,3 @@
-from typing import Optional
-
 from rich.align import Align
 from rich.console import Console, ConsoleOptions, RenderableType, RenderResult
 from rich.style import StyleType

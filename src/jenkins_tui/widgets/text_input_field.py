@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from rich.style import Style
 from rich.text import Text
 from textual_inputs import TextInput
@@ -15,7 +13,7 @@ class TextInputFieldWidget(TextInput):
     def __init__(
         self,
         *,
-        name: Optional[str] = None,
+        name: str | None = None,
         value: str = "",
         default_value: str = "",
         placeholder: Text = Text(""),
@@ -28,7 +26,7 @@ class TextInputFieldWidget(TextInput):
         """A custom text input field.
 
         Args:
-            name (optional, str): The name of the field.
+            name (str | None): The name of the field.
             value (str): The value of the field.
             default_value (str): The default value of the field.
             placeholder (Text): The placeholder text of the field.

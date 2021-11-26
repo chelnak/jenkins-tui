@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from dependency_injector.wiring import Provide, inject
 from rich.console import RenderableType
@@ -36,7 +36,7 @@ class ExecutorStatusWidget(Widget):
         self.queued_builds: list[dict[str, Any]] = []
         self.running_builds_count: int = 0
         self.queued_builds_count: int = 0
-        self.renderable: Optional[ExecutorStatusTableRenderable] = None
+        self.renderable: ExecutorStatusTableRenderable | None = None
 
     def on_key(self, event: events.Key) -> None:
         """Handle a key press.

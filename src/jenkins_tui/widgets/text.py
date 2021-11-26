@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from rich.console import RenderableType
 from rich.text import Text
 from textual.widget import Widget
@@ -14,12 +12,12 @@ class TextWidget(Widget):
 
     def __init__(
         self,
-        text: Optional[str | Text] = None,
+        text: str | Text | None = None,
     ) -> None:
         """A generic text widget.
 
         Args:
-            text (Optional[str | Text]): Text to be displayed
+            text (str | Text | None): Text to be displayed.
         """
 
         self.text = text or ""

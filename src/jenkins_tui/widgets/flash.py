@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
 
 from rich.console import RenderableType
 from rich.style import Style

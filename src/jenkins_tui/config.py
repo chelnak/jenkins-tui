@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import os
-from typing import Any, MutableMapping, Optional
+from typing import Any, MutableMapping
 
 import toml
 from rich.console import Console
@@ -49,11 +51,11 @@ def set_config(path: str) -> MutableMapping[str, Any]:
     return toml.load(path)
 
 
-def get_config(config: Optional[str] = None) -> MutableMapping[str, Any]:
+def get_config(config: str | None = None) -> MutableMapping[str, Any]:
     """Retrieve or create configuration for the Jenkins client.
 
     Args:
-        config (Optional[str]): Path to the configuration file.
+        config (str | None): Path to the configuration file.
 
     Returns:
         MutableMapping[str, Any]: Configuration for the client.

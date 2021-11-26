@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from dependency_injector.wiring import Provide, inject
 from rich.console import RenderableType
@@ -39,7 +39,7 @@ class JobDetailsWidget(Widget):
         self.job = job
         self.client = client
         self.builds: list[dict[str, Any]] = []
-        self.renderable: Optional[BuildHistoryTableRenderable] = None
+        self.renderable: BuildHistoryTableRenderable | None = None
 
     async def on_mount(self) -> None:
         """Actions that are executed when the widget is mounted."""

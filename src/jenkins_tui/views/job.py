@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 from dependency_injector.wiring import Container, Provide, inject
@@ -24,7 +24,7 @@ from .build_with_parameters import BuildWithParametersView
 class JobView(BaseView):
     """A view that contains widgets that display job information."""
 
-    details: Optional[JobDetailsWidget] = None
+    details: JobDetailsWidget | None = None
 
     @inject
     def __init__(self, url: str, client: Jenkins = Provide[Container.client]) -> None:
