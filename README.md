@@ -28,7 +28,7 @@ jenkins
 Alternatively, you can run the app with docker to keep your local dependencies squeaky clean 🧹
 
 ```bash
-docker run --rm -it --volume $HOME:/root ghcr.io/chelnak/jenkins-tui:latest
+docker run --rm -it --volume $HOME:/jenkins ghcr.io/chelnak/jenkins-tui:latest
 ```
 
 ### Configuration

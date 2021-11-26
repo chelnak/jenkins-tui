@@ -1,9 +1,8 @@
 import sys
-from io import TextIOWrapper
 from typing import Optional
 
 import click
-from click.types import File
+from click.types import Path
 from textual.app import App
 from textual.keys import Keys
 from textual.reactive import Reactive
@@ -131,7 +130,8 @@ class JenkinsTUI(App):
 @click.option(
     "--config",
     default=None,
-    type=File(),
+    envvar="JENKINS_TUI_CONFIG",
+    type=Path(file_okay=True, dir_okay=False, exists=False, resolve_path=True),
     help="Explicitly override the config that will be used by jenkins-tui.",
 )
 @click.option(
@@ -140,11 +140,11 @@ class JenkinsTUI(App):
     help="Enable debug mode.",
 )
 @click.version_option(__version__)
-def run(config: Optional[TextIOWrapper], debug: bool) -> None:
+def run(config: Optional[str], debug: bool) -> None:
     """The entry point.
 
     Args:
-        config (Optional[TextIOWrapper]): The config file to use.
+        config (Optional[str]): The config file to use.
         debug (bool): Enable debug mode.
     """
 
@@ -168,7 +168,9 @@ def run(config: Optional[TextIOWrapper], debug: bool) -> None:
             from rich.console import Console
 
             console = Console()
-            console.print(f"💥 It looks like there has been an error!\n\n {e}")
+            console.print(
+                f"💥 It looks like there has been an error. For more information use the --debug option!"
+            )
 
 
 if __name__ == "__main__":
