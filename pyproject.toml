@@ -44,5 +44,5 @@ darglint = "^1.8.1"
 jenkins = "jenkins_tui.app:run"
 
 [tool.poetry.dependencies.fast-autocomplete]
-extras = [ "levenshtein",]
+extras = [ "pylev",]
 version = "^0.9.0"
