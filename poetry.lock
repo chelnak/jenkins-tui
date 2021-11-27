@@ -161,7 +161,7 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
-python-Levenshtein = {version = ">=0.12.2", optional = true, markers = "extra == \"levenshtein\""}
+pylev = {version = ">=1.4.0", optional = true, markers = "extra == \"pylev\""}
 
 [package.extras]
 levenshtein = ["python-Levenshtein (>=0.12.2)"]
@@ -341,9 +341,9 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "python-levenshtein"
-version = "0.12.2"
-description = "Python extension for computing string edit distances and similarities."
+name = "pylev"
+version = "1.4.0"
+description = "A pure Python Levenshtein implementation that's not freaking GPL'd."
 category = "main"
 optional = false
 python-versions = "*"
@@ -517,7 +517,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "bbd992299294af0b7f150b2b5503fce08e06692c99df379404a5dd9b75686329"
+content-hash = "914edba70d20f9a54949476ade331783ff6c183d6221a46e2ca649c3f2b589a0"
 
 [metadata.files]
 anyio = [
@@ -691,8 +691,9 @@ pygments = [
     {file = "Pygments-2.10.0-py3-none-any.whl", hash = "sha256:b8e67fe6af78f492b3c4b3e2970c0624cbf08beb1e493b2c99b9fa1b67a20380"},
     {file = "Pygments-2.10.0.tar.gz", hash = "sha256:f398865f7eb6874156579fdf36bc840a03cab64d1cde9e93d68f46a425ec52c6"},
 ]
-python-levenshtein = [
-    {file = "python-Levenshtein-0.12.2.tar.gz", hash = "sha256:dc2395fbd148a1ab31090dd113c366695934b9e85fe5a4b2a032745efd0346f6"},
+pylev = [
+    {file = "pylev-1.4.0-py2.py3-none-any.whl", hash = "sha256:7b2e2aa7b00e05bb3f7650eb506fc89f474f70493271a35c242d9a92188ad3dd"},
+    {file = "pylev-1.4.0.tar.gz", hash = "sha256:9e77e941042ad3a4cc305dcdf2b2dec1aec2fbe3dd9015d2698ad02b173006d1"},
 ]
 pyyaml = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},
